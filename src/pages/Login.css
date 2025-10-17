@@ -1,0 +1,154 @@
+.login-background {
+  background: url('https://wallpapers.com/images/hd/movie-poster-background-p5qblffj7cvswl5g.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.login-glass {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
+  background-color: rgba(24, 24, 24, 0.6);
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 50%;
+  width: 100%;
+  color: white;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
+
+.login-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+.input-icon {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-radius: 999px;
+  padding: 12px 20px;
+  gap: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin-bottom: 15px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-input {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 999px;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  color: #fff;
+  font-size: 16px;
+  min-width: 0;
+  min-height: 44px;
+}
+
+.login-input::placeholder {
+  color: #ccc;
+  font-size: 16px;
+}
+
+.login-input:focus {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.login-button {
+  padding: 14px;
+  border-radius: 999px;
+  border: none;
+  background-color: #e50914;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  min-height: 50px;
+  width: 100%;
+}
+
+.login-button:hover {
+  background-color: #f40612;
+}
+
+.login-switch {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #ccc;
+}
+
+.switch-link {
+  color: #e50914;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .login-glass {
+    padding: 20px;
+    max-width: 95%;
+  }
+  
+  .login-title {
+    font-size: 22px;
+  }
+  
+  .input-icon {
+    padding: 10px 15px;
+  }
+  
+  .login-input {
+    font-size: 15px;
+    padding: 10px 14px;
+  }
+  
+  .login-button {
+    padding: 12px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-background {
+    padding: 10px;
+  }
+  
+  .login-glass {
+    padding: 15px;
+  }
+  
+  .login-title {
+    font-size: 20px;
+  }
+  
+  .input-icon {
+    padding: 8px 12px;
+  }
+  
+  .login-input {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+}
