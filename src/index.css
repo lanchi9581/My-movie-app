@@ -16,8 +16,8 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --bg-color: #ffffff;
-  --text-color: #222222;
+  --bg-color: #222222;
+  --text-color: #ffffff;
 }
 
 body.light {
