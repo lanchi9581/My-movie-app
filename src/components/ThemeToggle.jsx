@@ -3,19 +3,19 @@ import './ThemeToggle.css';
 
 const ThemeToggle = () => {
   const [isDark, setIsDark] = useState(() => {
-    return localStorage.getItem('theme') === 'dark';
-  });
+  const saved = localStorage.getItem('theme');
+  return saved === null ? true : saved === 'dark';
+});
+
 
   useEffect(() => {
+    // Apply the theme to the body
     document.body.classList.toggle('dark', isDark);
     document.body.classList.toggle('light', !isDark);
+
+    // Save preference
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
   }, [isDark]);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('theme');
-    setIsDark(saved === 'dark');
-  }, []);
 
   return (
     <div className="theme-toggle">
