@@ -286,6 +286,15 @@ footer p {
   text-shadow:  0 4px 8px rgba(0,0,0,0.7);
 }
 
+@-webkit-keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
 @keyframes scroll-left {
   0% {
     transform: translateX(0);
@@ -294,6 +303,12 @@ footer p {
     transform: translateX(-50%);
   }
 }
+
+.wheel-track {
+  -webkit-animation: scroll-left 75s linear infinite;
+  animation: scroll-left 75s linear infinite;
+}
+
 
 .load-more-btn {
   background-color: #222;    
