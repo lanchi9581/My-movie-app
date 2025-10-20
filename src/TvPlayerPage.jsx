@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import './MovieDetail.css';
 import './MoviePlayerPage.css';
 
+
 const API_KEY = '36669667bad13a98c59f98b32ebb67f5';
 const BASE_URL = 'https://api.themoviedb.org/3';
 
@@ -71,7 +72,7 @@ function MoviePlayerPage() {
     ) : (
       <div className="movie-detail-window3">
         <p>
-          If nothing is showing up click on the clouds icon <strong>Left-Top-Corner</strong>
+          If the screen is <strong>black or empty</strong>, the episode may <strong>not be uploaded yet.</strong>
         </p>
         <br />
         <iframe

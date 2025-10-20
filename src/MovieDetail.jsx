@@ -3,6 +3,10 @@ import { useEffect, useState } from 'react';
 import './MovieDetail.css';
 import './index.css';
 import ShareButton from './components/ShareButton';
+import FavoriteButton from './components/FavoriteButton';
+import WatchLaterButton from './components/WatchLaterButton';
+
+
 
 const API_KEY = '36669667bad13a98c59f98b32ebb67f5';
 const BASE_URL = 'https://api.themoviedb.org/3';
@@ -113,14 +117,8 @@ function MovieDetail() {
             </p>
 
             <div className="action-buttons">
-              <button className="pill-button" onClick={() => alert('Added to favorites!')}>
-                <i className="bx bx-heart" style={{ marginRight: '6px' }}></i> Favorite
-              </button>
-
-              <button className="pill-button" onClick={() => alert('Added to watch later!')}>
-                <i className="bx bx-time" style={{ marginRight: '6px' }}></i> Watch Later
-              </button>
-
+              <FavoriteButton id={movie.id} contentType="movie" />
+              <WatchLaterButton id={movie.id} contentType="movie" />
               <ShareButton movieUrl={movieUrl} />
             </div>
 
@@ -159,13 +157,13 @@ function MovieDetail() {
         </div>
 
         {/* Overview and Cast */}
-        <div style={{ display: 'flex', gap: '2rem', marginTop: '2rem' }}>
-          <div className="pill" style={{ flex: '1 1 60%', overflowY: 'auto' }}>
+        <div className="overview-cast-container">
+          <div className="pill overview-section">
             <h3 className="h3-redish">Overview</h3>
             <p>{movie.overview}</p>
           </div>
 
-          <div className="pill" style={{ flex: '1 1 40%' }}>
+          <div className="pill cast-section">
             <h3 className="h3-redish">Cast</h3>
             <ul className="cast-list">
               {cast.map((actor) => (
@@ -182,3 +180,4 @@ function MovieDetail() {
 }
 
 export default MovieDetail;
+

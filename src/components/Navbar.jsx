@@ -69,6 +69,18 @@ function Navbar() {
           <ul className="nav-list">
             <li><ThemeToggle /></li>
             <li>
+              <NavLink to="/favorites" className="nav-link" onClick={closeMenu}>
+                <i className="bx bxs-edit nav-icon"></i> 
+                <span className="nav-text">Favorites</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/watch-later" className="nav-link" onClick={closeMenu}>
+                <i className="bx bxs-edit nav-icon"></i> 
+                <span className="nav-text">Watch Later</span>
+              </NavLink>
+            </li>
+            <li>
               <NavLink to="/login" className="nav-link" onClick={closeMenu}>
                 <i className="bx bx-log-in nav-icon"></i> 
                 <span className="nav-text">Log in</span>

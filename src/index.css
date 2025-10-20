@@ -445,3 +445,44 @@ footer p {
     flex-direction: row;
   }
 }
+
+/* Container for overview + cast */
+.overview-cast-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+/* Desktop view: overview and cast side-by-side */
+.overview-section {
+  flex: 1 1 60%;
+}
+
+.cast-section {
+  flex: 1 1 40%;
+}
+
+/* Cast list style (optional cleanup) */
+.cast-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cast-list li {
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* Responsive layout: stack vertically on small screens */
+@media (max-width: 600px) {
+  .overview-cast-container {
+    flex-direction: column;
+  }
+
+  .overview-section,
+  .cast-section {
+    flex: 1 1 100%;
+  }
+}

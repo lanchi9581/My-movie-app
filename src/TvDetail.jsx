@@ -20,79 +20,81 @@ function TvDetail() {
   const [tvShow, setTvShow] = useState(null);
   const [cast, setCast] = useState([]);
   const [trailerKey, setTrailerKey] = useState(null);
-
   const [seasons, setSeasons] = useState({});
   const [selectedSeason, setSelectedSeason] = useState(null);
   const [sortOrder, setSortOrder] = useState('asc');
 
-useEffect(() => {
-  const fetchTvData = async () => {
-    try {
-      const tvRes = await fetch(`${BASE_URL}/tv/${id}?api_key=${API_KEY}`);
-      const tvData = await tvRes.json();
-      setTvShow(tvData);
+  // Fetch TV show details and episodes
+  useEffect(() => {
+    const fetchTvData = async () => {
+      try {
+        const tvRes = await fetch(`${BASE_URL}/tv/${id}?api_key=${API_KEY}`);
+        const tvData = await tvRes.json();
+        setTvShow(tvData);
 
-      const creditsRes = await fetch(`${BASE_URL}/tv/${id}/credits?api_key=${API_KEY}`);
-      const creditsData = await creditsRes.json();
-      setCast(creditsData.cast?.slice(0, 8) || []);
+        // Fetch cast
+        const creditsRes = await fetch(`${BASE_URL}/tv/${id}/credits?api_key=${API_KEY}`);
+        const creditsData = await creditsRes.json();
+        setCast(creditsData.cast?.slice(0, 8) || []);
 
-      const videosRes = await fetch(`${BASE_URL}/tv/${id}/videos?api_key=${API_KEY}`);
-      const videosData = await videosRes.json();
-      const trailer = videosData.results.find(
-        video => video.type === 'Trailer' && video.site === 'YouTube'
-      );
-      setTrailerKey(trailer ? trailer.key : null);
+        // Fetch trailer
+        const videosRes = await fetch(`${BASE_URL}/tv/${id}/videos?api_key=${API_KEY}`);
+        const videosData = await videosRes.json();
+        const trailer = videosData.results.find(
+          (video) => video.type === 'Trailer' && video.site === 'YouTube'
+        );
+        setTrailerKey(trailer ? trailer.key : null);
 
-      if (tvData.seasons) {
-        const seasonsObj = {};
-        for (const season of tvData.seasons) {
-          const sn = season.season_number;
-          const epsRes = await fetch(`${BASE_URL}/tv/${id}/season/${sn}?api_key=${API_KEY}`);
-          const epsData = await epsRes.json();
-          seasonsObj[sn] = epsData.episodes || [];
+        // Fetch episodes for each season
+        if (tvData.seasons) {
+          const seasonsObj = {};
+          for (const season of tvData.seasons) {
+            const sn = season.season_number;
+            const epsRes = await fetch(`${BASE_URL}/tv/${id}/season/${sn}?api_key=${API_KEY}`);
+            const epsData = await epsRes.json();
+            seasonsObj[sn] = epsData.episodes || [];
+          }
+          setSeasons(seasonsObj);
+
+          // Set first non-zero season as default selected
+          const firstRealSeason = tvData.seasons.find((s) => s.season_number !== 0);
+          setSelectedSeason(firstRealSeason ? firstRealSeason.season_number : 0);
         }
-        setSeasons(seasonsObj);
-
-        // Bonus content
-        const firstRealSeason = tvData.seasons.find(s => s.season_number !== 0);
-        
-        setSelectedSeason(firstRealSeason ? firstRealSeason.season_number : 0);
+      } catch (error) {
+        console.error('Failed to fetch TV show data:', error);
+        setTrailerKey(null);
       }
-    } catch (error) {
-      console.error('Failed to fetch TV show data:', error);
-      setTrailerKey(null);
-    }
-  };
+    };
 
-  fetchTvData();
-}, [id]);
+    fetchTvData();
+  }, [id]);
 
-
+  // Handle back navigation
   const handleBackClick = () => {
-    if (fromPath) {
-      navigate(fromPath, { state: { searchState } });
-    }
+    navigate(fromPath, { state: { searchState } });
   };
 
   if (!tvShow) return <p>Loading…</p>;
 
+  // Handle season dropdown change
   const handleSeasonChange = (e) => {
-    const sn = parseInt(e.target.value, 10);
-    setSelectedSeason(sn);
+    setSelectedSeason(parseInt(e.target.value, 10));
   };
 
+  // Handle sort order change
   const handleSortOrderChange = (e) => {
     setSortOrder(e.target.value);
   };
 
+  // Episodes for selected season or empty array if none
   const episodes = selectedSeason != null ? seasons[selectedSeason] || [] : [];
 
-  const sortedEpisodes = [...episodes].sort((a, b) => {
-    return sortOrder === 'asc'
-      ? a.episode_number - b.episode_number
-      : b.episode_number - a.episode_number;
-  });
+  // Sort episodes according to selected order
+  const sortedEpisodes = [...episodes].sort((a, b) =>
+    sortOrder === 'asc' ? a.episode_number - b.episode_number : b.episode_number - a.episode_number
+  );
 
+  // Navigate to selected episode player
   const goToEpisode = (seasonNum, episodeNum) => {
     navigate(`/TvPlayerPage/${id}?season=${seasonNum}&episode=${episodeNum}`);
   };
@@ -113,7 +115,7 @@ useEffect(() => {
             className="movie-poster-container clickable-poster"
             onClick={() => goToEpisode(selectedSeason, sortedEpisodes[0]?.episode_number)}
             role="button"
-            tabIndex={0} //element is focusable in natural tab order
+            tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter') goToEpisode(selectedSeason, sortedEpisodes[0]?.episode_number);
             }}
@@ -149,14 +151,6 @@ useEffect(() => {
             </p>
 
             <div className="action-buttons">
-              <button className="pill-button" onClick={() => alert('Added to favorites!')}>
-                <i className="bx bx-heart" style={{ marginRight: '6px' }}></i> Favorite
-              </button>
-
-              <button className="pill-button" onClick={() => alert('Added to watch later!')}>
-                <i className="bx bx-time" style={{ marginRight: '6px' }}></i> Watch Later
-              </button>
-
               <ShareButton movieUrl={movieUrl} />
             </div>
 
@@ -192,9 +186,9 @@ useEffect(() => {
           </div>
         </div>
 
-        {/* Episodes and Overview side by side */}
-        <div style={{ display: 'flex', gap: '2rem', marginTop: '2rem', height: '40vh' }}>
-          <div className="pill" style={{ flex: '1 1 60%' }}>
+        {/* Episodes and Overview container */}
+        <div className="episodes-overview-container">
+          <div className="episodes-section pill">
             <h3 className="h3-redish">Episodes</h3>
 
             <div className="episode-controls" style={{ marginBottom: '1rem', fontSize: '0.9rem' }}>
@@ -203,11 +197,11 @@ useEffect(() => {
                 <select
                   value={selectedSeason ?? ''}
                   onChange={handleSeasonChange}
-                  style={{ fontSize: '0.85rem', padding: '0.25rem 0.5rem', marginLeft: '0.5rem' }}>
-                    
+                  style={{ fontSize: '0.85rem', padding: '0.25rem 0.5rem', marginLeft: '0.5rem' }}
+                >
                   {[...tvShow.seasons]
                     .sort((a, b) => {
-                      // Push season 0 to the end
+                      // Put bonus (season 0) at the end
                       if (a.season_number === 0) return 1;
                       if (b.season_number === 0) return -1;
                       return a.season_number - b.season_number;
@@ -216,7 +210,7 @@ useEffect(() => {
                       <option key={season.season_number} value={season.season_number}>
                         {season.season_number === 0 ? 'Bonus' : `Season ${season.season_number}`}
                       </option>
-                  ))}
+                    ))}
                 </select>
               </label>
 
@@ -233,32 +227,37 @@ useEffect(() => {
               </label>
             </div>
 
-              {sortedEpisodes.length >= 9 && (
-                <p style={{ fontSize: '0.85rem', color: '#eaeaea', marginBottom: '0.5rem', }}>
-                  <strong>Scroll for more episodes...</strong>
-                </p>
+            {sortedEpisodes.length >= 9 && (
+              <p
+                style={{
+                  fontSize: '0.85rem',
+                  color: '#eaeaea',
+                  marginBottom: '0.5rem',
+                }}
+              >
+                <strong>Scroll for more episodes...</strong>
+              </p>
+            )}
+
+            <ul className="episode-list" style={{ maxHeight: '20vh', overflowY: 'auto' }}>
+              {sortedEpisodes.length > 0 ? (
+                sortedEpisodes.map((ep) => (
+                  <li
+                    key={ep.id}
+                    onClick={() => goToEpisode(selectedSeason, ep.episode_number)}
+                    style={{ cursor: 'pointer', padding: '6px 0', borderBottom: '1px solid #ddd' }}
+                    title={ep.name}
+                  >
+                    <strong>Ep {ep.episode_number}:</strong> {ep.name}
+                  </li>
+                ))
+              ) : (
+                <li>No episodes found for this season.</li>
               )}
-
-              <ul className="episode-list" style={{ maxHeight: '20vh', overflowY: 'auto' }}>
-                {sortedEpisodes.length > 0 ? (
-                  sortedEpisodes.map((ep) => (
-                    <li
-                      key={ep.id}
-                      onClick={() => goToEpisode(selectedSeason, ep.episode_number)}
-                      style={{ cursor: 'pointer', padding: '6px 0', borderBottom: '1px solid #ddd' }}
-                      title={ep.name}
-                    >
-                      <strong>Ep {ep.episode_number}:</strong> {ep.name}
-                    </li>
-                  ))
-                ) : (
-                  <li>No episodes found for this season.</li>
-                )}
-              </ul>
-
+            </ul>
           </div>
 
-          <div className="pill" style={{ flex: '1 1 40%', maxHeight: '40vh', overflowY: 'auto' }}>
+          <div className="overview-section pill">
             <h3 className="h3-redish">Overview</h3>
             <p>{tvShow.overview}</p>
           </div>
@@ -278,6 +277,44 @@ useEffect(() => {
           </div>
         </div>
       </div>
+
+      <style>
+        {`
+          /* Container for episodes + overview on desktop */
+.episodes-overview-container {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.episodes-section {
+  flex: 1 1 60%;
+}
+
+.episodes-section .episode-list {
+  max-height: 400px; /* limit height to 400px for scroll */
+  overflow-y: auto; /* only episodes list scroll */
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.overview-section {
+  flex: 1 1 40%;
+  /* no fixed height or scroll */
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .episodes-overview-container {
+    flex-direction: column;
+  }
+  .episodes-section .episode-list {
+    max-height: 300px;
+  }
+}
+
+        `}
+      </style>
     </>
   );
 }

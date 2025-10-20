@@ -67,7 +67,7 @@ function MoviePlayerPage() {
     ) : (
       <div className="movie-detail-window3">
         <p>
-          If nothing is showing up click on the clouds icon <strong>Left-Top-Corner</strong>
+          If the screen is <strong> black or empty</strong> , the movie may <strong> not be uploaded yet.</strong>
         </p>
         <br />
         <iframe

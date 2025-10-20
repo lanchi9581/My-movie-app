@@ -13,6 +13,8 @@ import About from './About.jsx';
 import Contact from './Contact.jsx';
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
+import FavoriteMovies from './pages/FavoritePage.jsx';
+import WatchLaterMovies from './pages/WatchLaterPage.jsx';
 
 import Footer from "./components/Footer.jsx";
 import MovieDetail from './MovieDetail';
@@ -30,6 +32,8 @@ function App() {
           <Route path="/series" element={<TvShows />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/favorites" element={<FavoriteMovies />} />
+          <Route path="/watch-later" element={<WatchLaterMovies />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/movie/:id" element={<MovieDetail />} />
