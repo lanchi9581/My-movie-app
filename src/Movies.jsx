@@ -36,7 +36,7 @@ export default function Movies() {
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [newAndUpcomingMovies, setNewAndUpcomingMovies] = useState([]);
 
-  const [allItems, setAllItems] = useState([]); 
+  const [allItems, setAllItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
 
   const [loading, setLoading] = useState(false);
@@ -91,7 +91,7 @@ export default function Movies() {
     })();
   }, []);
 
-  // Fetch first page (search ali navadno)
+  // Fetch first page (search or now playing)
   useEffect(() => {
     async function fetchFirstPage() {
       setLoading(true);
@@ -116,7 +116,6 @@ export default function Movies() {
           setTotalPages(movieData.total_pages || 1);
           setPage(1);
         } else {
-          // No search: pridoi now playing movies 
           const movieRes = await fetch(`${BASE_URL}/movie/now_playing?api_key=${API_KEY}&page=1`);
           const movieData = await movieRes.json();
 
@@ -145,11 +144,9 @@ export default function Movies() {
     fetchFirstPage();
   }, [searchTerm]);
 
-  // Fetch pages samo za movies
+  // Fetch pages for movies (including page 1)
   useEffect(() => {
-    if (page === 1) return;
-    if (loading) return;
-
+    // Always fetch when page changes
     (async () => {
       setLoading(true);
       try {
@@ -171,13 +168,14 @@ export default function Movies() {
           setAllItems((prev) => {
             const existing = new Set(prev.map((i) => i.id));
             const filtered = movies.filter((i) => !existing.has(i.id));
-            return [...prev, ...filtered];
+            return page === 1 ? movies : [...prev, ...filtered];
           });
           setFilteredItems((prev) => {
             const existing = new Set(prev.map((i) => i.id));
             const filtered = movies.filter((i) => !existing.has(i.id));
-            return [...prev, ...filtered];
+            return page === 1 ? movies : [...prev, ...filtered];
           });
+          setTotalPages(movieData.total_pages || 1);
         } else {
           const movieRes = await fetch(`${BASE_URL}/movie/now_playing?api_key=${API_KEY}&page=${page}`);
           const movieData = await movieRes.json();
@@ -192,13 +190,14 @@ export default function Movies() {
           setAllItems((prev) => {
             const existing = new Set(prev.map((i) => i.id));
             const filtered = movies.filter((i) => !existing.has(i.id));
-            return [...prev, ...filtered];
+            return page === 1 ? movies : [...prev, ...filtered];
           });
           setFilteredItems((prev) => {
             const existing = new Set(prev.map((i) => i.id));
             const filtered = movies.filter((i) => !existing.has(i.id));
-            return [...prev, ...filtered];
+            return page === 1 ? movies : [...prev, ...filtered];
           });
+          setTotalPages(movieData.total_pages || 1);
         }
       } catch (e) {
         console.error('Error fetching more pages', e);
@@ -206,7 +205,7 @@ export default function Movies() {
         setLoading(false);
       }
     })();
-  }, [page]);
+  }, [page, searchTerm]);
 
   // Filtering & sorting
   const applyClientFiltering = useCallback(() => {
@@ -249,25 +248,23 @@ export default function Movies() {
     <main>
       <h1 className="h1-redish">Trending Movies</h1>
       <section className="movies-wheel">
-          <div className="wheel-track">
-            {[...trendingMovies, ...trendingMovies].map((movie, index) => (
-              <Link
-                to={`/movie/${movie.id}`}
-                className="movie-item"
-                key={`trend-${movie.id}-${index}`}
-              >
-                <img
-                  src={movie.poster_path ? `${IMG_URL}${movie.poster_path}` : PLACEHOLDER_IMG}
-                  alt={movie.title}
-                  onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMG)}
-                />
-                <h2 className="movie_title">{movie.title}</h2>
-              </Link>
-            ))}
-          </div>
-
+        <div className="wheel-track">
+          {[...trendingMovies, ...trendingMovies].map((movie, index) => (
+            <Link
+              to={`/movie/${movie.id}`}
+              className="movie-item"
+              key={`trend-${movie.id}-${index}`}
+            >
+              <img
+                src={movie.poster_path ? `${IMG_URL}${movie.poster_path}` : PLACEHOLDER_IMG}
+                alt={movie.title}
+                onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMG)}
+              />
+              <h2 className="movie_title">{movie.title}</h2>
+            </Link>
+          ))}
+        </div>
       </section>
-
 
       <br />
 
