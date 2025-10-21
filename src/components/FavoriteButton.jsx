@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
-export default function FavoriteButton({ id, contentType = 'movie' }) {
-  const localStorageKey = contentType === 'movie' ? 'favoriteMovies' : 'favoriteTVShows';
+export default function FavoriteButton({ id }) {
+  const localStorageKey = 'favoriteMovies';
 
   const [favorites, setFavorites] = useState([]);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -20,7 +20,7 @@ export default function FavoriteButton({ id, contentType = 'movie' }) {
     const stored = localStorage.getItem(localStorageKey);
     const favs = stored ? safeParse(stored) : [];
     setFavorites(favs);
-  }, [localStorageKey]);
+  }, []);
 
   // Update isFavorite state
   useEffect(() => {

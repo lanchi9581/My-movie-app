@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 
-export default function WatchLaterButton({ id, contentType = 'movie' }) {
-  const localStorageKey = contentType === 'movie' ? 'watchLaterMovies' : 'watchLaterTVShows';
+export default function WatchLaterButton({ id }) {
+  const localStorageKey = 'watchLaterMovies';
   const [isInWatchLater, setIsInWatchLater] = useState(false);
 
   useEffect(() => {
     const watchLaterList = JSON.parse(localStorage.getItem(localStorageKey)) || [];
     setIsInWatchLater(watchLaterList.includes(id));
-  }, [id, localStorageKey]);
+  }, [id]);
 
   const toggleWatchLater = () => {
     const watchLaterList = JSON.parse(localStorage.getItem(localStorageKey)) || [];
