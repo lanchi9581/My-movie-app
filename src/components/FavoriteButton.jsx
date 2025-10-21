@@ -32,10 +32,8 @@ export default function FavoriteButton({ id }) {
 
     if (favorites.includes(id)) {
       updatedFavorites = favorites.filter(itemId => itemId !== id);
-      alert('Removed from favorites!');
     } else {
-      updatedFavorites = [...favorites, id];
-      alert('Added to favorites!');
+      updatedFavorites = [...favorites, id]; 
     }
 
     // Update state and localStorage

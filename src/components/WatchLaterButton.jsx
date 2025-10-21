@@ -16,11 +16,9 @@ export default function WatchLaterButton({ id }) {
     if (watchLaterList.includes(id)) {
       updatedList = watchLaterList.filter(itemId => itemId !== id);
       setIsInWatchLater(false);
-      alert('Removed from watch later!');
     } else {
       updatedList = [...watchLaterList, id];
       setIsInWatchLater(true);
-      alert('Added to watch later!');
     }
 
     localStorage.setItem(localStorageKey, JSON.stringify(updatedList));
