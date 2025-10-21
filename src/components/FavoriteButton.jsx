@@ -42,7 +42,7 @@ export default function FavoriteButton({ id }) {
   };
 
   return (
-    <button className="pill-button" style={{ boxShadow : '0 0 8px 2px rgba(229, 9, 20, 0.6)', border : 'solid 2px rgba(255, 255, 255, 0.3)' }} onClick={toggleFavorite}>
+    <button className="pill-button" onClick={toggleFavorite}>
       <i className={`bx ${isFavorite ? 'bxs-bookmarks' : 'bx-bookmarks'}`} style={{ marginRight: '6px', color: isFavorite? '#ffc107' : undefined }}></i>
       {isFavorite ? 'Favorited' : 'Favorite'}
     </button>

@@ -20,7 +20,7 @@ function ShareButton({ movieTitle = "Movie", movieUrl }) {
   };
 
   return (
-    <button className="pill-button" style={{ boxShadow : '0 0 8px 2px rgba(229, 9, 20, 0.6)', border : 'solid 2px rgba(255, 255, 255, 0.3)' }} onClick={handleShare}>
+    <button className="pill-button" onClick={handleShare}>
       <i className='bx bx-share' style={{ marginRight: '6px' }}></i> Share
     </button>
   );

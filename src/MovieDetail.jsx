@@ -131,7 +131,6 @@ function MovieDetail() {
             <div className="action-buttons2">
               <button
                 className="pill-button2"
-                style={{ boxShadow : '0 0 8px 2px rgba(229, 9, 20, 0.6)', border : 'solid 2px rgba(255, 255, 255, 0.3)' }}
                 onClick={() => {
                   if (trailerKey) {
                     navigate(`/MoviePlayerPage/${id}?trailer=${trailerKey}`);
@@ -146,7 +145,6 @@ function MovieDetail() {
 
               <button
                 className="pill-button2"
-                style={{ boxShadow : '0 0 8px 2px rgba(229, 9, 20, 0.6)', border : 'solid 2px rgba(255, 255, 255, 0.3)' }}
                 onClick={() => {
                   navigate(`/MoviePlayerPage/${id}`);
                 }}

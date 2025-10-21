@@ -180,7 +180,6 @@ function TvDetail() {
               
               <button
                 className="pill-button2"
-                style={{ boxShadow : '0 0 8px 2px rgba(229, 9, 20, 0.6)', border : 'solid 2px rgba(255, 255, 255, 0.3)' }}
                 onClick={() => {
                   if (trailerKey) {
                     navigate(`/TvPlayerPage/${id}?trailer=${trailerKey}`);
@@ -195,7 +194,6 @@ function TvDetail() {
 
               <button
                 className="pill-button2"
-                style={{ boxShadow : '0 0 8px 2px rgba(229, 9, 20, 0.6)', border : 'solid 2px rgba(255, 255, 255, 0.3)' }}
                 onClick={() => goToEpisode(selectedSeason, sortedEpisodes[0]?.episode_number)}
               >
                 <i className="bx bx-play-circle" style={{ marginRight: '6px' }}></i>
