@@ -20,6 +20,7 @@ function WatchLaterPage() {
     setWatchLaterIds(ids);
   }, []);
 
+  // Fetch movie data when watchLaterIds change
   useEffect(() => {
     async function fetchItems() {
       if (watchLaterIds.length === 0) {
@@ -31,7 +32,7 @@ function WatchLaterPage() {
         const data = await Promise.all(
           watchLaterIds.map(async (id) => {
             const res = await fetch(`${BASE_URL}/movie/${id}?api_key=${API_KEY}`);
-            if (!res.ok) throw new Error('Failed to fetch');
+            if (!res.ok) throw new Error('Failed to fetch movie data');
             return res.json();
           })
         );
