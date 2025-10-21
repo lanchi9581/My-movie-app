@@ -30,7 +30,7 @@ function FavoritePage() {
     } else {
       setItems([]);
     }
-  }, [favoriteIds]);
+  },[]);
 
   if (items.length === 0) {
     return <p>You have no favorite movies yet.</p>;
