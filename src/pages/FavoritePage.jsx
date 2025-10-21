@@ -8,7 +8,7 @@ const IMG_URL = 'https://image.tmdb.org/t/p/w300';
 const PLACEHOLDER_IMG =
   'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1665px-No-Image-Placeholder.svg.png';
 
-function FavoritesPage() {
+function FavoritePage() {
   const [items, setItems] = useState([]);
   const localStorageKey = 'favoriteMovies';
 
@@ -61,4 +61,4 @@ function FavoritesPage() {
   );
 }
 
-export default FavoritesPage;
+export default FavoritePage;

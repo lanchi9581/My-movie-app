@@ -52,19 +52,19 @@ function WatchLaterPage() {
   return (
     <main>
       <h1 className="h2-redish">Your Watch Later Movies</h1>
-      <section className="movie-list">
+      <section className="movie-list2">
         {items.map((item) => (
           <Link
             key={item.id}
             to={`/movie/${item.id}`}
-            className="movie-item"
+            className="movie-item2"
           >
             <img
               src={item.poster_path ? `${IMG_URL}${item.poster_path}` : PLACEHOLDER_IMG}
               alt={item.title}
               onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMG)}
             />
-            <h2 className="movie_title">{item.title}</h2>
+            <h2 className="movie_title2">{item.title}</h2>
           </Link>
         ))}
       </section>
