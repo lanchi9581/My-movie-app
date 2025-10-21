@@ -16,7 +16,7 @@ function MoviePlayerPage() {
   const episode = queryParams.get('episode');
 
   const [tvShow, setTvShow] = useState(null);
-  const [host, setHost] = useState('vidsrc'); // vidsrc | godrive | 2embed | viking
+  const [host, setHost] = useState('vidsrc'); // vidsrc godrive 2embed 
   const [imdbId, setImdbId] = useState(null);
 
   const searchParams = new URLSearchParams(location.search);
@@ -45,12 +45,12 @@ function MoviePlayerPage() {
     switch (host) {
       case 'vidsrc':
         return `https://vidsrc-embed.ru/embed/tv?tmdb=${id}&season=${season}&episode=${episode}`;
+      case '2embed':
+        return `https://hnembed.cc/embed/tv/${id}/${season}/${episode}`;
       case 'godrive':
         return imdbId
           ? `https://godriveplayer.com/player.php?imdb=${imdbId}&season=${season}&episode=${episode}`
           : null;
-      case '2embed':
-        return `https://hnembed.cc/embed/tv/${id}/${season}/${episode}`;
     }
   };
 

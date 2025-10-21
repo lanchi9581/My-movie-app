@@ -12,7 +12,7 @@ function MoviePlayerPage() {
   const location = useLocation();
 
   const [movie, setMovie] = useState(null);
-  const [host, setHost] = useState('vidsrc'); // vidsrc | godrive | 2embed | viking
+  const [host, setHost] = useState('vidsrc'); // vidsrc godrive 2embed
   const [imdbId, setImdbId] = useState(null);
 
   const searchParams = new URLSearchParams(location.search);
@@ -41,10 +41,11 @@ function MoviePlayerPage() {
     switch (host) {
       case 'vidsrc':
         return `https://vidsrc-embed.ru/embed/movie?tmdb=${id}`;
-      case 'godrive':
-        return imdbId ? `https://godriveplayer.com/player.php?imdb=${imdbId}` : null;
       case '2embed':
         return `https://hnembed.cc/embed/movie/${id}`;
+      case 'godrive':
+        return imdbId ? `https://godriveplayer.com/player.php?imdb=${imdbId}` : null;
+
     }
   };
 
