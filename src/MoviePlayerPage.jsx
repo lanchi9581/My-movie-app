@@ -44,7 +44,7 @@ function MoviePlayerPage() {
       case 'godrive':
         return imdbId ? `https://godriveplayer.com/player.php?imdb=${imdbId}` : null;
       case '2embed':
-        return `https://2embed.cc/embed/movie/${id}`;
+        return `https://hnembed.cc/embed/movie/${id}`;
     }
   };
 
@@ -90,11 +90,11 @@ function MoviePlayerPage() {
             <button onClick={() => setHost('vidsrc')} disabled={host === 'vidsrc'} style={{ marginRight: '5px' }}>
               VidSrc
             </button>
+            <button onClick={() => setHost('2embed')} disabled={host === '2embed'} style={{ marginRight: '5px' }}>
+              HNEmbed
+            </button>
             <button onClick={() => setHost('godrive')} disabled={host === 'godrive'} style={{ marginRight: '5px' }}>
               GoDrive
-            </button>
-            <button onClick={() => setHost('2embed')} disabled={host === '2embed'} style={{ marginRight: '5px' }}>
-              2Embed
             </button>
           </div>
 
