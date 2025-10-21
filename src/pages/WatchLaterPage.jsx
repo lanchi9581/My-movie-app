@@ -43,7 +43,7 @@ function WatchLaterPage() {
     }
 
     fetchItems();
-  }, []);
+  }, [watchLaterIds]);
 
   if (items.length === 0) {
     return <p>You have no movies in your Watch Later list.</p>;
