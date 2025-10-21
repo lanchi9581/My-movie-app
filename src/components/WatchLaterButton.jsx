@@ -2,25 +2,41 @@ import { useEffect, useState } from 'react';
 
 export default function WatchLaterButton({ id }) {
   const localStorageKey = 'watchLaterMovies';
+
+  const [watchLaterList, setWatchLaterList] = useState([]);
   const [isInWatchLater, setIsInWatchLater] = useState(false);
 
+  const safeParse = (str) => {
+    try {
+      return JSON.parse(str);
+    } catch {
+      return [];
+    }
+  };
+
+  // Load watch later list from localStorage
   useEffect(() => {
-    const watchLaterList = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+    const stored = localStorage.getItem(localStorageKey);
+    const list = stored ? safeParse(stored) : [];
+    setWatchLaterList(list);
+  }, []);
+
+  // Update isInWatchLater when watchLaterList or id changes
+  useEffect(() => {
     setIsInWatchLater(watchLaterList.includes(id));
-  }, [id]);
+  }, [watchLaterList, id]);
 
   const toggleWatchLater = () => {
-    const watchLaterList = JSON.parse(localStorage.getItem(localStorageKey)) || [];
     let updatedList;
 
     if (watchLaterList.includes(id)) {
-      updatedList = watchLaterList.filter(itemId => itemId !== id);
-      setIsInWatchLater(false);
+      updatedList = watchLaterList.filter((itemId) => itemId !== id);
     } else {
       updatedList = [...watchLaterList, id];
-      setIsInWatchLater(true);
     }
 
+    // Update state and localStorage
+    setWatchLaterList(updatedList);
     localStorage.setItem(localStorageKey, JSON.stringify(updatedList));
   };
 
