@@ -61,9 +61,9 @@ function MovieDetail() {
 
   return (
     <>
-      <button className="back-arrow-button" onClick={handleBackClick} aria-label="Go back">
-        <svg xmlns="http://www.w3.org/2000/svg" width={55} height={55} fill="#ff3f3f" viewBox="0 0 24 24">
-          <path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2m5 11h-6.59l2.29 2.29-1.41 1.41-4.71-4.71 4.71-4.71 1.41 1.41-2.29 2.29H17v2Z" />
+      <button className="back-arrow-button"  onClick={handleBackClick} aria-label="Go back">
+        <svg xmlns="http://www.w3.org/2000/svg" width={55} height={55} fill="#ff3f3f"  viewBox="0 0 24 24">
+          <path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2m5 11h-6.59l2.29 2.29-1.41 1.41-4.71-4.71 4.71-4.71 1.41 1.41-2.29 2.29H17v2Z" /> 
         </svg>
       </button>
 
@@ -131,6 +131,7 @@ function MovieDetail() {
             <div className="action-buttons2">
               <button
                 className="pill-button2"
+                style={{ boxShadow : '0 0 8px 2px rgba(229, 9, 20, 0.6)', border : 'solid 2px rgba(255, 255, 255, 0.3)' }}
                 onClick={() => {
                   if (trailerKey) {
                     navigate(`/MoviePlayerPage/${id}?trailer=${trailerKey}`);
@@ -145,6 +146,7 @@ function MovieDetail() {
 
               <button
                 className="pill-button2"
+                style={{ boxShadow : '0 0 8px 2px rgba(229, 9, 20, 0.6)', border : 'solid 2px rgba(255, 255, 255, 0.3)' }}
                 onClick={() => {
                   navigate(`/MoviePlayerPage/${id}`);
                 }}

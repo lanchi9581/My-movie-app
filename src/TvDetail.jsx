@@ -45,21 +45,37 @@ function TvDetail() {
         );
         setTrailerKey(trailer ? trailer.key : null);
 
-        // Fetch episodes for each season
-        if (tvData.seasons) {
-          const seasonsObj = {};
-          for (const season of tvData.seasons) {
-            const sn = season.season_number;
-            const epsRes = await fetch(`${BASE_URL}/tv/${id}/season/${sn}?api_key=${API_KEY}`);
-            const epsData = await epsRes.json();
-            seasonsObj[sn] = epsData.episodes || [];
-          }
-          setSeasons(seasonsObj);
+          // Fetch prvo stran, ostale v  background
+          if (tvData.seasons) {
+            const firstRealSeason = tvData.seasons.find((s) => s.season_number !== 0);
+            const firstSeasonNumber = firstRealSeason ? firstRealSeason.season_number : 0;
 
-          // Set first non-zero season as default selected
-          const firstRealSeason = tvData.seasons.find((s) => s.season_number !== 0);
-          setSelectedSeason(firstRealSeason ? firstRealSeason.season_number : 0);
-        }
+            // Fetch first episodes
+            const firstSeasonRes = await fetch(`${BASE_URL}/tv/${id}/season/${firstSeasonNumber}?api_key=${API_KEY}`);
+            const firstSeasonData = await firstSeasonRes.json();
+
+            setSeasons({
+              [firstSeasonNumber]: firstSeasonData.episodes || [],
+            });
+            setSelectedSeason(firstSeasonNumber);
+
+            // Fetch ostale v background
+            const remainingSeasons = tvData.seasons.filter((s) => s.season_number !== firstSeasonNumber);
+            remainingSeasons.forEach(async (season) => {
+              const sn = season.season_number;
+              try {
+                const epsRes = await fetch(`${BASE_URL}/tv/${id}/season/${sn}?api_key=${API_KEY}`);
+                const epsData = await epsRes.json();
+                setSeasons((prev) => ({
+                  ...prev,
+                  [sn]: epsData.episodes || [],
+                }));
+              } catch (err) {
+                console.error(`Failed to load season ${sn}`, err);
+              }
+            });
+          }
+
       } catch (error) {
         console.error('Failed to fetch TV show data:', error);
         setTrailerKey(null);
@@ -161,8 +177,10 @@ function TvDetail() {
             </h1>
             <br />
             <div className="action-buttons2">
+              
               <button
                 className="pill-button2"
+                style={{ boxShadow : '0 0 8px 2px rgba(229, 9, 20, 0.6)', border : 'solid 2px rgba(255, 255, 255, 0.3)' }}
                 onClick={() => {
                   if (trailerKey) {
                     navigate(`/TvPlayerPage/${id}?trailer=${trailerKey}`);
@@ -177,6 +195,7 @@ function TvDetail() {
 
               <button
                 className="pill-button2"
+                style={{ boxShadow : '0 0 8px 2px rgba(229, 9, 20, 0.6)', border : 'solid 2px rgba(255, 255, 255, 0.3)' }}
                 onClick={() => goToEpisode(selectedSeason, sortedEpisodes[0]?.episode_number)}
               >
                 <i className="bx bx-play-circle" style={{ marginRight: '6px' }}></i>
@@ -188,7 +207,7 @@ function TvDetail() {
 
         {/* Episodes and Overview container */}
         <div className="episodes-overview-container">
-          <div className="episodes-section pill">
+          <div className="episodes-section pill" >
             <h3 className="h3-redish">Episodes</h3>
 
             <div className="episode-controls" style={{ marginBottom: '1rem', fontSize: '0.9rem' }}>

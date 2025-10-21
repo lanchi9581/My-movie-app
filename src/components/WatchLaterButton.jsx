@@ -41,7 +41,8 @@ export default function WatchLaterButton({ id }) {
   };
 
   return (
-    <button className="pill-button" onClick={toggleWatchLater}>
+    <button className="pill-button" style={{ boxShadow : '0 0 8px 2px rgba(229, 9, 20, 0.6)', border : 'solid 2px rgba(255, 255, 255, 0.3)' }} onClick={toggleWatchLater}>
+      
       <i
         className={`bx ${isInWatchLater ? 'bxs-time' : 'bx-time'}`}
         style={{ marginRight: '6px', color: isInWatchLater ? '#f0ad4e' : undefined }}

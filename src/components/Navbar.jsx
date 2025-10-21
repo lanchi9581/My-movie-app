@@ -70,7 +70,7 @@ function Navbar() {
             <li><ThemeToggle /></li>
             <li>
               <NavLink to="/favorites" className="nav-link" onClick={closeMenu}>
-                <i className="bx bxs-heart nav-icon"></i> 
+                <i className="bx bxs-bookmarks nav-icon"></i> 
                 <span className="nav-text">Favorites</span>
               </NavLink>
             </li>
