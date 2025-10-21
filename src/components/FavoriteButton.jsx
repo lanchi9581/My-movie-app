@@ -2,27 +2,44 @@ import { useEffect, useState } from 'react';
 
 export default function FavoriteButton({ id, contentType = 'movie' }) {
   const localStorageKey = contentType === 'movie' ? 'favoriteMovies' : 'favoriteTVShows';
+
+  const [favorites, setFavorites] = useState([]);
   const [isFavorite, setIsFavorite] = useState(false);
 
+  // Utility to safely parse JSON
+  const safeParse = (str) => {
+    try {
+      return JSON.parse(str);
+    } catch {
+      return [];
+    }
+  };
+
+  // Load favorites from localStorage
   useEffect(() => {
-    const favorites = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+    const stored = localStorage.getItem(localStorageKey);
+    const favs = stored ? safeParse(stored) : [];
+    setFavorites(favs);
+  }, [localStorageKey]);
+
+  // Update isFavorite state
+  useEffect(() => {
     setIsFavorite(favorites.includes(id));
-  }, [id, localStorageKey]);
+  }, [favorites, id]);
 
   const toggleFavorite = () => {
-    const favorites = JSON.parse(localStorage.getItem(localStorageKey)) || [];
     let updatedFavorites;
 
     if (favorites.includes(id)) {
       updatedFavorites = favorites.filter(itemId => itemId !== id);
-      setIsFavorite(false);
       alert('Removed from favorites!');
     } else {
       updatedFavorites = [...favorites, id];
-      setIsFavorite(true);
       alert('Added to favorites!');
     }
 
+    // Update state and localStorage
+    setFavorites(updatedFavorites);
     localStorage.setItem(localStorageKey, JSON.stringify(updatedFavorites));
   };
 

@@ -3,7 +3,7 @@
 }
 
 .movie-detail-window2 {
-  max-width: 95vw;
+  max-width: 92vw;
   margin: 20px auto;
   padding: 10px;
   border: 2px solid #444;
@@ -15,7 +15,8 @@
 }
 
 .movie-detail-window3 {
-  max-width: 95vw;
+  max-width: 92vw;
+  height: auto;
   margin: 20px auto;
   padding: 10px;
   border: 2px solid #444;
@@ -26,13 +27,11 @@
   color: #eaeaea;
 }
 
-.iframe {
+.movie-iframe {
   border: 2px solid #444;
   width: 100%;
   height: auto; 
   aspect-ratio: 16 / 9; 
-  max-height: 80vh;
-  min-height: 300px;
   box-shadow: 0 0 8px 2px rgba(229, 9, 20, 0.4);
 }
 
@@ -44,7 +43,7 @@
     padding: 8px;
   }
   
-  .iframe {
+  .movie-iframe {
     height: 40vh;
     min-height: 250px;
   }
@@ -57,7 +56,7 @@
     padding: 5px;
   }
   
-  .iframe {
+  .movie-iframe {
     height: 35vh;
     min-height: 200px;
   }

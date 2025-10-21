@@ -70,13 +70,13 @@ function Navbar() {
             <li><ThemeToggle /></li>
             <li>
               <NavLink to="/favorites" className="nav-link" onClick={closeMenu}>
-                <i className="bx bxs-edit nav-icon"></i> 
+                <i className="bx bxs-heart nav-icon"></i> 
                 <span className="nav-text">Favorites</span>
               </NavLink>
             </li>
             <li>
               <NavLink to="/watch-later" className="nav-link" onClick={closeMenu}>
-                <i className="bx bxs-edit nav-icon"></i> 
+                <i className="bx bxs-time nav-icon"></i> 
                 <span className="nav-text">Watch Later</span>
               </NavLink>
             </li>

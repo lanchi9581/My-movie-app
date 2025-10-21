@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import "./FavoritePage.css";
+
 
 const API_KEY = '36669667bad13a98c59f98b32ebb67f5';
 const BASE_URL = 'https://api.themoviedb.org/3';
@@ -36,21 +38,23 @@ function FavoritesPage({ contentType = 'movie' }) {
   }
 
   return (
-    <main>
-      <h1>Your Favorite {contentType === 'movie' ? 'Movies' : 'TV Shows'}</h1>
-      <section className="movie-list">
+    <main style={{ padding: '1rem' }}>
+      <h1 className="h2-redish" style={{ textAlign: 'left' }}>
+        Your Favorite {contentType === 'movie' ? 'Movies' : 'TV Shows'}
+      </h1>
+      <section className="movie-list2">
         {items.map((item) => (
           <Link
             key={item.id}
             to={`/${contentType}/${item.id}`}
-            className="movie-item"
+            className="movie-item2"
           >
             <img
               src={item.poster_path ? `${IMG_URL}${item.poster_path}` : PLACEHOLDER_IMG}
               alt={item.title || item.name}
               onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMG)}
             />
-            <h2 className="movie_title">{item.title || item.name}</h2>
+            <h2 className="movie_title2">{item.title || item.name}</h2>
           </Link>
         ))}
       </section>
@@ -59,3 +63,5 @@ function FavoritesPage({ contentType = 'movie' }) {
 }
 
 export default FavoritesPage;
+
+

@@ -56,7 +56,7 @@ function MoviePlayerPage() {
     {trailerKey ? (
       <div className="movie-detail-window2">
         <iframe
-          className="iframe"
+          className="movie-iframe"
           src={`https://www.youtube.com/embed/${trailerKey}`}
           title="Movie Trailer"
           allow="autoplay; encrypted-media"
@@ -71,7 +71,7 @@ function MoviePlayerPage() {
         </p>
         <br />
         <iframe
-          className="iframe"
+          className="movie-iframe"
           src={`https://vidsrc-embed.ru/embed/movie?tmdb=${id}`}
           allowFullScreen
           title="Movie Player"

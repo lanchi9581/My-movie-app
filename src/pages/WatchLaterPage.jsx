@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import "./FavoritePage.css";
+
 
 const API_KEY = '36669667bad13a98c59f98b32ebb67f5';
 const BASE_URL = 'https://api.themoviedb.org/3';
@@ -50,7 +52,7 @@ function WatchLaterPage({ contentType = 'movie' }) {
 
   return (
     <main>
-      <h1>Your Watch Later {contentType === 'movie' ? 'Movies' : 'TV Shows'}</h1>
+      <h1 className="h2-redish">Your Watch Later {contentType === 'movie' ? 'Movies' : 'TV Shows'}</h1>
       <section className="movie-list">
         {items.map((item) => (
           <Link
