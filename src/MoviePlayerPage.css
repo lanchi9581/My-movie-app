@@ -66,3 +66,49 @@
     height: 45px;
   }
 }
+
+/* Buttons container */
+.player-buttons {
+  margin-bottom: 15px;
+  display: flex;
+  gap: 12px;
+  justify-content: center; /* center buttons horizontally */
+}
+
+/* General button style */
+.player-buttons button {
+  background-color: #1f1f1f;
+  color: #eaeaea;
+  border: 2px solid #ff3f3f;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 0 8px 2px rgba(229, 9, 20, 0.4);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Hover effect */
+.player-buttons button:hover:not(:disabled) {
+  background-color: #ff3f3f;
+  color: #141414;
+}
+
+/* Disabled button style */
+.player-buttons button:disabled {
+  background-color: #3a3a3a;
+  color: #999999;
+  border-color: #666666;
+  cursor: default;
+  box-shadow: none;
+}
+
+/* Responsive adjustment */
+@media (max-width: 480px) {
+  .player-buttons button {
+    font-size: 14px;
+    padding: 6px 14px;
+  }
+}
