@@ -16,7 +16,7 @@ function Home() {
           <h2 className="h1-5-redish">Love Movies?</h2>
           <p>Browse action, romance, horror, or indie hits anytime.</p>
           <NavLink to="/movies" className="load-more-btn">
-            Explore Movies
+            <i className="bx bxs-movie" style={{ marginRight: '8px', fontSize: '20px'}}></i>Explore Movies
           </NavLink>
         </div>
 
@@ -24,7 +24,7 @@ function Home() {
           <h2 className="h1-5-redish">Fan of TV Shows?</h2>
           <p>Get hooked on trending shows and new seasons weekly.</p>
           <NavLink to="/series" className="load-more-btn">
-            Browse Series
+            <i className="bx bxs-tv" style={{ marginRight: '8px', fontSize: '20px'}}></i>Browse Series
           </NavLink>
         </div>
 
@@ -32,18 +32,18 @@ function Home() {
           <h2 className="h2-redish">Need Help?</h2>
           <p>Contact support for quick help, feedback or account issues.</p>
           <NavLink to="/contact" className="load-more-btn">
-            Contact Support
+            <i className="bx bxs-chat" style={{ marginRight: '8px', fontSize: '20px'}}></i>Contact Support
           </NavLink>
         </div>
 
         <div className="home-card">
-          <h2 className="h2-redish">Login/Register?</h2>
-          <p>Join the fun and unlock exclusive perks</p>
-          <NavLink to="/login" className="load-more-btn">
-            Login
+          <h2 className="h2-redish">Favorites & Watch Later</h2>
+          <p>Save movies to your favorites and watch later lists</p>
+          <NavLink to="/favorites" className="load-more-btn">
+            <i className="bx bxs-bookmarks" style={{ marginRight: '8px', fontSize: '20px'}}></i>Favorites
           </NavLink>
-          <NavLink to="/register" className="load-more-btn">
-            Register
+          <NavLink to="/watch-later" className="load-more-btn">
+            <i className="bx bxs-time" style={{ marginRight: '8px', fontSize: '20px'}}></i>Watch Later
           </NavLink>
         </div>
       </section>
