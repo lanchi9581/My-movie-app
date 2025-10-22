@@ -6,7 +6,6 @@ export default function FavoriteButton({ id }) {
   const [favorites, setFavorites] = useState([]);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  // Utility to safely parse JSON
   const safeParse = (str) => {
     try {
       return JSON.parse(str);
@@ -15,7 +14,7 @@ export default function FavoriteButton({ id }) {
     }
   };
 
-  // Load favorites from localStorage
+  // Load favorites iz localStorage
   useEffect(() => {
     const stored = localStorage.getItem(localStorageKey);
     const favs = stored ? safeParse(stored) : [];

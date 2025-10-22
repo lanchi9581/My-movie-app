@@ -14,13 +14,13 @@ function WatchLaterPage() {
 
   const localStorageKey = 'watchLaterMovies';
 
-  // Load watch later movie IDs from localStorage
+  // Load watch later iz localStorage
   useEffect(() => {
     const ids = JSON.parse(localStorage.getItem(localStorageKey) || '[]');
     setWatchLaterIds(ids);
   }, []);
 
-  // Fetch movie data when watchLaterIds change
+  // Fetch movie ko se watchlater spremeni
   useEffect(() => {
     async function fetchItems() {
       if (watchLaterIds.length === 0) {

@@ -475,14 +475,4 @@ footer p {
   font-size: 0.95rem;
 }
 
-/* Responsive layout: stack vertically on small screens */
-@media (max-width: 600px) {
-  .overview-cast-container {
-    flex-direction: column;
-  }
 
-  .overview-section,
-  .cast-section {
-    flex: 1 1 100%;
-  }
-}

@@ -83,7 +83,8 @@
 
   .hamburger-btn {
     display: block;
-    font-size: 2rem;
+    font-size: 2rem;    /* Popravi za hamburger button border*/
+    border: none;
   }
 
  /* Hide original */

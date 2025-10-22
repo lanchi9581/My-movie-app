@@ -14,14 +14,14 @@ export default function WatchLaterButton({ id }) {
     }
   };
 
-  // Load watch later list from localStorage
+  // Load watch later iz localStorage
   useEffect(() => {
     const stored = localStorage.getItem(localStorageKey);
     const list = stored ? safeParse(stored) : [];
     setWatchLaterList(list);
   }, []);
 
-  // Update isInWatchLater when watchLaterList or id changes
+  // Update isInWatchLater ko se watchLaterList spremeni
   useEffect(() => {
     setIsInWatchLater(watchLaterList.includes(id));
   }, [watchLaterList, id]);
@@ -35,7 +35,7 @@ export default function WatchLaterButton({ id }) {
       updatedList = [...watchLaterList, id];
     }
 
-    // Update state and localStorage
+    // Update state in localStorage
     setWatchLaterList(updatedList);
     localStorage.setItem(localStorageKey, JSON.stringify(updatedList));
   };
