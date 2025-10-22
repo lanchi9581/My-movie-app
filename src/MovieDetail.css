@@ -304,28 +304,6 @@
   list-style: none;
 }
 
-.episode-list li {
-  background-color: #1e1e1e;
-  border-radius: 10px;
-  padding: 12px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-  border: 1px solid transparent;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: 90px; /* smaller height */
-  text-align: center;
-  font-size: 0.85rem;
-  overflow: hidden;
-}
-
-.episode-list li:hover {
-  background-color: #292929;
-  border-color: #ff3f3f;
-  transform: scale(1.03);
-}
-
 .pill.episode-controls {
   display: flex;
   gap: 15px;
@@ -358,4 +336,27 @@
   margin-top: 2px;
   font-weight: 600;
   font-style: italic;
+}
+
+.buttonEpisodes {
+  background-color: #1e1e1e;
+  color: #eaeaea;
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 90px; /* smaller height */
+  text-align: center;
+  font-size: 0.85rem;
+  overflow: hidden;
+}
+
+.buttonEpisodes:hover {
+  background-color: #292929;
+  border-color: #ff3f3f;
+  transform: scale(1.03);
 }

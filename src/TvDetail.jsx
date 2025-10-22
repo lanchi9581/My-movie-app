@@ -274,17 +274,18 @@ function TvDetail() {
                   }
 
                   return (
-                    <li
+                    <button className="buttonEpisodes"
                       key={ep.id}
                       onClick={() => goToEpisode(selectedSeason, ep.episode_number)}
                       style={{ cursor: 'pointer', padding: '6px 0', borderBottom: '1px solid #ddd' }}
                       title={ep.name}
+                      disabled={airDate > today}
                     >
                       <strong>Ep {ep.episode_number}:</strong> {ep.name}
                       <div className={dateClass}>
                         {dateText}
                       </div>
-                    </li>
+                    </button>
                   );
                 })
               ) : (
