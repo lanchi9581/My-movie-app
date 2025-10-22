@@ -13,7 +13,7 @@ function Home() {
 
       <section className="home-sections">
         <div className="home-card">
-          <h2 className="h1-5-redish">Love Movies?</h2>
+          <h2 className="h1-5-redish">Crazy About Movies?</h2>
           <p>Browse action, romance, horror, or indie hits anytime.</p>
           <NavLink to="/movies" className="load-more-btn">
             <i className="bx bxs-movie" style={{ marginRight: '8px', fontSize: '20px'}}></i>Explore Movies
@@ -37,8 +37,8 @@ function Home() {
         </div>
 
         <div className="home-card">
-          <h2 className="h2-redish">Favorites & Watch Later</h2>
-          <p>Save movies to your favorites and watch later lists</p>
+          <h2 className="h2-redish">My Collection</h2>
+          <p>Organize your favorites and watch later list to make movie nights effortless.</p>
           <NavLink to="/favorites" className="load-more-btn">
             <i className="bx bxs-bookmarks" style={{ marginRight: '8px', fontSize: '20px'}}></i>Favorites
           </NavLink>
