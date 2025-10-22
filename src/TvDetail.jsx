@@ -255,19 +255,38 @@ function TvDetail() {
                 <strong>Scroll for more episodes...</strong>
               </p>
             )}
-
+                                            {/* Episodes section - date/coming soon */}
             <ul className="episode-list" style={{ maxHeight: '20vh', overflowY: 'auto' }}>
               {sortedEpisodes.length > 0 ? (
-                sortedEpisodes.map((ep) => (
-                  <li
-                    key={ep.id}
-                    onClick={() => goToEpisode(selectedSeason, ep.episode_number)}
-                    style={{ cursor: 'pointer', padding: '6px 0', borderBottom: '1px solid #ddd' }}
-                    title={ep.name}
-                  >
-                    <strong>Ep {ep.episode_number}:</strong> {ep.name}
-                  </li>
-                ))
+                sortedEpisodes.map((ep) => {
+                  const airDate = ep.air_date ? new Date(ep.air_date) : null;
+                  const today = new Date();
+                  let dateText = 'Date unknown';
+                  let dateClass = 'released-date';
+
+                  if (airDate) {
+                    if (airDate > today) {
+                      dateText = `Coming Soon (${airDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })})`;
+                      dateClass = 'coming-soon-date';
+                    } else {
+                      dateText = `Released on ${airDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+                    }
+                  }
+
+                  return (
+                    <li
+                      key={ep.id}
+                      onClick={() => goToEpisode(selectedSeason, ep.episode_number)}
+                      style={{ cursor: 'pointer', padding: '6px 0', borderBottom: '1px solid #ddd' }}
+                      title={ep.name}
+                    >
+                      <strong>Ep {ep.episode_number}:</strong> {ep.name}
+                      <div className={dateClass}>
+                        {dateText}
+                      </div>
+                    </li>
+                  );
+                })
               ) : (
                 <li>No episodes found for this season.</li>
               )}
