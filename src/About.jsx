@@ -31,7 +31,7 @@ export default function About() {
           </p>
           <p>So <b>grab some popcorn</b>, <b>get comfy</b>, and <b>start exploring</b>. We're excited to help you find your <b>next great movie experience!</b></p>
           
-          <br /><br /><br /><br />
+          <br /><br /><br />
           <p>Prestige Movies was created in 2025 with a simple goal: to make movie discovery easire and more enjoyable for everyone. </p>
           <p className="MadeBy">Made by: Lan</p>
       </section>

@@ -60,7 +60,6 @@ export default function Contact() {
       <br />
       <br />
       <br />
-      <br />
     </section>
     
   );

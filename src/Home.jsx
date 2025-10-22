@@ -49,8 +49,6 @@ function Home() {
       </section>
       <br />
       <br />
-      <br />
-      <br />
     </main>
   );
 }
