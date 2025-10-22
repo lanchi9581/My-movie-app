@@ -32,7 +32,7 @@ function Navbar() {
         <div className={`navbar-left ${isMenuOpen ? 'nav-open' : ''}`}>
           <ul className="nav-list">
             <li>
-              <NavLink to="/" className="nav-link" onClick={closeMenu}>
+              <NavLink to=" " className="nav-link" onClick={closeMenu}>
                 <i className="bx bxs-home nav-icon"></i> 
                 <span className="nav-text">Home</span>
               </NavLink>
