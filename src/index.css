@@ -135,6 +135,14 @@ main {
     padding: 10px;
 }
 
+.MadeBy {
+  
+  font-size: 0.6rem;
+  color: #888;
+  margin-top: 2px;
+  font-weight: 600;
+  font-style: italic;
+}
 
 /* Todays picks */
 .todays_picks {
