@@ -21,7 +21,7 @@ const sections = [
   {
     title: 'Customer Support',
     qa: [
-      { question: 'How can I contact customer support?', answer: 'You can reach our customer support team via phone or email listed on the Contact Us page.' },
+      { question: 'How can I contact customer support?', answer: 'You can reach our customer support team via email listed on the Contact Us page.' },
       { question: 'What should I do if a movie does not play?', answer: 'Try switching the streaming provider using the cloud icon in the top-left corner to select an alternative source.' },
       { question: 'How do I update my email or username?', answer: 'Currently, updating your email or username is not supported.' },
     ],
@@ -29,7 +29,7 @@ const sections = [
   {
     title: 'Bug Reporting',
     qa: [
-      { question: 'How do I report a bug?', answer: 'Please submit a detailed report using the bug reporting form available in the Help Center.' },
+      { question: 'How do I report a bug?', answer: 'Please submit a detailed report using the bug reporting form available in the Help Center.'},
     ],
   },
   {
@@ -93,7 +93,7 @@ const handleSubmit = (e) => {
       <p>Here to help you enjoy the best movie experience. Find answers, get help, or contact us.   <span className="highlight">Contact Form at the bottom</span> </p>
       <br />
       <hr className="custom-hr" />
-      <h2 className="h2-redish">Sections:</h2>
+      <h3 className="h3-redish">Sections:</h3>
 
       {/* Accordion */}
       <Accordion sections={sections} />
@@ -102,7 +102,7 @@ const handleSubmit = (e) => {
 
       {/* Contact Form */}
       <div className="contactForm">
-        <h2 className="h2-redish">Need Help? Contact Us</h2>
+        <h3 className="h3-redish">Need Help? Contact Us</h3>
         <form onSubmit={handleSubmit} style={{ maxWidth: 800 }}>
           <label htmlFor="name" style={{fontWeight: 'bold', }}><i className="bx bxs-user" style={{ color: "#ffffff" }}></i>  Name:</label><br />
           <input
