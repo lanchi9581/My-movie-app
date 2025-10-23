@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Accordion from './components/Accordion';
 import './components/Accordion.css';
+import emailjs from 'emailjs-com';
+import './Contact.css';
+
 
 const sections = [
   {
@@ -47,20 +50,133 @@ const sections = [
 ];
 
 export default function Contact() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    category: 'Technical Support',
+    message: '',
+  });
+
+  const [status, setStatus] = useState('');
+
+  const handleChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+const handleSubmit = (e) => {
+  e.preventDefault();
+
+  emailjs.send(
+    'service_j2j128i',      // Your EmailJS Service ID
+    'template_0s1ests',   // Your EmailJS Template ID (replace with yours)
+    formData,               // Your form data object
+    'NfsbwMcql22hO1JC0'    // Your EmailJS User ID (public key)
+  )
+  .then((response) => {
+    console.log('SUCCESS!', response.status, response.text);
+    setStatus('Thank you for reaching out! We will get back to you shortly.');
+    setFormData({ name: '', email: '', category: 'Technical Support', message: '' });
+  })
+  .catch((error) => {
+    console.error('FAILED...', error);
+    setStatus('Oops! Something went wrong. Please try again.');
+  });
+};
+
+
   return (
     <section className="contact-container">
       <h2 className="h2-redish">Customer Support</h2>
-      <p>Here to help you enjoy the best movie experience. Find answers, get help, or contact us.</p>
+      <p>Here to help you enjoy the best movie experience. Find answers, get help, or contact us.   <span className="highlight">Contact Form at the bottom</span> </p>
       <br />
-      <hr className="custom-hr"/>
-      <h3 className="h3-redish">Sections:</h3>
+      <hr className="custom-hr" />
+      <h2 className="h2-redish">Sections:</h2>
 
-      {/* Accordion inserted here */}
+      {/* Accordion */}
       <Accordion sections={sections} />
-      <br />
-      <br />
-      <br />
+      <hr className="custom-hr" />
+      
+
+      {/* Contact Form */}
+      <div className="contactForm">
+        <h2 className="h2-redish">Need Help? Contact Us</h2>
+        <form onSubmit={handleSubmit} style={{ maxWidth: 800 }}>
+          <label htmlFor="name" style={{fontWeight: 'bold', }}><i className="bx bxs-user" style={{ color: "#ffffff" }}></i>  Name:</label><br />
+          <input
+            id="name"
+            name="name"
+            type="text"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            style={{ width: '100%', marginBottom: 12, padding: '10px', borderRadius: '7px', }}
+          />
+          <br />
+
+          <label htmlFor="email" style={{fontWeight: 'bold', }}><i className="bx bx-at" style={{ color: "#ffffff" }}></i>  Email:</label><br />
+          <input
+            id="email"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            style={{ width: '100%', marginBottom: 12,padding: '10px', borderRadius: '7px',}}
+          />
+          
+          <br />
+
+          <label htmlFor="category" style={{fontWeight: 'bold', }}><i className="bx bxs-category" style={{ color: "#ffffff" }}></i>  Topic:</label><br />
+          <select className="contactForm--select"
+            id="category"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            style={{ width: '100%', marginBottom: 12, padding: '10px', borderRadius: '7px',}}
+          >
+            <option value="Technical Support" >Technical Support</option>
+            <option value="Film Recommendation">Film Recommendation</option>
+            <option value="Bug Reporting">Bug Reporting</option>
+            <option value="Account and Subscription">Account and Subscription</option>
+            <option value="Feedback">Feedback</option>
+          </select>
+          <br />
+
+          <label htmlFor="message" style={{fontWeight: 'bold', }}><i className="bx bxs-message" style={{ color: "#ffffff" }}></i>  Message:</label><br />
+          <textarea
+            id="message"
+            name="message"
+            rows={5}                                                
+            value={formData.message}
+            onChange={handleChange}
+            required
+            style={{ width: '100%', marginBottom: 12, padding: '20px', borderRadius: '7px',}}
+          />
+          <br />
+          <button
+            type="submit"
+            style={{
+              backgroundColor: '#e50914',
+              color: 'white',
+              textTransform: 'uppercase',
+              fontWeight: 'bold',
+              border: 'none',
+              padding: '10px 20px',
+              cursor: 'pointer',
+              borderRadius: '4px',
+              fontSize: '16px',
+            }}>Submit</button>
+        </form>
+      </div>
+        {status && (
+          <p style={{ marginTop: '12px', color: '#e50914', fontWeight: 'bold' }}>
+            {status}
+          </p>
+        )}
     </section>
-    
   );
 }
+
