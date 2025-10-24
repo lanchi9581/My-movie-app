@@ -135,7 +135,7 @@ const chooseLoadAmount = () => {
       </p>
 
       <div className="toast-confirm-buttons">
-        {[100, 250, 500, 2000, 3500, 6000].map((count) => (
+        {[100, 250, 500, 1000, 2000, 3000].map((count) => (
           <button
             key={count}
             className="toast-btn-yes"
