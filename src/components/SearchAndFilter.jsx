@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './SearchAndFilter.css';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LOCAL_STORAGE_KEY = 'mediaFilters';
 
@@ -10,6 +12,11 @@ const SearchAndFilter = ({
   onSearchTermChange = () => {},
   onGenreFilterChange = () => {},
   onSortFilterChange = () => {},
+  onLoadAllMovies = () => {},
+  maxPagesToLoad={maxPagesToLoad},
+  setMaxPagesToLoad={setMaxPagesToLoad} ,
+
+
 }) => {
   const debounceTimeout = useRef(null);
 
@@ -84,6 +91,83 @@ const SearchAndFilter = ({
     setSearchTerm('');
   };
 
+  // Confirm Load button
+const confirmLoadAll = () => {
+  toast(
+    <div className="toast-confirm-container">
+      <p className="toast-confirm-text">
+        ⚠️ Do you wish to <strong>load all movies</strong>? <br />
+        This might reduce performance and cause lag.
+      </p>
+
+      <div className="toast-confirm-buttons">
+        <button
+          className="toast-btn-yes"
+          onClick={() => {
+            toast.dismiss();
+            chooseLoadAmount(); // pojdi na korak 2
+          }}
+        >
+          Yes, Load
+        </button>
+
+        <button className="toast-btn-cancel" onClick={() => toast.dismiss()}>
+          Cancel
+        </button>
+      </div>
+    </div>,
+    {
+      autoClose: false,
+      closeOnClick: false,
+      draggable: false,
+      position: 'bottom-right',
+      className: 'themed-toast',
+    }
+  );
+};
+
+// korak 2 
+const chooseLoadAmount = () => {
+  toast(
+    <div className="toast-confirm-container">
+      <p className="toast-confirm-text">
+        📊 <strong>How many movies</strong> would you like to load?   (250+ may cause lag on low-end devices)<br />
+      </p>
+
+      <div className="toast-confirm-buttons">
+        {[100, 250, 500, 2000, 3500, 6000].map((count) => (
+          <button
+            key={count}
+            className="toast-btn-yes"
+            onClick={() => {
+              toast.dismiss();
+              const pages = Math.ceil(count / 20); 
+              onLoadAllMovies(pages); 
+            }}
+          >
+            {count}
+          </button>
+        ))}
+        <button
+          className="toast-btn-cancel"
+          onClick={() => toast.dismiss()}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>,
+    {
+      autoClose: false,
+      closeOnClick: false,
+      draggable: false,
+      position: 'bottom-right',
+      className: 'themed-toast',
+    }
+  );
+};
+
+
+
   return (
     <div className="search-filter-container">
       <div className="search-wrapper">
@@ -143,6 +227,13 @@ const SearchAndFilter = ({
         <option value="yearOldest">Year (Oldest First)</option>
         <option value="az">A-Z</option>
       </select>
+
+      <button className="load-all-button" onClick={confirmLoadAll}>
+        Load all movies
+      </button>
+
+      <ToastContainer position="bottom-right" />
+
 
       <div className="clear-filters">
         <button className="clear-filters-button" onClick={clearAll}>

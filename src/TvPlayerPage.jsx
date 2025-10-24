@@ -45,12 +45,20 @@ function MoviePlayerPage() {
     switch (host) {
       case 'vidsrc':
         return `https://vidsrc-embed.ru/embed/tv?tmdb=${id}&season=${season}&episode=${episode}`;
+      case 'vidlink':
+        return `https://vidlink.pro/tv/${id}/${season}/${episode}`;
       case '2embed':
         return `https://hnembed.cc/embed/tv/${id}/${season}/${episode}`;
+      case 'superembed':
+        return imdbId
+      ? `https://multiembed.mov/?video_id=${imdbId}&s=${season}&e=${episode}`
+      : null;   
       case 'godrive':
         return imdbId
           ? `https://godriveplayer.com/player.php?imdb=${imdbId}&season=${season}&episode=${episode}`
           : null;
+      case 'cinemaos':
+        return `https://cinemaos.tech/player/${id}/${season}/${episode}`;
     }
   };
 
@@ -96,11 +104,20 @@ function MoviePlayerPage() {
             <button onClick={() => setHost('vidsrc')} disabled={host === 'vidsrc'} style={{ marginRight: '5px' }}>
               VidSrc
             </button>
+            <button onClick={() => setHost('vidlink')} disabled={host === 'vidlink'} style={{ marginRight: '5px' }}>
+              VidLink
+            </button>
             <button onClick={() => setHost('2embed')} disabled={host === '2embed'} style={{ marginRight: '5px' }}>
               HNEmbed
             </button>
+            <button onClick={() => setHost('superembed')} disabled={host === 'superembed'} style={{ marginRight: '5px' }}>
+              SuperEmbed
+            </button>
             <button onClick={() => setHost('godrive')} disabled={host === 'godrive'} style={{ marginRight: '5px' }}>
               GoDrive
+            </button>
+            <button onClick={() => setHost('cinemaos')} disabled={host === 'cinemaos'} style={{ marginRight: '5px' }}>
+              Cinemaos
             </button>
           </div>
 

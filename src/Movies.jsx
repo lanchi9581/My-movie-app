@@ -46,6 +46,10 @@ export default function Movies() {
   const [searchTerm, setSearchTerm] = useState('');
   const [genreFilter, setGenreFilter] = useState('default');
   const [sortFilter, setSortFilter] = useState('default');
+  const [maxPagesToLoad, setMaxPagesToLoad] = useState(10);  // default 
+
+
+
 
   useEffect(() => {
     if (location.state?.searchState) {
@@ -244,6 +248,45 @@ export default function Movies() {
     applyClientFiltering();
   }, [allItems, genreFilter, sortFilter, applyClientFiltering]);
 
+    // Load all movies
+    const loadAllMovies = async (maxPages = maxPagesToLoad) => {
+      setLoading(true);
+      try {
+        const allResults = [];
+        let pageNum = 1;
+        let totalPagesFetched = 1;
+
+        do {
+          const res = await fetch(
+            `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&page=${pageNum}`
+          );
+          const data = await res.json();
+
+          if (data?.results?.length) {
+            allResults.push(...data.results);
+          }
+
+          totalPagesFetched = data.total_pages || 1;
+          pageNum++;
+        } while (pageNum <= totalPagesFetched && pageNum <= maxPages);
+
+        // Remove duplicates by ID
+        const uniqueMovies = Array.from(new Map(allResults.map(m => [m.id, m])).values());
+        setAllItems(uniqueMovies);
+        setFilteredItems(uniqueMovies);
+        setTotalPages(1);
+        setPage(1);
+
+        console.log(`Loaded ${uniqueMovies.length} movies`);
+      } catch (e) {
+        console.error('Error loading all movies:', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+
+
   return (
     <main>
       <h1 className="h1-redish">Trending Movies</h1>
@@ -305,6 +348,9 @@ export default function Movies() {
           onGenreFilterChange={setGenreFilter}
           initialSortFilter={sortFilter}
           onSortFilterChange={setSortFilter}
+          onLoadAllMovies={loadAllMovies}
+          maxPagesToLoad={maxPagesToLoad}           
+          setMaxPagesToLoad={setMaxPagesToLoad} 
         />
 
         <section className="explore-more">
