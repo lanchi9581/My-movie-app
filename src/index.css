@@ -6,27 +6,162 @@
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --bg-color: #222222;
-  --text-color: #ffffff;
+  --bg-color: #1a1a1a;
+  --text-color: #f5f5f5;
+  --bg-gradient-start: #111111;
+  --bg-gradient-end: #222222;
+  --accent-color: #e50914;
+
+  --line-color: rgba(255,255,255,0.06);
+  --line-angle: 45deg;
+  --line-width: 6px;
+  --line-spacing: 80px;
+  --line-opacity: 0.4;
+
+  --glow-opacity: 0.2;
+  --glow-color: rgba(255,255,255,0.02);
+
+  --shadow-color: rgba(255,255,255,0.03);
+  --shadow-blur: 2000px;
+
+  --transition-fast: 0.3s ease;
+  --transition-slow: 0.6s ease;
+  --diagonal-duration: 120s;
+  --glow-duration: 150s;
+  --haze-duration: 200s;
 }
 
 body.light {
-  --bg-color: #ffffff;
-  --text-color: #222222;
-  --fot-bg: #eaeaea;
+  --bg-color: #fefefe;
+  --text-color: #1a1a1a;
+  --bg-gradient-start: #ffffff;
+  --bg-gradient-end: #f0f0f0;
+  --accent-color: #e50914;
+
+  --line-color: rgba(50,50,50,0.12); 
+  --line-opacity: 0.35;
+  --glow-color: rgba(0,0,0,0.02);
+  --shadow-color: rgba(0,0,0,0.03);
 }
 
 body.dark {
   --bg-color: #111111;
   --text-color: #f5f5f5;
-  --fot-bg: #1a1a1a;
-}  
+  --bg-gradient-start: #0d0d0d;
+  --bg-gradient-end: #1f1f1f;
+  --accent-color: #e50914;
+
+  --line-color: rgba(255,255,255,0.06);
+  --line-opacity: 0.4;
+  --glow-color: rgba(255,255,255,0.02);
+  --shadow-color: rgba(255,255,255,0.03);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  overflow-x: hidden;
+  transition: background var(--transition-slow), color var(--transition-slow);
+}
+
+body {
+  position: relative;
+  color: var(--text-color);
+  background: linear-gradient(160deg, var(--bg-gradient-start), var(--bg-gradient-end));
+  background-size: 400% 400%;
+  min-height: 100vh;
+  box-shadow: inset -2000px -2000px 3000px var(--shadow-color);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: repeating-linear-gradient(
+    var(--line-angle),
+    var(--line-color),
+    var(--line-color) var(--line-width),
+    transparent var(--line-width),
+    transparent var(--line-spacing)
+  );
+  opacity: var(--line-opacity);
+  pointer-events: none;
+  z-index: -1;
+  background-size: 200% 200%;
+  animation: diagonalFlow var(--diagonal-duration) linear infinite;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background:
+    radial-gradient(circle at 20% 30%, var(--glow-color) 0%, transparent 70%),
+    radial-gradient(circle at 70% 60%, var(--glow-color) 0%, transparent 70%),
+    radial-gradient(circle at 50% 80%, var(--glow-color) 0%, transparent 70%);
+  opacity: var(--glow-opacity);
+  pointer-events: none;
+  z-index: -2;
+  background-size: 200% 200%;
+  animation: softGlow var(--glow-duration) linear infinite;
+}
+
+body .haze-layer {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: -3;
+  background: linear-gradient(
+    120deg,
+    rgba(255,255,255,0.01),
+    rgba(255,255,255,0.01) 10%,
+    transparent 50%,
+    rgba(255,255,255,0.01) 90%
+  );
+  opacity: 0.1;
+  background-size: 200% 200%;
+  animation: hazeFlow var(--haze-duration) linear infinite;
+}
+
+@keyframes diagonalFlow {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+@keyframes softGlow {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+@keyframes hazeFlow {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 0%; }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 html {
   transition: background-color 0.4s, color 0.4s;
@@ -45,18 +180,6 @@ footer, .accordion, .panel {
 .Naslov {
   color: #eaeaea;
   font-size: 1.5rem;
-}
-
-body {
-    font-family: Arial, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    line-height: 1.6;
-    min-height: 100%;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    transition: background-color 0.4s, color 0.4s;
 }
 
 header {
