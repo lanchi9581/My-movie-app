@@ -43,7 +43,7 @@ body.light {
   --bg-gradient-end: #f0f0f0;
   --accent-color: #e50914;
 
-  --line-color: rgba(50,50,50,0.12); 
+  --line-color: rgba(50,50,50,0.12); /*Spremeni za crte*/
   --line-opacity: 0.35;
   --glow-color: rgba(0,0,0,0.02);
   --shadow-color: rgba(0,0,0,0.03);
@@ -56,7 +56,7 @@ body.dark {
   --bg-gradient-end: #1f1f1f;
   --accent-color: #e50914;
 
-  --line-color: rgba(255,255,255,0.06);
+  --line-color: rgba(255,255,255,0.06); /*Spremeni za crte*/
   --line-opacity: 0.4;
   --glow-color: rgba(255,255,255,0.02);
   --shadow-color: rgba(255,255,255,0.03);

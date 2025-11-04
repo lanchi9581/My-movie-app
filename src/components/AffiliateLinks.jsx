@@ -52,7 +52,7 @@ export default function AffiliateLinks() {
           lineHeight: '1.6',
         }}
       >
-        Affiliate Disclosure: We earn a commission when you sign up through our links at no extra cost to you. This helps us keep Flash Movies free and running!
+        Affiliate Disclosure: We earn a commission when you sign up through our links at no extra cost to you. This helps us keep Prestige Movies free and running!
       </p>
 
       {/* Grid of affiliate cards */}
