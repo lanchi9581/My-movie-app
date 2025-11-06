@@ -27,6 +27,7 @@
   --glow-color: rgba(255,255,255,0.02);
 
   --shadow-color: rgba(255,255,255,0.03);
+  --shadow-blur: 2000px;
 
   --transition-fast: 0.3s ease;
   --transition-slow: 0.6s ease;
@@ -40,7 +41,9 @@ body.light {
   --text-color: #1a1a1a;
   --bg-gradient-start: #ffffff;
   --bg-gradient-end: #f0f0f0;
-  --line-color: rgba(50,50,50,0.12);
+  --accent-color: #e50914;
+
+  --line-color: rgba(50,50,50,0.12); /*Spremeni za crte*/
   --line-opacity: 0.35;
   --glow-color: rgba(0,0,0,0.02);
   --shadow-color: rgba(0,0,0,0.03);
@@ -51,7 +54,9 @@ body.dark {
   --text-color: #f5f5f5;
   --bg-gradient-start: #0d0d0d;
   --bg-gradient-end: #1f1f1f;
-  --line-color: rgba(255,255,255,0.06);
+  --accent-color: #e50914;
+
+  --line-color: rgba(255,255,255,0.06); /*Spremeni za crte*/
   --line-opacity: 0.4;
   --glow-color: rgba(255,255,255,0.02);
   --shadow-color: rgba(255,255,255,0.03);
@@ -60,29 +65,28 @@ body.dark {
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%;
+  min-height: 100%;
   overflow-x: hidden;
-  color: var(--text-color);
-  background-color: var(--bg-gradient-start); /* Match the gradient start color */
-  background: linear-gradient(160deg, var(--bg-gradient-start), var(--bg-gradient-end));
-  background-size: cover;
+  background-color: var(--transition-slow), color var(--transition-slow);
+  transition: background var(--transition-slow), color var(--transition-slow);
 }
 
 body {
   position: relative;
-  min-height: 100vh;
+  color: var(--text-color);
   background: linear-gradient(160deg, var(--bg-gradient-start), var(--bg-gradient-end));
   background-size: 400% 400%;
+  min-height: 100vh;
   box-shadow: inset -2000px -2000px 3000px var(--shadow-color);
 }
 
-/* Diagonal lines */
 body::before {
   content: "";
   position: fixed;
-  inset: 0;
-  z-index: -3;
-  pointer-events: none;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background-image: repeating-linear-gradient(
     var(--line-angle),
     var(--line-color),
@@ -91,31 +95,39 @@ body::before {
     transparent var(--line-spacing)
   );
   opacity: var(--line-opacity);
+  pointer-events: none;
+  z-index: -1;
   background-size: 200% 200%;
   animation: diagonalFlow var(--diagonal-duration) linear infinite;
 }
 
-/* Glow */
 body::after {
   content: "";
   position: fixed;
-  inset: 0;
-  z-index: -2;
-  pointer-events: none;
-  background: radial-gradient(circle at 20% 30%, var(--glow-color) 0%, transparent 70%),
-            radial-gradient(circle at 70% 60%, var(--glow-color) 0%, transparent 70%),
-            radial-gradient(circle at 50% 80%, var(--glow-color) 0%, transparent 70%);
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background:
+    radial-gradient(circle at 20% 30%, var(--glow-color) 0%, transparent 70%),
+    radial-gradient(circle at 70% 60%, var(--glow-color) 0%, transparent 70%),
+    radial-gradient(circle at 50% 80%, var(--glow-color) 0%, transparent 70%);
   opacity: var(--glow-opacity);
+  pointer-events: none;
+  z-index: -2;
   background-size: 200% 200%;
   animation: softGlow var(--glow-duration) linear infinite;
 }
 
-/* Haze layer */
-.haze-layer {
+body .haze-layer {
+  content: "";
   position: fixed;
-  inset: 0;
-  z-index: -1;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   pointer-events: none;
+  z-index: -3;
   background: linear-gradient(
     120deg,
     rgba(255,255,255,0.01),
@@ -128,8 +140,6 @@ body::after {
   animation: hazeFlow var(--haze-duration) linear infinite;
 }
 
-
-/* Keyframes */
 @keyframes diagonalFlow {
   0% { background-position: 0% 0%; }
   50% { background-position: 100% 100%; }
@@ -137,18 +147,16 @@ body::after {
 }
 
 @keyframes softGlow {
-  0% { background-position: 0% 0%,0% 0,0% 0; }
-  50% { background-position: 100% 100%,100% 100%,100% 100%; }
-  100% { background-position: 0% 0,0% 0,0% 0; }
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
 }
 
 @keyframes hazeFlow {
-  0% { background-position: 0% 0; }
+  0% { background-position: 0% 0%; }
   50% { background-position: 100% 50%; }
-  100% { background-position: 0% 0; }
+  100% { background-position: 0% 0%; }
 }
-
-
 
 * {
   box-sizing: border-box;
