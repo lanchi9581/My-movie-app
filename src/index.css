@@ -75,7 +75,7 @@ body {
   color: var(--text-color);
   background: linear-gradient(160deg, var(--bg-gradient-start), var(--bg-gradient-end));
   background-size: 400% 400%;
-  min-height: 100vh;
+  min-height: 100dvh;
   box-shadow: inset -2000px -2000px 3000px var(--shadow-color);
 }
 
