@@ -43,7 +43,7 @@ body.light {
   --bg-gradient-end: #f0f0f0;
   --accent-color: #e50914;
 
-  --line-color: rgba(50,50,50,0.12); /*Spremeni za crte*/
+  --line-color: rgba(50,50,50,0.12);
   --line-opacity: 0.35;
   --glow-color: rgba(0,0,0,0.02);
   --shadow-color: rgba(0,0,0,0.03);
@@ -56,37 +56,49 @@ body.dark {
   --bg-gradient-end: #1f1f1f;
   --accent-color: #e50914;
 
-  --line-color: rgba(255,255,255,0.06); /*Spremeni za crte*/
+  --line-color: rgba(255,255,255,0.06);
   --line-opacity: 0.4;
   --glow-color: rgba(255,255,255,0.02);
   --shadow-color: rgba(255,255,255,0.03);
 }
 
+/* ---------------- Body & HTML ---------------- */
 html, body {
   margin: 0;
   padding: 0;
   min-height: 100%;
   overflow-x: hidden;
-  background-color: var(--transition-slow), color var(--transition-slow);
+  position: relative;
+  background-color: var(--bg-color); /* solid fallback */
+  color: var(--text-color);
   transition: background var(--transition-slow), color var(--transition-slow);
+  display: flex;
+  flex-direction: column;
 }
 
 body {
-  position: relative;
-  color: var(--text-color);
+  min-height: 100%;
+  flex: 1 0 auto;
   background: linear-gradient(160deg, var(--bg-gradient-start), var(--bg-gradient-end));
   background-size: 400% 400%;
-  min-height: 100vh;
   box-shadow: inset -2000px -2000px 3000px var(--shadow-color);
+  transition: background var(--transition-slow);
+}
+
+/* ---------------- Animated Layers ---------------- */
+body::before,
+body::after,
+body .haze-layer {
+  content: "";
+  position: absolute; /* follow content height */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
   background-image: repeating-linear-gradient(
     var(--line-angle),
     var(--line-color),
@@ -95,39 +107,23 @@ body::before {
     transparent var(--line-spacing)
   );
   opacity: var(--line-opacity);
-  pointer-events: none;
   z-index: -1;
   background-size: 200% 200%;
   animation: diagonalFlow var(--diagonal-duration) linear infinite;
 }
 
 body::after {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
   background:
     radial-gradient(circle at 20% 30%, var(--glow-color) 0%, transparent 70%),
     radial-gradient(circle at 70% 60%, var(--glow-color) 0%, transparent 70%),
     radial-gradient(circle at 50% 80%, var(--glow-color) 0%, transparent 70%);
   opacity: var(--glow-opacity);
-  pointer-events: none;
   z-index: -2;
   background-size: 200% 200%;
   animation: softGlow var(--glow-duration) linear infinite;
 }
 
 body .haze-layer {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: -3;
   background: linear-gradient(
     120deg,
     rgba(255,255,255,0.01),
@@ -136,6 +132,7 @@ body .haze-layer {
     rgba(255,255,255,0.01) 90%
   );
   opacity: 0.1;
+  z-index: -3;
   background-size: 200% 200%;
   animation: hazeFlow var(--haze-duration) linear infinite;
 }
