@@ -161,7 +161,6 @@ useEffect(() => {
                   allowFullScreen
                   title={`${host} Player`}
                   frameBorder="0"
-                  sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
                   referrerPolicy="no-referrer"
                   loading="lazy"
                 />
