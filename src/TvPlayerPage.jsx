@@ -157,10 +157,12 @@ useEffect(() => {
                 <iframe
                   className="movie-iframe active"
                   src={getEmbedSrc()}
-                  allow="fullscreen; encrypted-media; picture-in-picture"
-                  allowFullScreen
                   title={`${host} Player`}
                   frameBorder="0"
+                  allow="fullscreen; autoplay; encrypted-media; picture-in-picture"
+                  allowFullScreen
+                  webkitallowfullscreen="true"
+                  mozallowfullscreen="true"
                   referrerPolicy="no-referrer"
                   loading="lazy"
                 />
