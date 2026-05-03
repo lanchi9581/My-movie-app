@@ -50,16 +50,16 @@ body.light {
 }
 
 body.dark {
-  --bg-color: #111111;
+  --bg-color: #070a12;
   --text-color: #f5f5f5;
-  --bg-gradient-start: #0d0d0d;
-  --bg-gradient-end: #1f1f1f;
+  --bg-gradient-start: #070a12;
+  --bg-gradient-end: #12070a;
   --accent-color: #e50914;
 
-  --line-color: rgba(255,255,255,0.06); /*Spremeni za crte*/
-  --line-opacity: 0.4;
-  --glow-color: rgba(255,255,255,0.02);
-  --shadow-color: rgba(255,255,255,0.03);
+  --line-color: rgba(255, 255, 255, 0.045);
+  --line-opacity: 0.28;
+  --glow-color: rgba(229, 9, 20, 0.08);
+  --shadow-color: rgba(0, 0, 0, 0.25);
 }
 
 html, body {
@@ -75,9 +75,9 @@ body {
   position: relative;
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(229, 9, 20, 0.14), transparent 32%),
-    radial-gradient(circle at top right, rgba(255, 255, 255, 0.06), transparent 28%),
-    linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    radial-gradient(circle at 12% 20%, rgba(229, 9, 20, 0.18), transparent 26%),
+    radial-gradient(circle at 60% 90%, rgba(33, 80, 160, 0.12), transparent 34%),
+    linear-gradient(135deg, #070a12 0%, #10131f 48%, #12070a 100%);
 }
 
 body::before {
