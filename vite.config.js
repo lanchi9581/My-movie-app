@@ -1,11 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
-  base: '/My-movie-app',
+  base: '/',
   build: {
-    outDir: 'docs',
+    outDir: 'dist',
   },
   plugins: [react()],
 })
