@@ -67,96 +67,45 @@ html, body {
   padding: 0;
   min-height: 100%;
   overflow-x: hidden;
-  background-color: var(--transition-slow), color var(--transition-slow);
+  color: var(--text-color);
   transition: background var(--transition-slow), color var(--transition-slow);
 }
 
 body {
   position: relative;
-  color: var(--text-color);
-  background: linear-gradient(160deg, var(--bg-gradient-start), var(--bg-gradient-end));
-  background-size: 400% 400%;
   min-height: 100vh;
-  box-shadow: inset -2000px -2000px 3000px var(--shadow-color);
+  background:
+    radial-gradient(circle at top left, rgba(229, 9, 20, 0.14), transparent 32%),
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.06), transparent 28%),
+    linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
 }
 
 body::before {
   content: "";
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-image: repeating-linear-gradient(
-    var(--line-angle),
-    var(--line-color),
-    var(--line-color) var(--line-width),
-    transparent var(--line-width),
-    transparent var(--line-spacing)
-  );
-  opacity: var(--line-opacity);
+  inset: 0;
   pointer-events: none;
   z-index: -1;
-  background-size: 200% 200%;
-  animation: diagonalFlow var(--diagonal-duration) linear infinite;
+  background-image:
+    linear-gradient(var(--line-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-color) 1px, transparent 1px);
+  background-size: 48px 48px;
+  opacity: var(--line-opacity);
+  mask-image: linear-gradient(to bottom, black, transparent);
 }
 
 body::after {
   content: "";
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background:
-    radial-gradient(circle at 20% 30%, var(--glow-color) 0%, transparent 70%),
-    radial-gradient(circle at 70% 60%, var(--glow-color) 0%, transparent 70%),
-    radial-gradient(circle at 50% 80%, var(--glow-color) 0%, transparent 70%);
-  opacity: var(--glow-opacity);
+  inset: 0;
   pointer-events: none;
   z-index: -2;
-  background-size: 200% 200%;
-  animation: softGlow var(--glow-duration) linear infinite;
+  background:
+    radial-gradient(circle at 20% 20%, var(--glow-color), transparent 35%),
+    radial-gradient(circle at 80% 60%, var(--glow-color), transparent 40%);
+  opacity: 0.8;
 }
 
-body .haze-layer {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: -3;
-  background: linear-gradient(
-    120deg,
-    rgba(255,255,255,0.01),
-    rgba(255,255,255,0.01) 10%,
-    transparent 50%,
-    rgba(255,255,255,0.01) 90%
-  );
-  opacity: 0.1;
-  background-size: 200% 200%;
-  animation: hazeFlow var(--haze-duration) linear infinite;
-}
-
-@keyframes diagonalFlow {
-  0% { background-position: 0% 0%; }
-  50% { background-position: 100% 100%; }
-  100% { background-position: 0% 0%; }
-}
-
-@keyframes softGlow {
-  0% { background-position: 0% 0%; }
-  50% { background-position: 100% 100%; }
-  100% { background-position: 0% 0%; }
-}
-
-@keyframes hazeFlow {
-  0% { background-position: 0% 0%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 0%; }
-}
 
 * {
   box-sizing: border-box;

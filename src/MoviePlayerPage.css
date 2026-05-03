@@ -115,20 +115,72 @@
 
 .safe-player-wrapper {
   position: relative;
+  width: 100%;
+  min-height: 520px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #050505;
 }
 
-.movie-iframe {
-  pointer-events: none;
-}
-
-.movie-iframe.active {
-  pointer-events: auto;
-}
-
-.safe-play-overlay {
+.safe-player-overlay {
   position: absolute;
   inset: 0;
-  z-index: 10;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at center, rgba(229, 9, 20, 0.18), transparent 45%),
+    rgba(0, 0, 0, 0.82);
+}
+
+.safe-player-card {
+  width: min(460px, 90%);
+  padding: 32px;
+  border-radius: 22px;
+  text-align: center;
+  color: white;
+  background: linear-gradient(180deg, #1d1d1d, #0d0d0d);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.safe-icon {
+  font-size: 42px;
+  margin-bottom: 12px;
+}
+
+.safe-player-card h2 {
+  margin: 0 0 12px;
+  font-size: 28px;
+}
+
+.safe-player-card p {
+  color: #d0d0d0;
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.safe-player-card button {
+  width: 100%;
+  padding: 15px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: #e50914;
+  color: white;
+  font-size: 17px;
+  font-weight: 800;
   cursor: pointer;
-  font-size: 22px;
+  box-shadow: 0 10px 28px rgba(229, 9, 20, 0.35);
+}
+
+.safe-player-card button:hover {
+  background: #ff1824;
+}
+
+.safe-player-card span {
+  display: block;
+  margin-top: 14px;
+  font-size: 13px;
+  color: #999;
 }

@@ -122,26 +122,42 @@ function MoviePlayerPage() {
           {getEmbedSrc() ? (
             <div className="safe-player-wrapper">
               {!playerActive && (
-                <button
-                  className="safe-play-overlay"
-                  onClick={() => setPlayerActive(true)}
-                >
-                  ▶ Click to activate player
-                </button>
+                <div className="safe-player-overlay">
+                  <div className="safe-player-card">
+                    <div className="safe-icon">🛡️</div>
+
+                    <h2>Safe Player Mode</h2>
+
+                    <p>
+                      Player is locked on purpose to reduce ads, popups and unwanted redirects.
+                    </p>
+
+                    <button onClick={() => setPlayerActive(true)}>
+                      ▶ Activate Player
+                    </button>
+
+                    <span>
+                      Third-party player ads may still appear after activation.
+                    </span>
+                  </div>
+                </div>
               )}
 
-              <iframe
-                className={`movie-iframe ${playerActive ? 'active' : ''}`}
-                src={getEmbedSrc()}
-                allow="fullscreen; encrypted-media; picture-in-picture"
-                allowFullScreen
-                title={`${host} Player`}
-                frameBorder="0"
-                referrerPolicy="no-referrer"
-              />
+              {playerActive && (
+                <iframe
+                  className="movie-iframe active"
+                  src={getEmbedSrc()}
+                  allow="fullscreen; encrypted-media; picture-in-picture"
+                  allowFullScreen
+                  title={`${host} Player`}
+                  frameBorder="0"
+                  referrerPolicy="no-referrer"
+                  loading="lazy"
+                />
+              )}
             </div>
           ) : (
-            <p><strong>IMDb ID not available.</strong> Cannot load GoDrive player.</p>
+            <p><strong>IMDb ID not available.</strong> Cannot load this player.</p>
           )}
 
           <p style={{ marginTop: '10px' }}>
