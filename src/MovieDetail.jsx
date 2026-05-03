@@ -70,22 +70,20 @@ function MovieDetail() {
       <div className="movie-detail-window">
         <h1 className="h1-5-redish">{movie.title}</h1>
 
-        <div className="movie-top-section">
-          <div
-            className="movie-poster-container clickable-poster"
-            onClick={() => {
-              if (trailerKey) {
-                navigate(`/MoviePlayerPage/${id}?trailer=${trailerKey}`);
-              }
-            }}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && trailerKey) {
-                navigate(`/MoviePlayerPage/${id}?trailer=${trailerKey}`);
-              }
-            }}
-          >
+          <div className="movie-top-section">
+            <div
+              className="movie-poster-container clickable-poster"
+              onClick={() => {
+                navigate(`/MoviePlayerPage/${id}`);
+              }}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  navigate(`/MoviePlayerPage/${id}`);
+                }
+              }}
+            >
             <img
               className={`landscape-poster ${!movie.backdrop_path ? 'fallback-poster' : ''}`}
               src={

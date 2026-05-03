@@ -120,9 +120,12 @@ function MoviePlayerPage() {
             <iframe
               className="movie-iframe"
               src={getEmbedSrc()}
+              allow="fullscreen; encrypted-media; picture-in-picture"
               allowFullScreen
               title={`${host} Player`}
               frameBorder="0"
+              sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
+              referrerPolicy="no-referrer"
             />
           ) : (
             <p><strong>IMDb ID not available.</strong> Cannot load GoDrive player.</p>
