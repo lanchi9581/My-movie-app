@@ -19,6 +19,9 @@ function MoviePlayerPage() {
   const [host, setHost] = useState('vidsrc'); // vidsrc godrive 2embed 
   const [imdbId, setImdbId] = useState(null);
 
+
+  const [playerActive, setPlayerActive] = useState(false);
+
   const searchParams = new URLSearchParams(location.search);
   const trailerKey = searchParams.get('trailer');
 
@@ -33,6 +36,9 @@ function MoviePlayerPage() {
         console.error("Failed to fetch TV show:", err);
       }
     };
+  useEffect(() => {
+    setPlayerActive(false);
+  }, [host]);
 
     fetchTvShow();
   }, [id]);
@@ -123,16 +129,43 @@ function MoviePlayerPage() {
 
           {/* Conditional Iframe Rendering */}
           {getEmbedSrc() ? (
-            <iframe
-              className="movie-iframe"
-              src={getEmbedSrc()}
-              allow="fullscreen; encrypted-media; picture-in-picture"
-              allowFullScreen
-              title={`${host} Player`}
-              frameBorder="0"
-              sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
-              referrerPolicy="no-referrer"
-            />
+            <div className="safe-player-wrapper">
+              {!playerActive && (
+                <div className="safe-player-overlay">
+                  <div className="safe-player-card">
+                    <div className="safe-icon">🛡️</div>
+
+                    <h2>Safe Player Mode</h2>
+
+                    <p>
+                      Player is locked on purpose to reduce ads, popups and unwanted redirects.
+                    </p>
+
+                    <button onClick={() => setPlayerActive(true)}>
+                      ▶ Activate Player
+                    </button>
+
+                    <span>
+                      Third-party player ads may still appear after activation.
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {playerActive && (
+                <iframe
+                  className="movie-iframe active"
+                  src={getEmbedSrc()}
+                  allow="fullscreen; encrypted-media; picture-in-picture"
+                  allowFullScreen
+                  title={`${host} Player`}
+                  frameBorder="0"
+                  sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
+                  referrerPolicy="no-referrer"
+                  loading="lazy"
+                />
+              )}
+            </div>
           ) : (
             <p><strong>IMDb ID not available.</strong> Cannot load GoDrive player.</p>
           )}
