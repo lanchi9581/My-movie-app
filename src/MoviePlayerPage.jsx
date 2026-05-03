@@ -12,8 +12,9 @@ function MoviePlayerPage() {
   const location = useLocation();
 
   const [movie, setMovie] = useState(null);
-  const [host, setHost] = useState('vidsrc'); // vidsrc godrive 2embed
+  const [host, setHost] = useState('vidsrc');
   const [imdbId, setImdbId] = useState(null);
+  const [playerActive, setPlayerActive] = useState(false);
 
   const searchParams = new URLSearchParams(location.search);
   const trailerKey = searchParams.get('trailer');
@@ -26,12 +27,16 @@ function MoviePlayerPage() {
         setMovie(data);
         setImdbId(data.imdb_id);
       } catch (err) {
-        console.error("Failed to fetch movie:", err);
+        console.error('Failed to fetch movie:', err);
       }
     };
 
     fetchMovie();
   }, [id]);
+
+  useEffect(() => {
+    setPlayerActive(false);
+  }, [host]);
 
   const handleBackClick = () => {
     navigate(`/movie/${id}`);
@@ -44,15 +49,15 @@ function MoviePlayerPage() {
       case '2embed':
         return `https://hnembed.cc/embed/movie/${id}`;
       case 'superembed':
-        return imdbId
-      ? `https://multiembed.mov/?video_id=${imdbId}`
-      : null; 
+        return imdbId ? `https://multiembed.mov/?video_id=${imdbId}` : null;
       case 'godrive':
         return imdbId ? `https://godriveplayer.com/player.php?imdb=${imdbId}` : null;
       case 'vidlink':
         return `https://vidlink.pro/movie/${id}`;
       case 'cinemaos':
         return `https://cinemaos.tech/player/movie/${id}`;
+      default:
+        return null;
     }
   };
 
@@ -76,7 +81,7 @@ function MoviePlayerPage() {
       {trailerKey ? (
         <div className="movie-detail-window2">
           <iframe
-            className="movie-iframe"
+            className="movie-iframe active"
             src={`https://www.youtube.com/embed/${trailerKey}`}
             title="Movie Trailer"
             allow="autoplay; encrypted-media"
@@ -93,7 +98,6 @@ function MoviePlayerPage() {
             Try clicking on a different <strong>host</strong> below if the media doesn't load.
           </p>
 
-          {/* Host Selection Buttons */}
           <div className="player-buttons" style={{ marginBottom: '10px' }}>
             <button onClick={() => setHost('vidsrc')} disabled={host === 'vidsrc'} style={{ marginRight: '5px' }}>
               VidSrc
@@ -115,18 +119,27 @@ function MoviePlayerPage() {
             </button>
           </div>
 
-          {/* Conditional Iframe Rendering */}
           {getEmbedSrc() ? (
-            <iframe
-              className="movie-iframe"
-              src={getEmbedSrc()}
-              allow="fullscreen; encrypted-media; picture-in-picture"
-              allowFullScreen
-              title={`${host} Player`}
-              frameBorder="0"
-              sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
-              referrerPolicy="no-referrer"
-            />
+            <div className="safe-player-wrapper">
+              {!playerActive && (
+                <button
+                  className="safe-play-overlay"
+                  onClick={() => setPlayerActive(true)}
+                >
+                  ▶ Click to activate player
+                </button>
+              )}
+
+              <iframe
+                className={`movie-iframe ${playerActive ? 'active' : ''}`}
+                src={getEmbedSrc()}
+                allow="fullscreen; encrypted-media; picture-in-picture"
+                allowFullScreen
+                title={`${host} Player`}
+                frameBorder="0"
+                referrerPolicy="no-referrer"
+              />
+            </div>
           ) : (
             <p><strong>IMDb ID not available.</strong> Cannot load GoDrive player.</p>
           )}

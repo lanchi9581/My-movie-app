@@ -112,3 +112,23 @@
     padding: 6px 14px;
   }
 }
+
+.safe-player-wrapper {
+  position: relative;
+}
+
+.movie-iframe {
+  pointer-events: none;
+}
+
+.movie-iframe.active {
+  pointer-events: auto;
+}
+
+.safe-play-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  cursor: pointer;
+  font-size: 22px;
+}
