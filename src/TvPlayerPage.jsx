@@ -26,22 +26,23 @@ function MoviePlayerPage() {
   const trailerKey = searchParams.get('trailer');
 
   useEffect(() => {
-    const fetchTvShow = async () => {
-      try {
-        const res = await fetch(`${BASE_URL}/tv/${id}?api_key=${API_KEY}`);
-        const data = await res.json();
-        setTvShow(data);
-        setImdbId(data.imdb_id);
-      } catch (err) {
-        console.error("Failed to fetch TV show:", err);
-      }
-    };
-  useEffect(() => {
-    setPlayerActive(false);
-  }, [host]);
+  const fetchTvShow = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/tv/${id}?api_key=${API_KEY}`);
+      const data = await res.json();
+      setTvShow(data);
+      setImdbId(data.imdb_id);
+    } catch (err) {
+      console.error("Failed to fetch TV show:", err);
+    }
+  };
 
-    fetchTvShow();
-  }, [id]);
+  fetchTvShow();
+}, [id]);
+
+useEffect(() => {
+  setPlayerActive(false);
+}, [host]);
 
   const handleBackClick = () => {
     navigate(`/tv/${id}`);
