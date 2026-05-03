@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './accordion.css';
+import './Accordion.css';
 
 export default function Accordion({ sections }) {
   const [openIndex, setOpenIndex] = useState(null);
