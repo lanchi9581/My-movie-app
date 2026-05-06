@@ -55,12 +55,6 @@ function Navbar() {
                 <span className="nav-text">About</span>
               </NavLink>
             </li>
-            <li>
-              <NavLink to="/contact" className="nav-link" onClick={closeMenu}>
-                <i className="bx bxs-chat nav-icon"></i> 
-                <span className="nav-text">Contact support</span>
-              </NavLink>
-            </li>
           </ul>
         </div>
 
@@ -78,18 +72,6 @@ function Navbar() {
               <NavLink to="/watch-later" className="nav-link" onClick={closeMenu}>
                 <i className="bx bxs-time nav-icon"></i> 
                 <span className="nav-text">Watch Later</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/login" className="nav-link" onClick={closeMenu}>
-                <i className="bx bx-log-in nav-icon"></i> 
-                <span className="nav-text">Log in</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/register" className="nav-link" onClick={closeMenu}>
-                <i className="bx bxs-edit nav-icon"></i> 
-                <span className="nav-text">Register</span>
               </NavLink>
             </li>
           </ul>
