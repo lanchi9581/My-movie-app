@@ -12,6 +12,8 @@ import TvShows from './TvShows.jsx';
 import About from './About.jsx';
 import FavoriteMovies from './pages/FavoritePage.jsx';
 import WatchLaterMovies from './pages/WatchLaterPage.jsx';
+import SearchPage from "./pages/SearchPage.jsx";
+
 
 import Footer from "./components/Footer.jsx";
 import MovieDetail from './MovieDetail';
@@ -29,6 +31,7 @@ function App() {
           <Route path="/movies" element={<Movies />} />
           <Route path="/series" element={<TvShows />} />
           <Route path="/about" element={<About />} />
+          <Route path="/search" element={<SearchPage />} />
           <Route path="/favorites" element={<FavoriteMovies />} />
           <Route path="/watch-later" element={<WatchLaterMovies />} />
           <Route path="/movie/:id" element={<MovieDetail />} />

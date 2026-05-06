@@ -1,7 +1,8 @@
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from "react-router-dom";
 import ThemeToggle from './ThemeToggle';
 import { useState } from 'react';
 import './Navbar.css';
+
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -53,6 +54,12 @@ function Navbar() {
               <NavLink to="/about" className="nav-link" onClick={closeMenu}>
                 <i className="bx bxs-book nav-icon"></i> 
                 <span className="nav-text">About</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/search" className="nav-link" onClick={closeMenu}>
+                <i className="bx bx-search-alt nav-icon"></i>
+                <span className="nav-text">Search</span>
               </NavLink>
             </li>
           </ul>
