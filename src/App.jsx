@@ -20,9 +20,10 @@ import TvDetail from './TvDetail';
 
 function App() {
   return (
-    <div>
+    <div className="app">
       <Navbar />
-      <main>
+
+      <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/movies" element={<Movies />} />
@@ -35,8 +36,8 @@ function App() {
           <Route path="/tv/:id" element={<TvDetail />} />
           <Route path="/TvPlayerPage/:id" element={<TvPlayerPage />} />
         </Routes>
-        
       </main>
+
       <Footer />
     </div>
   );

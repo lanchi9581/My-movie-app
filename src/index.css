@@ -135,6 +135,24 @@ footer, .accordion, .panel {
   transition: background-color 0.4s, color 0.4s;
 }
 
+/*TEST*/
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+}
+
+footer {
+  margin-top: auto;
+}
+
+
+/*TEST*/
 
 .Naslov {
   color: #eaeaea;
