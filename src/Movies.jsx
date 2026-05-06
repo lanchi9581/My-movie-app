@@ -2,7 +2,6 @@ import './index.css';
 import { useEffect, useState, useCallback } from 'react';
 import SearchAndFilter from './components/SearchAndFilter';
 import Pagination from './components/Pagination';
-import AffiliateLinks from './components/AffiliateLinks';
 
 import { Link, useLocation } from 'react-router-dom';
 
@@ -310,7 +309,7 @@ export default function Movies() {
         </div>
       </section>
 
-      <AffiliateLinks />
+      
 
       <h1 className="h1-redish">New & Upcoming</h1>
       <section className="new_and_upcoming">
