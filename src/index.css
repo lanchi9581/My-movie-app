@@ -16,7 +16,7 @@
   --accent-color: #e50914;
 
   --line-color: rgba(255, 255, 255, 0.045);
-  --line-opacity: 0.28;
+  --line-opacity: 0.18;
   --glow-color: rgba(229, 9, 20, 0.08);
 
   --transition-fast: 0.3s ease;
@@ -25,12 +25,14 @@
 
 html,
 body,
-#root {
+#root,
+.app {
   margin: 0;
   padding: 0;
   min-height: 100%;
   overflow-x: hidden;
   color: var(--text-color);
+  background: #070a12;
 }
 
 * {
@@ -50,8 +52,9 @@ body {
 
 body::before {
   content: "";
-  position: fixed;
+  position: absolute;
   inset: 0;
+  min-height: 100%;
   pointer-events: none;
   z-index: -1;
   background-image:
@@ -59,13 +62,13 @@ body::before {
     linear-gradient(90deg, var(--line-color) 1px, transparent 1px);
   background-size: 48px 48px;
   opacity: var(--line-opacity);
-  mask-image: linear-gradient(to bottom, black, transparent);
 }
 
 body::after {
   content: "";
-  position: fixed;
+  position: absolute;
   inset: 0;
+  min-height: 100%;
   pointer-events: none;
   z-index: -2;
   background:
@@ -78,6 +81,8 @@ body::after {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative;
+  isolation: isolate;
 }
 
 .app {
