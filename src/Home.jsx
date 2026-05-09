@@ -1,57 +1,102 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import './Home.css'; // Optional: if you want to isolate Home-specific tweaks
+import { NavLink } from "react-router-dom";
+import "./Home.css";
 
 function Home() {
   return (
-    <main className="home-main">
-      <header className="home-header">
-        <h1 className="h1-redish">Welcome to Prestige Movies</h1>
-        <p className="home-subtitle">Your Gateway to the Finest Films from Around the World</p>
-      </header>
-      <br />
+    <main className="home-page">
+      <section className="home-hero">
+        <div className="home-hero-content">
+          <span className="home-kicker">Prestige Streaming</span>
 
-      <section className="home-sections">
-        <div className="home-card">
-          <h2 className="h1-5-redish">Crazy About Movies?</h2>
-          <p>Browse action, romance, horror, or indie hits anytime.</p>
-          <NavLink to="/movies" className="load-more-btn">
-            <i className="bx bxs-movie" style={{ marginRight: '8px', fontSize: '20px'}}></i>Explore Movies
-          </NavLink>
+          <h1>Welcome to Prestige Movies</h1>
+
+          <p>
+            Discover movies, series, trailers and your personal watchlist in one
+            cinematic place.
+          </p>
+
+          <div className="home-actions">
+            <NavLink to="/movies" className="home-primary-btn">
+              <i className="bx bxs-movie-play"></i>
+              Explore Movies
+            </NavLink>
+
+            <NavLink to="/series" className="home-secondary-btn">
+              <i className="bx bxs-tv"></i>
+              Browse Series
+            </NavLink>
+
+            <NavLink to="/search" className="home-secondary-btn">
+              <i className="bx bx-search"></i>
+              Search
+            </NavLink>
+          </div>
         </div>
 
-        <div className="home-card">
-          <h2 className="h1-5-redish">Fan of TV Shows?</h2>
-          <p>Get hooked on trending shows and new seasons weekly.</p>
-          <NavLink to="/series" className="load-more-btn">
-            <i className="bx bxs-tv" style={{ marginRight: '8px', fontSize: '20px'}}></i>Browse Series
-          </NavLink>
-        </div>
-
-        <div className="home-card">
-          <h2 className="h2-redish">Need Help?</h2>
-          <p>Contact support for quick help, feedback or account issues.</p>
-          <NavLink to="/contact" className="load-more-btn">
-            <i className="bx bxs-chat" style={{ marginRight: '8px', fontSize: '20px'}}></i>Contact Support
-          </NavLink>
-        </div>
-
-        <div className="home-card">
-          <h2 className="h2-redish">My Collection</h2>
-          <p>Organize your favorites and watch later list to make movie nights effortless.</p>
-          <NavLink to="/favorites" className="load-more-btn">
-            <i className="bx bxs-bookmarks" style={{ marginRight: '8px', fontSize: '20px'}}></i>Favorites
-          </NavLink>
-          <NavLink to="/watch-later" className="load-more-btn">
-            <i className="bx bxs-time" style={{ marginRight: '8px', fontSize: '20px'}}></i>Watch Later
-          </NavLink>
+        <div className="home-hero-card">
+          <div className="home-mini-poster poster-one"></div>
+          <div className="home-mini-poster poster-two"></div>
+          <div className="home-mini-poster poster-three"></div>
         </div>
       </section>
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
+
+      <section className="home-grid">
+        <NavLink to="/movies" className="home-card">
+          <div className="home-card-icon">
+            <i className="bx bxs-movie"></i>
+          </div>
+
+          <h2>Movies</h2>
+          <p>Explore trending films, new releases, trailers and top rated picks.</p>
+
+          <span>
+            Open Movies
+            <i className="bx bx-chevron-right"></i>
+          </span>
+        </NavLink>
+
+        <NavLink to="/series" className="home-card">
+          <div className="home-card-icon">
+            <i className="bx bxs-tv"></i>
+          </div>
+
+          <h2>Series</h2>
+          <p>Browse popular TV shows, seasons, episodes and new premieres.</p>
+
+          <span>
+            Open Series
+            <i className="bx bx-chevron-right"></i>
+          </span>
+        </NavLink>
+
+        <NavLink to="/favorites" className="home-card">
+          <div className="home-card-icon">
+            <i className="bx bxs-bookmark-heart"></i>
+          </div>
+
+          <h2>Favorites</h2>
+          <p>Keep your best movies and shows saved in one clean collection.</p>
+
+          <span>
+            View Favorites
+            <i className="bx bx-chevron-right"></i>
+          </span>
+        </NavLink>
+
+        <NavLink to="/watch-later" className="home-card">
+          <div className="home-card-icon">
+            <i className="bx bxs-time-five"></i>
+          </div>
+
+          <h2>Watch Later</h2>
+          <p>Save titles for later and build your perfect movie night queue.</p>
+
+          <span>
+            View Watch Later
+            <i className="bx bx-chevron-right"></i>
+          </span>
+        </NavLink>
+      </section>
     </main>
   );
 }

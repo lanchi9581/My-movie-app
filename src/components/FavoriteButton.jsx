@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 export default function FavoriteButton({ id }) {
-  const localStorageKey = 'favoriteMovies';
+  const localStorageKey = "favoriteMovies";
 
   const [favorites, setFavorites] = useState([]);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -14,14 +14,13 @@ export default function FavoriteButton({ id }) {
     }
   };
 
-  // Load favorites iz localStorage
   useEffect(() => {
     const stored = localStorage.getItem(localStorageKey);
     const favs = stored ? safeParse(stored) : [];
+
     setFavorites(favs);
   }, []);
 
-  // Update isFavorite state
   useEffect(() => {
     setIsFavorite(favorites.includes(id));
   }, [favorites, id]);
@@ -30,20 +29,23 @@ export default function FavoriteButton({ id }) {
     let updatedFavorites;
 
     if (favorites.includes(id)) {
-      updatedFavorites = favorites.filter(itemId => itemId !== id);
+      updatedFavorites = favorites.filter((itemId) => itemId !== id);
     } else {
-      updatedFavorites = [...favorites, id]; 
+      updatedFavorites = [...favorites, id];
     }
 
-    // Update state and localStorage
     setFavorites(updatedFavorites);
     localStorage.setItem(localStorageKey, JSON.stringify(updatedFavorites));
   };
 
   return (
-    <button className="pill-button" onClick={toggleFavorite}>
-      <i className={`bx ${isFavorite ? 'bxs-bookmarks' : 'bx-bookmarks'}`} style={{ marginRight: '6px', color: isFavorite? '#ffc107' : undefined }}></i>
-      {isFavorite ? 'Favorited' : 'Favorite'}
+    <button
+      className={isFavorite ? "pill-button is-active" : "pill-button"}
+      onClick={toggleFavorite}
+      type="button"
+    >
+      <i className={`bx ${isFavorite ? "bxs-bookmarks" : "bx-bookmarks"}`}></i>
+      <span>{isFavorite ? "Favorited" : "Favorite"}</span>
     </button>
   );
 }

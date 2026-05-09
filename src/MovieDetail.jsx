@@ -1,181 +1,261 @@
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import './MovieDetail.css';
-import './index.css';
-import ShareButton from './components/ShareButton';
-import FavoriteButton from './components/FavoriteButton';
-import WatchLaterButton from './components/WatchLaterButton';
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
+import "./MovieDetail.css";
 
+import ShareButton from "./components/ShareButton";
+import FavoriteButton from "./components/FavoriteButton";
+import WatchLaterButton from "./components/WatchLaterButton";
 
-const API_KEY = '36669667bad13a98c59f98b32ebb67f5';
-const BASE_URL = 'https://api.themoviedb.org/3';
-const BACKDROP_IMG_URL = 'https://image.tmdb.org/t/p/w780';
+const API_KEY = "36669667bad13a98c59f98b32ebb67f5";
+const BASE_URL = "https://api.themoviedb.org/3";
+const IMG_ORIGINAL = "https://image.tmdb.org/t/p/original";
+const IMG_POSTER = "https://image.tmdb.org/t/p/w500";
+const CAST_IMG = "https://image.tmdb.org/t/p/w185";
+
+const FALLBACK_BACKDROP =
+  "https://placehold.co/1280x720/070a12/ffffff?text=Prestige+Movies";
+
+const FALLBACK_POSTER =
+  "https://placehold.co/500x750/10131f/ffffff?text=No+Poster";
 
 function MovieDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const movieUrl = window.location.href;
 
-  const fromPath = location.state?.from || '/movies';
+  const movieUrl = window.location.href;
+  const fromPath = location.state?.from || "/movies";
   const searchState = location.state?.searchState;
 
   const [movie, setMovie] = useState(null);
   const [cast, setCast] = useState([]);
   const [trailerKey, setTrailerKey] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchMovieData = async () => {
+    async function fetchMovieData() {
+      setLoading(true);
+
       try {
-        const movieRes = await fetch(`${BASE_URL}/movie/${id}?api_key=${API_KEY}`);
+        const [movieRes, creditsRes, videosRes] = await Promise.all([
+          fetch(`${BASE_URL}/movie/${id}?api_key=${API_KEY}&language=en-US`),
+          fetch(`${BASE_URL}/movie/${id}/credits?api_key=${API_KEY}&language=en-US`),
+          fetch(`${BASE_URL}/movie/${id}/videos?api_key=${API_KEY}&language=en-US`),
+        ]);
+
         const movieData = await movieRes.json();
-        setMovie(movieData);
-
-        const creditsRes = await fetch(`${BASE_URL}/movie/${id}/credits?api_key=${API_KEY}`);
         const creditsData = await creditsRes.json();
-        setCast(creditsData.cast?.slice(0, 8) || []);
-
-        const videosRes = await fetch(`${BASE_URL}/movie/${id}/videos?api_key=${API_KEY}`);
         const videosData = await videosRes.json();
-        const trailer = videosData.results.find(
-          video => video.type === 'Trailer' && video.site === 'YouTube'
-        );
-        setTrailerKey(trailer ? trailer.key : null);
+
+        const trailer =
+          videosData.results?.find(
+            (video) => video.type === "Trailer" && video.site === "YouTube"
+          ) ||
+          videosData.results?.find(
+            (video) => video.site === "YouTube"
+          );
+
+        setMovie(movieData);
+        setCast(creditsData.cast?.slice(0, 12) || []);
+        setTrailerKey(trailer?.key || null);
       } catch (error) {
-        console.error('Failed to fetch movie data:', error);
-        setTrailerKey(null);
+        console.error("Failed to fetch movie data:", error);
+      } finally {
+        setLoading(false);
       }
-    };
+    }
 
     fetchMovieData();
   }, [id]);
 
   const handleBackClick = () => {
-    if (fromPath) {
-      navigate(fromPath, { state: { searchState } });
-    }
+    navigate(fromPath, { state: { searchState } });
   };
 
-  if (!movie) return <p>Loading…</p>;
+  const playMovie = () => {
+    navigate(`/movie/${id}/watch`);
+  };
+
+  const playTrailer = () => {
+    if (!trailerKey) {
+      alert("Trailer not available");
+      return;
+    }
+
+    navigate(`/movie/${id}/watch?trailer=${trailerKey}`);
+  };
+
+  if (loading) {
+    return (
+      <main className="detail-loading">
+        <div className="detail-loader"></div>
+        <p>Loading movie...</p>
+      </main>
+    );
+  }
+
+  if (!movie) {
+    return (
+      <main className="detail-loading">
+        <p>Movie not found.</p>
+      </main>
+    );
+  }
+
+  const backdrop = movie.backdrop_path
+    ? `${IMG_ORIGINAL}${movie.backdrop_path}`
+    : FALLBACK_BACKDROP;
+
+  const poster = movie.poster_path
+    ? `${IMG_POSTER}${movie.poster_path}`
+    : FALLBACK_POSTER;
+
+  const year = movie.release_date
+    ? movie.release_date.slice(0, 4)
+    : "N/A";
+
+  const rating = movie.vote_average
+    ? movie.vote_average.toFixed(1)
+    : "N/A";
+
+  const runtime = movie.runtime
+    ? `${Math.floor(movie.runtime / 60)}h ${movie.runtime % 60}m`
+    : "N/A";
+
+  const genres = movie.genres?.map((genre) => genre.name).join(", ") || "N/A";
 
   return (
-    <>
-      <button className="back-arrow-button"  onClick={handleBackClick} aria-label="Go back">
-        <svg xmlns="http://www.w3.org/2000/svg" width={55} height={55} fill="#ff3f3f"  viewBox="0 0 24 24">
-          <path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2m5 11h-6.59l2.29 2.29-1.41 1.41-4.71-4.71 4.71-4.71 1.41 1.41-2.29 2.29H17v2Z" /> 
-        </svg>
-      </button>
+    <main className="movie-detail-page">
+      <section className="movie-hero">
+        <div
+          className="movie-hero-bg"
+          style={{ backgroundImage: `url(${backdrop})` }}
+        />
 
-      <div className="movie-detail-window">
-        <h1 className="h1-5-redish">{movie.title}</h1>
+        <div className="movie-hero-overlay" />
 
-          <div className="movie-top-section">
-            <div
-              className="movie-poster-container clickable-poster"
-              onClick={() => {
-                navigate(`/MoviePlayerPage/${id}`);
-              }}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  navigate(`/MoviePlayerPage/${id}`);
-                }
-              }}
-            >
-            <img
-              className={`landscape-poster ${!movie.backdrop_path ? 'fallback-poster' : ''}`}
-              src={
-                movie.backdrop_path
-                  ? `${BACKDROP_IMG_URL}${movie.backdrop_path}`
-                  : movie.poster_path
-                  ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-                  : 'https://www.legrand.es/modules/custom/legrand_ecat/assets/img/no-image.png'
-              }
-              alt={movie.title}
-            />
-            <div className="play-icon-overlay">
-              <i className="bx bx-play-circle" style={{ fontSize: '48px', color: 'white' }}></i>
+        <button
+          className="detail-back-button"
+          onClick={handleBackClick}
+          aria-label="Go back"
+        >
+          <i className="bx bx-arrow-back"></i>
+          <span>Back</span>
+        </button>
+
+        <div className="movie-hero-content">
+          <div className="movie-poster-card" onClick={playMovie}>
+            <img src={poster} alt={movie.title} />
+
+            <div className="poster-play-overlay">
+              <i className="bx bx-play"></i>
             </div>
           </div>
 
-          <div className="movie-info-panel">
-            <p>
-              <i className="bx bx-calendar" style={{ marginRight: '8px' }}></i>
-              <strong>Release Date:</strong> {movie.release_date}
-            </p>
-            <p>
-              <i className="bx bx-star" style={{ marginRight: '8px', color: '#f5c518' }}></i>
-              <strong>Rating:</strong> {movie.vote_average} / 10
-            </p>
-            <p>
-              <i className="bx bx-category" style={{ marginRight: '8px' }}></i>
-              <strong>Genres:</strong> {movie.genres?.map((g) => g.name).join(', ')}
+          <div className="movie-info-glass">
+            <span className="detail-kicker">Prestige Movie</span>
+
+            <h1>{movie.title}</h1>
+
+            {movie.tagline && (
+              <p className="movie-tagline">“{movie.tagline}”</p>
+            )}
+
+            <div className="movie-meta-row">
+              <span>{year}</span>
+              <span>⭐ {rating}</span>
+              <span>{runtime}</span>
+              <span>{movie.original_language?.toUpperCase()}</span>
+            </div>
+
+            <p className="movie-overview">
+              {movie.overview || "No overview available."}
             </p>
 
-            <div className="action-buttons">
+            <div className="movie-genre-line">
+              <i className="bx bx-category"></i>
+              <span>{genres}</span>
+            </div>
+
+            <div className="detail-action-row">
+              <button className="detail-primary-btn" onClick={playMovie}>
+                <i className="bx bx-play"></i>
+                Play Movie
+              </button>
+
+              <button className="detail-secondary-btn" onClick={playTrailer}>
+                <i className="bx bx-movie-play"></i>
+                Trailer
+              </button>
+            </div>
+
+            <div className="detail-small-actions">
               <FavoriteButton id={movie.id} contentType="movie" />
               <WatchLaterButton id={movie.id} contentType="movie" />
               <ShareButton movieUrl={movieUrl} />
             </div>
+          </div>
+        </div>
+      </section>
 
-            <br />
-            <hr />
-            <h1 className="h3-redish">
-              <strong>Watch now:</strong>
-            </h1>
-            <br />
-            <div className="action-buttons2">
-              <button
-                className="pill-button2"
-                onClick={() => {
-                  if (trailerKey) {
-                    navigate(`/MoviePlayerPage/${id}?trailer=${trailerKey}`);
-                  } else {
-                    alert('Trailer not available');
-                  }
-                }}
-              >
-                <i className="bx bx-play-circle" style={{ marginRight: '6px' }}></i>
-                Trailer
-              </button>
+      <section className="movie-detail-sections">
+        <div className="detail-panel">
+          <h2>Movie Details</h2>
 
-              <button
-                className="pill-button2"
-                onClick={() => {
-                  navigate(`/MoviePlayerPage/${id}`);
-                }}
-              >
-                <i className="bx bx-play-circle" style={{ marginRight: '6px' }}></i>
-                Play Movie
-              </button>
+          <div className="detail-stats-grid">
+            <div>
+              <span>Release Date</span>
+              <strong>{movie.release_date || "N/A"}</strong>
+            </div>
+
+            <div>
+              <span>Rating</span>
+              <strong>{rating} / 10</strong>
+            </div>
+
+            <div>
+              <span>Runtime</span>
+              <strong>{runtime}</strong>
+            </div>
+
+            <div>
+              <span>Status</span>
+              <strong>{movie.status || "N/A"}</strong>
             </div>
           </div>
         </div>
 
-        {/* Overview and Cast */}
-        <div className="overview-cast-container">
-          <div className="pill overview-section">
-            <h3 className="h3-redish">Overview</h3>
-            <p>{movie.overview}</p>
-          </div>
+        <div className="detail-panel">
+          <h2>Top Cast</h2>
 
-          <div className="pill cast-section">
-            <h3 className="h3-redish">Cast</h3>
-            <ul className="cast-list">
+          {cast.length === 0 ? (
+            <p className="empty-detail-text">Cast information not available.</p>
+          ) : (
+            <div className="cast-grid">
               {cast.map((actor) => (
-                <li key={actor.id}>
-                  <span className="arrow">&#9656;</span> {actor.name} as {actor.character}
-                </li>
+                <div className="cast-card" key={`${actor.id}-${actor.character}`}>
+                  <img
+                    src={
+                      actor.profile_path
+                        ? `${CAST_IMG}${actor.profile_path}`
+                        : "https://placehold.co/185x278/10131f/ffffff?text=No+Photo"
+                    }
+                    alt={actor.name}
+                  />
+
+                  <div>
+                    <strong>{actor.name}</strong>
+                    <span>{actor.character || "Unknown role"}</span>
+                  </div>
+                </div>
               ))}
-            </ul>
-          </div>
+            </div>
+          )}
         </div>
-      </div>
-    </>
+      </section>
+    </main>
   );
 }
 
 export default MovieDetail;
-

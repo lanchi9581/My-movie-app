@@ -1,24 +1,24 @@
-import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Navbar from './components/Navbar';
-import MoviePlayerPage from './MoviePlayerPage.jsx';
-import TvPlayerPage from './TvPlayerPage.jsx'
-/*Icone*/
-import 'boxicons/css/boxicons.min.css';
 
-import Home from './Home.jsx';
-import Movies from './Movies.jsx';
-import TvShows from './TvShows.jsx';
-import About from './About.jsx';
-import FavoriteMovies from './pages/FavoritePage.jsx';
-import WatchLaterMovies from './pages/WatchLaterPage.jsx';
-import SearchPage from "./pages/SearchPage.jsx";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
+import Home from "./Home";
 
-import Footer from "./components/Footer.jsx";
-import MovieDetail from './MovieDetail';
-import TvDetail from './TvDetail';
+import Movies from "./pages/Movies";
+import TvShows from "./pages/TvShows";
 
+import SearchPage from "./pages/SearchPage";
+import FavoritePage from "./pages/FavoritePage";
+import WatchLaterPage from "./pages/WatchLaterPage";
+
+import About from "./About";
+
+import MovieDetail from "./MovieDetail";
+import MoviePlayerPage from "./MoviePlayerPage";
+
+import TvDetail from "./TvDetail";
+import TvPlayerPage from "./TvPlayerPage";
 
 function App() {
   return (
@@ -28,16 +28,24 @@ function App() {
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
+
           <Route path="/movies" element={<Movies />} />
           <Route path="/series" element={<TvShows />} />
-          <Route path="/about" element={<About />} />
+
           <Route path="/search" element={<SearchPage />} />
-          <Route path="/favorites" element={<FavoriteMovies />} />
-          <Route path="/watch-later" element={<WatchLaterMovies />} />
+          <Route path="/favorites" element={<FavoritePage />} />
+          <Route path="/watch-later" element={<WatchLaterPage />} />
+
+          <Route path="/about" element={<About />} />
+
           <Route path="/movie/:id" element={<MovieDetail />} />
-          <Route path="/MoviePlayerPage/:id" element={<MoviePlayerPage />} />
+          <Route path="/movie/:id/watch" element={<MoviePlayerPage />} />
+
+          <Route path="/series/:id" element={<TvDetail />} />
+          <Route path="/series/:id/watch" element={<TvPlayerPage />} />
+
           <Route path="/tv/:id" element={<TvDetail />} />
-          <Route path="/TvPlayerPage/:id" element={<TvPlayerPage />} />
+          <Route path="/tv/:id/watch" element={<TvPlayerPage />} />
         </Routes>
       </main>
 
