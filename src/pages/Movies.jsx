@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import MovieCard from "../components/MovieCard";
@@ -16,6 +16,7 @@ const LOAD_MORE = 4;
 const MAX_SECTION_PAGES = 6;
 const PREFETCH_OFFSET = 6;
 const SCROLL_ANIMATION_MS = 600;
+const AUTO_LOAD_SCROLL_OFFSET = 420;
 
 const SECTIONS = [
   { id: "trending", title: "Trending Movies", endpoint: "/trending/movie/day" },
@@ -146,6 +147,8 @@ function Movies() {
 
   const [loading, setLoading] = useState(true);
 
+  const loadMoreLocksRef = useRef(new Set());
+
   useEffect(() => {
     async function fetchTrailerMovies() {
       try {
@@ -225,10 +228,7 @@ function Movies() {
 
               addUniqueMovies(moreMovies);
             } catch (error) {
-              console.error(
-                `Failed to fill section ${section.title}:`,
-                error
-              );
+              console.error(`Failed to fill section ${section.title}:`, error);
               break;
             }
           }
@@ -340,11 +340,6 @@ function Movies() {
     });
   };
 
-  const handleRowScroll = (sectionId, event) => {
-    const row = event.currentTarget;
-    setRowLeftState(sectionId, row.scrollLeft > 8);
-  };
-
   const fetchSectionPage = async (section, page, baseSectionsData) => {
     if (loadingMoreSections[section.id]) {
       return {
@@ -415,6 +410,124 @@ function Movies() {
     }
   };
 
+  const loadMoreForSection = async ({
+    section,
+    row,
+    shouldAnimateScroll = false,
+  }) => {
+    const sectionId = section.id;
+
+    if (!row) return;
+    if (loadMoreLocksRef.current.has(sectionId)) return;
+    if (animatingRows[sectionId]) return;
+
+    const currentVisible = visibleCounts[sectionId] || INITIAL_VISIBLE;
+    const currentPage = sectionPages[sectionId] || 1;
+    const currentMovies = sectionsData[sectionId] || [];
+
+    const hasMoreInCurrentData = currentVisible < currentMovies.length;
+    const canFetchMorePages = currentPage < MAX_SECTION_PAGES;
+
+    if (!hasMoreInCurrentData && !canFetchMorePages) return;
+
+    loadMoreLocksRef.current.add(sectionId);
+
+    try {
+      let workingSectionsData = sectionsData;
+      let movies = workingSectionsData[sectionId] || [];
+      let totalMovies = movies.length;
+
+      let nextPage = currentPage;
+      const wantedVisible = currentVisible + LOAD_MORE;
+
+      while (
+        wantedVisible > totalMovies - PREFETCH_OFFSET &&
+        nextPage < MAX_SECTION_PAGES
+      ) {
+        nextPage += 1;
+
+        const result = await fetchSectionPage(
+          section,
+          nextPage,
+          workingSectionsData
+        );
+
+        workingSectionsData = result.sectionsData;
+        movies = result.movies;
+        totalMovies = movies.length;
+
+        if (totalMovies >= wantedVisible) {
+          break;
+        }
+      }
+
+      const nextVisible = Math.min(wantedVisible, totalMovies);
+      const addedCount = nextVisible - currentVisible;
+
+      if (addedCount <= 0) return;
+
+      const distance = getCardScrollDistance(row, addedCount);
+
+      if (shouldAnimateScroll) {
+        setAnimatingRows((prev) => ({
+          ...prev,
+          [sectionId]: true,
+        }));
+      }
+
+      setVisibleCounts((prev) => ({
+        ...prev,
+        [sectionId]: nextVisible,
+      }));
+
+      if (shouldAnimateScroll) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            row.scrollBy({
+              left: distance,
+              behavior: "smooth",
+            });
+          });
+        });
+
+        setTimeout(() => {
+          setAnimatingRows((prev) => {
+            const next = { ...prev };
+            delete next[sectionId];
+            return next;
+          });
+
+          setRowLeftState(sectionId, true);
+        }, SCROLL_ANIMATION_MS);
+      }
+    } finally {
+      const unlockDelay = shouldAnimateScroll ? SCROLL_ANIMATION_MS + 80 : 350;
+
+      setTimeout(() => {
+        loadMoreLocksRef.current.delete(sectionId);
+      }, unlockDelay);
+    }
+  };
+
+  const handleRowScroll = (section, event) => {
+    const sectionId = section.id;
+    const row = event.currentTarget;
+
+    setRowLeftState(sectionId, row.scrollLeft > 8);
+
+    const isNearEnd =
+      row.scrollLeft + row.clientWidth >=
+      row.scrollWidth - AUTO_LOAD_SCROLL_OFFSET;
+
+    if (isNearEnd) {
+      loadMoreForSection({
+        section,
+        row,
+        shouldAnimateScroll: false,
+      });
+    }
+  };
+
   const scrollRow = async (section, direction) => {
     const sectionId = section.id;
     const row = document.getElementById(`movie-row-${sectionId}`);
@@ -449,70 +562,11 @@ function Movies() {
       return;
     }
 
-    let workingSectionsData = sectionsData;
-    let movies = workingSectionsData[sectionId] || [];
-    let totalMovies = movies.length;
-
-    const currentVisible = visibleCounts[sectionId] || INITIAL_VISIBLE;
-    let currentPage = sectionPages[sectionId] || 1;
-    const wantedVisible = currentVisible + LOAD_MORE;
-
-    while (
-      wantedVisible > totalMovies - PREFETCH_OFFSET &&
-      currentPage < MAX_SECTION_PAGES
-    ) {
-      currentPage += 1;
-
-      const result = await fetchSectionPage(
-        section,
-        currentPage,
-        workingSectionsData
-      );
-
-      workingSectionsData = result.sectionsData;
-      movies = result.movies;
-      totalMovies = movies.length;
-
-      if (totalMovies >= wantedVisible) {
-        break;
-      }
-    }
-
-    const nextVisible = Math.min(wantedVisible, totalMovies);
-    const addedCount = nextVisible - currentVisible;
-
-    if (addedCount <= 0) return;
-
-    const distance = getCardScrollDistance(row, addedCount);
-
-    setAnimatingRows((prev) => ({
-      ...prev,
-      [sectionId]: true,
-    }));
-
-    setVisibleCounts((prev) => ({
-      ...prev,
-      [sectionId]: nextVisible,
-    }));
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        row.scrollBy({
-          left: distance,
-          behavior: "smooth",
-        });
-      });
+    await loadMoreForSection({
+      section,
+      row,
+      shouldAnimateScroll: true,
     });
-
-    setTimeout(() => {
-      setAnimatingRows((prev) => {
-        const next = { ...prev };
-        delete next[sectionId];
-        return next;
-      });
-
-      setRowLeftState(sectionId, true);
-    }, SCROLL_ANIMATION_MS);
   };
 
   return (
@@ -542,7 +596,7 @@ function Movies() {
                 onClick={goPrevTrailer}
                 aria-label="Previous movie"
               >
-                <i className="bx bx-chevron-left"></i>
+                <i className="bx bx-chevron-left" aria-hidden="true"></i>
               </button>
 
               <button
@@ -551,7 +605,7 @@ function Movies() {
                 onClick={goNextTrailer}
                 aria-label="Next movie"
               >
-                <i className="bx bx-chevron-right"></i>
+                <i className="bx bx-chevron-right" aria-hidden="true"></i>
               </button>
 
               <div className="trailer-info">
@@ -567,7 +621,7 @@ function Movies() {
 
                 <div className="trailer-copy">
                   <span className="trailer-play">
-                    <i className="bx bx-play"></i>
+                    <i className="bx bx-play" aria-hidden="true"></i>
                   </span>
 
                   <div>
@@ -581,17 +635,17 @@ function Movies() {
 
                     <div className="trailer-meta">
                       <span>
-                        <i className="bx bxs-star"></i>
+                        <i className="bx bxs-star" aria-hidden="true"></i>
                         {activeTrailer.vote_average?.toFixed(1) || "N/A"}
                       </span>
 
                       <span>
-                        <i className="bx bx-calendar"></i>
+                        <i className="bx bx-calendar" aria-hidden="true"></i>
                         {activeTrailer.release_date?.slice(0, 4) || "Soon"}
                       </span>
 
                       <span>
-                        <i className="bx bx-movie-play"></i>
+                        <i className="bx bx-movie-play" aria-hidden="true"></i>
                         Movie
                       </span>
                     </div>
@@ -622,14 +676,14 @@ function Movies() {
 
                     <div>
                       <span className="mini-play">
-                        <i className="bx bx-play"></i>
+                        <i className="bx bx-play" aria-hidden="true"></i>
                       </span>
 
                       <strong>{movie.title}</strong>
                       <small>Open movie details</small>
 
                       <span className="up-next-rating">
-                        <i className="bx bxs-star"></i>
+                        <i className="bx bxs-star" aria-hidden="true"></i>
                         {movie.vote_average?.toFixed(1) || "N/A"}
                       </span>
                     </div>
@@ -669,7 +723,7 @@ function Movies() {
 
                 <Link to="/search" className="view-more-link">
                   View more
-                  <i className="bx bx-chevron-right"></i>
+                  <i className="bx bx-chevron-right" aria-hidden="true"></i>
                 </Link>
               </div>
 
@@ -681,13 +735,13 @@ function Movies() {
                   disabled={!canGoLeft || isAnimating}
                   aria-label={`Scroll ${section.title} left`}
                 >
-                  <i className="bx bx-chevron-left"></i>
+                  <i className="bx bx-chevron-left" aria-hidden="true"></i>
                 </button>
 
                 <div
                   className={`movie-row ${isAnimating ? "is-animating" : ""}`}
                   id={`movie-row-${section.id}`}
-                  onScroll={(event) => handleRowScroll(section.id, event)}
+                  onScroll={(event) => handleRowScroll(section, event)}
                 >
                   {visibleMovies.map((movie) => (
                     <MovieCard
@@ -704,7 +758,7 @@ function Movies() {
                   disabled={!canGoRight || isLoadingMore || isAnimating}
                   aria-label={`Scroll ${section.title} right`}
                 >
-                  <i className="bx bx-chevron-right"></i>
+                  <i className="bx bx-chevron-right" aria-hidden="true"></i>
                 </button>
               </div>
             </section>
