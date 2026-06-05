@@ -29,16 +29,16 @@
 .brand-mark {
   width: 42px;
   height: 42px;
-  display: grid;
-  place-items: center;
+  display: flex;
   border-radius: 14px;
-  background: linear-gradient(135deg, #c40012, #720008);
-  box-shadow: 0 0 18px rgba(196, 0, 18, 0.28);
+  align-items: center;
+  justify-content: center;
 }
 
-.brand-mark i {
-  font-size: 1.6rem;
-  color: #fff;
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .brand-text {

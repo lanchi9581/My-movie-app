@@ -33,7 +33,7 @@ function Navbar() {
       <nav className="navbar">
         <NavLink to="/" className="brand" onClick={closeMenu}>
           <div className="brand-mark">
-            <i className="bx bxs-movie-play"></i>
+            <img src="/logo3.png" alt="Prestige Movies" />
           </div>
 
           <div className="brand-text">
