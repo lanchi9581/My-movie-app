@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
-import MovieCard from "../MovieCard";
+import MovieCard from "../MovieCard/MovieCard";
 
 import "./MediaRows.css";
 

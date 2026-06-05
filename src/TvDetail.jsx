@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
-import ShareButton from "./components/ShareButton";
+import ShareButton from "./components/Fav-Share-Watch-Button/ShareButton";
 import "./TvDetail.css";
 
 const API_KEY = "36669667bad13a98c59f98b32ebb67f5";
