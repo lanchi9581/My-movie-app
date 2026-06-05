@@ -17,8 +17,7 @@
   z-index: -1;
 }
 
-.trailers-section,
-.movie-row-section {
+.trailers-section {
   width: min(1500px, calc(100% - 44px));
   margin: 0 auto;
 }
@@ -62,6 +61,8 @@
   background: #05070d;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 28px 90px rgba(0, 0, 0, 0.45);
+  text-decoration: none;
+  color: inherit;
 }
 
 .trailer-backdrop {
@@ -266,144 +267,6 @@
   color: #f4c430;
 }
 
-.movies-loading {
-  width: min(1500px, calc(100% - 44px));
-  margin: 35px auto;
-  color: rgba(255, 255, 255, 0.72);
-}
-
-.movie-row-section {
-  margin-top: 58px;
-}
-
-.movie-row-header {
-  margin-bottom: 18px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.movie-row-header h2 {
-  margin: 0;
-  color: #fff;
-  font-size: clamp(1.65rem, 3vw, 3rem);
-  line-height: 1;
-  letter-spacing: -0.045em;
-  text-transform: uppercase;
-}
-
-.view-more-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: rgba(255, 255, 255, 0.72);
-  text-decoration: none;
-  font-weight: 850;
-}
-
-.view-more-link:hover {
-  color: #fff;
-}
-
-.movie-row {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 168px;
-  gap: 18px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 2px 4px 28px;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
-}
-
-.movie-row::-webkit-scrollbar {
-  display: none;
-}
-
-.movie-row .movie-card {
-  width: 168px;
-}
-
-.movie-row-wrap {
-  position: relative;
-}
-
-.row-arrow {
-  position: absolute;
-  top: 43%;
-  z-index: 12;
-  width: 46px;
-  height: 76px;
-  display: grid;
-  place-items: center;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.055)),
-    rgba(7, 10, 18, 0.62);
-  color: #fff;
-  cursor: pointer;
-  backdrop-filter: blur(14px);
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
-  transform: translateY(-50%);
-  transition: 0.22s ease;
-}
-
-.row-arrow i {
-  font-size: 2.4rem;
-}
-
-.row-arrow:hover {
-  background: rgba(229, 9, 20, 0.86);
-  border-color: rgba(229, 9, 20, 0.95);
-  transform: translateY(-50%) scale(1.04);
-}
-
-.row-arrow-left {
-  left: -12px;
-}
-
-.row-arrow-right {
-  right: -12px;
-}
-
-.movie-row.is-animating {
-  pointer-events: none;
-}
-
-.row-arrow {
-  transition: opacity 0.25s ease, transform 0.25s ease;
-}
-
-.row-arrow:not(:disabled) {
-  opacity: 1;
-}
-
-.row-arrow:disabled {
-  opacity: 0.28;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-@media (max-width: 760px) {
-  .row-arrow {
-    width: 42px;
-    height: 64px;
-    border-radius: 16px;
-    opacity: 0.92;
-  }
-
-  .row-arrow-left {
-    display: none;
-  }
-
-  .row-arrow-right {
-    right: 4px;
-  }
-}
-
 @media (max-width: 1100px) {
   .trailers-layout {
     grid-template-columns: 1fr;
@@ -423,65 +286,12 @@
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 760px) {
   .movies-page {
     padding-top: 20px;
   }
 
-  .trailers-section,
-  .movie-row-section,
-  .movies-loading {
-    width: min(100% - 24px, 1500px);
-  }
-
-  .trailer-hero {
-    min-height: 520px;
-    border-radius: 22px;
-  }
-
-  .trailer-info {
-    left: 18px;
-    right: 18px;
-    bottom: 18px;
-    align-items: flex-start;
-  }
-
-  .trailer-poster {
-    display: none;
-  }
-
-  .trailer-copy {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .trailer-play {
-    width: 66px;
-    height: 66px;
-  }
-
-  .trailer-arrow {
-    width: 42px;
-    height: 60px;
-  }
-
-  .movie-row {
-    grid-auto-columns: 138px;
-    gap: 14px;
-  }
-
-  .movie-row .movie-card {
-    width: 138px;
-  }
-}
-
-@media (max-width: 760px) {
-  .row-arrow {
-    display: none;
-  }
-
-  .trailers-section,
-  .movie-row-section {
+  .trailers-section {
     width: min(100% - 24px, 1500px);
   }
 
@@ -585,30 +395,5 @@
 
   .trailer-meta span {
     font-size: 0.78rem;
-  }
-}
-
-.mobile-scroll-hint {
-  display: none;
-}
-
-@media (max-width: 760px) {
-  .movie-row-wrap::after {
-    content: "Scroll →";
-    position: absolute;
-    right: 4px;
-    bottom: -2px;
-    z-index: 8;
-    color: rgba(255, 255, 255, 0.34);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    pointer-events: none;
-    text-shadow: none;
-  }
-
-
-  .movie-row {
-    padding-bottom: 34px;
   }
 }
