@@ -20,7 +20,7 @@ const HOSTS = [
     label: "VidSrc",
     note: "Backup",
     needsImdb: false,
-    getUrl: ({ id }) => `https://vidsrc-embed.ru/embed/movie?tmdb=${id}`,
+    getUrl: ({ id }) => `https://vsembed.su/embed/movie/${id}`,
   },
   {
     id: "hnembed",
@@ -252,12 +252,10 @@ function MoviePlayerPage() {
               className="movie-iframe active"
               src={embedSrc}
               title={`${selectedHost.label} Player`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+              allow="fullscreen *; autoplay *; encrypted-media *; picture-in-picture *"
               allowFullScreen
-              webkitallowfullscreen="true"
-              mozallowfullscreen="true"
               frameBorder="0"
-              referrerPolicy="no-referrer"
+              referrerPolicy="origin"
             />
           ) : (
         <div className="safe-player-card">
