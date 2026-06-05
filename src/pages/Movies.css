@@ -369,6 +369,24 @@
   right: -12px;
 }
 
+.movie-row.is-animating {
+  pointer-events: none;
+}
+
+.row-arrow {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.row-arrow:not(:disabled) {
+  opacity: 1;
+}
+
+.row-arrow:disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 @media (max-width: 760px) {
   .row-arrow {
     width: 42px;

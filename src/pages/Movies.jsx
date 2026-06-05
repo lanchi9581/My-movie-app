@@ -7,8 +7,15 @@ import "./Movies.css";
 
 const API_KEY = "36669667bad13a98c59f98b32ebb67f5";
 const BASE_URL = "https://api.themoviedb.org/3";
-const BACKDROP_URL = "https://image.tmdb.org/t/p/original";
-const POSTER_URL = "https://image.tmdb.org/t/p/w500";
+
+const BACKDROP_URL = "https://image.tmdb.org/t/p/w1280";
+const POSTER_URL = "https://image.tmdb.org/t/p/w342";
+
+const INITIAL_VISIBLE = 9;
+const LOAD_MORE = 4;
+const MAX_SECTION_PAGES = 6;
+const PREFETCH_OFFSET = 6;
+const SCROLL_ANIMATION_MS = 600;
 
 const SECTIONS = [
   { id: "trending", title: "Trending Movies", endpoint: "/trending/movie/day" },
@@ -36,62 +43,125 @@ const SECTIONS = [
   },
 ];
 
+const preloadedPosterUrls = new Set();
+
+function buildSectionUrl(section, page = 1) {
+  return `${BASE_URL}${section.endpoint}?api_key=${API_KEY}&language=en-US&page=${page}${
+    section.params || ""
+  }`;
+}
+
+function getMovieKey(movie) {
+  if (!movie?.id) return null;
+  return String(movie.id);
+}
+
+async function fetchRawSectionPage(section, page) {
+  const res = await fetch(buildSectionUrl(section, page));
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch ${section.title}, page ${page}`);
+  }
+
+  const data = await res.json();
+  return data.results || [];
+}
+
+function mergeUniqueMovies(oldMovies, newMovies) {
+  const map = new Map();
+
+  [...oldMovies, ...newMovies].forEach((movie) => {
+    const key = getMovieKey(movie);
+
+    if (key) {
+      map.set(key, movie);
+    }
+  });
+
+  return Array.from(map.values());
+}
+
+function filterMoviesForSection(fetchedMovies, sectionId, allSectionsData) {
+  const usedMovieIds = new Set();
+
+  Object.entries(allSectionsData).forEach(([currentSectionId, movies]) => {
+    if (currentSectionId === sectionId) return;
+
+    movies.forEach((movie) => {
+      const key = getMovieKey(movie);
+
+      if (key) {
+        usedMovieIds.add(key);
+      }
+    });
+  });
+
+  return fetchedMovies.filter((movie) => {
+    const key = getMovieKey(movie);
+
+    if (!key || usedMovieIds.has(key)) return false;
+
+    usedMovieIds.add(key);
+    return true;
+  });
+}
+
+function getPosterUrl(movie) {
+  if (!movie?.poster_path) return null;
+  return `${POSTER_URL}${movie.poster_path}`;
+}
+
+function preloadPoster(movie) {
+  const posterUrl = getPosterUrl(movie);
+
+  if (!posterUrl || preloadedPosterUrls.has(posterUrl)) return;
+
+  preloadedPosterUrls.add(posterUrl);
+
+  const img = new Image();
+  img.src = posterUrl;
+}
+
+function getCardScrollDistance(row, count) {
+  const card = row.querySelector(".movie-card");
+
+  if (!card) return 520;
+
+  const rowStyles = window.getComputedStyle(row);
+  const gap = parseFloat(rowStyles.columnGap || rowStyles.gap || "0") || 0;
+
+  return (card.getBoundingClientRect().width + gap) * count;
+}
+
 function Movies() {
   const [trailerMovies, setTrailerMovies] = useState([]);
   const [activeTrailerIndex, setActiveTrailerIndex] = useState(0);
+
   const [sectionsData, setSectionsData] = useState({});
+  const [sectionPages, setSectionPages] = useState({});
+  const [visibleCounts, setVisibleCounts] = useState({});
+  const [loadingMoreSections, setLoadingMoreSections] = useState({});
+  const [animatingRows, setAnimatingRows] = useState({});
+  const [rowCanGoLeft, setRowCanGoLeft] = useState({});
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchTrailerMovies() {
       try {
-        const res = await fetch(
-          `${BASE_URL}/movie/upcoming?api_key=${API_KEY}&language=en-US&page=1`
+        const movies = await fetchRawSectionPage(
+          {
+            title: "Upcoming trailers",
+            endpoint: "/movie/upcoming",
+          },
+          1
         );
 
-        const data = await res.json();
-        const movies = data.results || [];
+        const filteredMovies = movies
+          .filter((movie) => movie.backdrop_path)
+          .slice(0, 8);
 
-        const moviesWithVideos = await Promise.all(
-          movies.slice(0, 8).map(async (movie) => {
-            try {
-              const videoRes = await fetch(
-                `${BASE_URL}/movie/${movie.id}/videos?api_key=${API_KEY}&language=en-US`
-              );
-
-              const videoData = await videoRes.json();
-
-              const trailer =
-                videoData.results?.find(
-                  (video) =>
-                    video.site === "YouTube" &&
-                    video.type === "Trailer" &&
-                    video.official
-                ) ||
-                videoData.results?.find(
-                  (video) =>
-                    video.site === "YouTube" && video.type === "Trailer"
-                ) ||
-                videoData.results?.find((video) => video.site === "YouTube");
-
-              return {
-                ...movie,
-                trailerKey: trailer?.key || null,
-              };
-            } catch (error) {
-              console.error("Trailer fetch failed:", error);
-
-              return {
-                ...movie,
-                trailerKey: null,
-              };
-            }
-          })
-        );
-
-        setTrailerMovies(
-          moviesWithVideos.filter((movie) => movie.backdrop_path)
-        );
+        setTrailerMovies(filteredMovies);
       } catch (error) {
         console.error("Failed to fetch trailer movies:", error);
       }
@@ -105,29 +175,77 @@ function Movies() {
       setLoading(true);
 
       try {
-        const results = await Promise.all(
+        const firstPages = await Promise.all(
           SECTIONS.map(async (section) => {
-            const url = `${BASE_URL}${section.endpoint}?api_key=${API_KEY}&language=en-US&page=1${
-              section.params || ""
-            }`;
-
-            const res = await fetch(url);
-            const data = await res.json();
+            const movies = await fetchRawSectionPage(section, 1);
 
             return {
-              id: section.id,
-              movies: data.results || [],
+              section,
+              movies,
             };
           })
         );
 
+        const usedMovieIds = new Set();
         const nextData = {};
+        const nextPages = {};
+        const nextVisibleCounts = {};
+        const nextCanGoLeft = {};
 
-        results.forEach((section) => {
-          nextData[section.id] = section.movies;
-        });
+        for (const result of firstPages) {
+          const { section } = result;
+
+          let currentPage = 1;
+          const uniqueMovies = [];
+
+          const addUniqueMovies = (movies) => {
+            movies.forEach((movie) => {
+              const key = getMovieKey(movie);
+
+              if (!key || usedMovieIds.has(key)) return;
+
+              usedMovieIds.add(key);
+              uniqueMovies.push(movie);
+            });
+          };
+
+          addUniqueMovies(result.movies);
+
+          while (
+            uniqueMovies.length < INITIAL_VISIBLE &&
+            currentPage < MAX_SECTION_PAGES
+          ) {
+            currentPage += 1;
+
+            try {
+              const moreMovies = await fetchRawSectionPage(
+                section,
+                currentPage
+              );
+
+              addUniqueMovies(moreMovies);
+            } catch (error) {
+              console.error(
+                `Failed to fill section ${section.title}:`,
+                error
+              );
+              break;
+            }
+          }
+
+          nextData[section.id] = uniqueMovies;
+          nextPages[section.id] = currentPage;
+          nextVisibleCounts[section.id] = Math.min(
+            INITIAL_VISIBLE,
+            uniqueMovies.length
+          );
+          nextCanGoLeft[section.id] = false;
+        }
 
         setSectionsData(nextData);
+        setSectionPages(nextPages);
+        setVisibleCounts(nextVisibleCounts);
+        setRowCanGoLeft(nextCanGoLeft);
       } catch (error) {
         console.error("Failed to fetch movie sections:", error);
       } finally {
@@ -149,6 +267,33 @@ function Movies() {
 
     return () => clearInterval(interval);
   }, [trailerMovies.length]);
+
+  useEffect(() => {
+    if (loading) return;
+
+    const preloadNextImages = () => {
+      SECTIONS.forEach((section) => {
+        const movies = sectionsData[section.id] || [];
+        const visibleCount = visibleCounts[section.id] || INITIAL_VISIBLE;
+
+        movies
+          .slice(visibleCount, visibleCount + LOAD_MORE)
+          .forEach((movie) => preloadPoster(movie));
+      });
+    };
+
+    if ("requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(preloadNextImages, {
+        timeout: 1500,
+      });
+
+      return () => window.cancelIdleCallback(idleId);
+    }
+
+    const timeoutId = setTimeout(preloadNextImages, 400);
+
+    return () => clearTimeout(timeoutId);
+  }, [loading, sectionsData, visibleCounts]);
 
   const activeTrailer = trailerMovies[activeTrailerIndex];
 
@@ -184,15 +329,190 @@ function Movies() {
     }
   };
 
-  const scrollRow = (sectionId, direction) => {
+  const setRowLeftState = (sectionId, canGoLeft) => {
+    setRowCanGoLeft((prev) => {
+      if (prev[sectionId] === canGoLeft) return prev;
+
+      return {
+        ...prev,
+        [sectionId]: canGoLeft,
+      };
+    });
+  };
+
+  const handleRowScroll = (sectionId, event) => {
+    const row = event.currentTarget;
+    setRowLeftState(sectionId, row.scrollLeft > 8);
+  };
+
+  const fetchSectionPage = async (section, page, baseSectionsData) => {
+    if (loadingMoreSections[section.id]) {
+      return {
+        movies: baseSectionsData[section.id] || [],
+        sectionsData: baseSectionsData,
+      };
+    }
+
+    setLoadingMoreSections((prev) => ({
+      ...prev,
+      [section.id]: true,
+    }));
+
+    try {
+      const fetchedMovies = await fetchRawSectionPage(section, page);
+
+      const filteredMovies = filterMoviesForSection(
+        fetchedMovies,
+        section.id,
+        baseSectionsData
+      );
+
+      const currentMovies = baseSectionsData[section.id] || [];
+      const combinedMovies = mergeUniqueMovies(currentMovies, filteredMovies);
+
+      const nextSectionsData = {
+        ...baseSectionsData,
+        [section.id]: combinedMovies,
+      };
+
+      setSectionsData((prev) => {
+        const latestFilteredMovies = filterMoviesForSection(
+          fetchedMovies,
+          section.id,
+          prev
+        );
+
+        return {
+          ...prev,
+          [section.id]: mergeUniqueMovies(
+            prev[section.id] || [],
+            latestFilteredMovies
+          ),
+        };
+      });
+
+      setSectionPages((prev) => ({
+        ...prev,
+        [section.id]: Math.max(prev[section.id] || 1, page),
+      }));
+
+      return {
+        movies: combinedMovies,
+        sectionsData: nextSectionsData,
+      };
+    } catch (error) {
+      console.error("Failed to fetch more movies:", error);
+
+      return {
+        movies: baseSectionsData[section.id] || [],
+        sectionsData: baseSectionsData,
+      };
+    } finally {
+      setLoadingMoreSections((prev) => ({
+        ...prev,
+        [section.id]: false,
+      }));
+    }
+  };
+
+  const scrollRow = async (section, direction) => {
+    const sectionId = section.id;
     const row = document.getElementById(`movie-row-${sectionId}`);
 
-    if (!row) return;
+    if (!row || animatingRows[sectionId]) return;
 
-    row.scrollBy({
-      left: direction === "left" ? -520 : 520,
-      behavior: "smooth",
+    if (direction === "left") {
+      if (!rowCanGoLeft[sectionId]) return;
+
+      const distance = getCardScrollDistance(row, LOAD_MORE);
+
+      setAnimatingRows((prev) => ({
+        ...prev,
+        [sectionId]: true,
+      }));
+
+      row.scrollBy({
+        left: -distance,
+        behavior: "smooth",
+      });
+
+      setTimeout(() => {
+        setAnimatingRows((prev) => {
+          const next = { ...prev };
+          delete next[sectionId];
+          return next;
+        });
+
+        setRowLeftState(sectionId, row.scrollLeft > 8);
+      }, SCROLL_ANIMATION_MS);
+
+      return;
+    }
+
+    let workingSectionsData = sectionsData;
+    let movies = workingSectionsData[sectionId] || [];
+    let totalMovies = movies.length;
+
+    const currentVisible = visibleCounts[sectionId] || INITIAL_VISIBLE;
+    let currentPage = sectionPages[sectionId] || 1;
+    const wantedVisible = currentVisible + LOAD_MORE;
+
+    while (
+      wantedVisible > totalMovies - PREFETCH_OFFSET &&
+      currentPage < MAX_SECTION_PAGES
+    ) {
+      currentPage += 1;
+
+      const result = await fetchSectionPage(
+        section,
+        currentPage,
+        workingSectionsData
+      );
+
+      workingSectionsData = result.sectionsData;
+      movies = result.movies;
+      totalMovies = movies.length;
+
+      if (totalMovies >= wantedVisible) {
+        break;
+      }
+    }
+
+    const nextVisible = Math.min(wantedVisible, totalMovies);
+    const addedCount = nextVisible - currentVisible;
+
+    if (addedCount <= 0) return;
+
+    const distance = getCardScrollDistance(row, addedCount);
+
+    setAnimatingRows((prev) => ({
+      ...prev,
+      [sectionId]: true,
+    }));
+
+    setVisibleCounts((prev) => ({
+      ...prev,
+      [sectionId]: nextVisible,
+    }));
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        row.scrollBy({
+          left: distance,
+          behavior: "smooth",
+        });
+      });
     });
+
+    setTimeout(() => {
+      setAnimatingRows((prev) => {
+        const next = { ...prev };
+        delete next[sectionId];
+        return next;
+      });
+
+      setRowLeftState(sectionId, true);
+    }, SCROLL_ANIMATION_MS);
   };
 
   return (
@@ -210,6 +530,8 @@ function Movies() {
                 className="trailer-backdrop"
                 src={`${BACKDROP_URL}${activeTrailer.backdrop_path}`}
                 alt={activeTrailer.title}
+                decoding="async"
+                fetchPriority="high"
               />
 
               <div className="trailer-gradient" />
@@ -238,6 +560,8 @@ function Movies() {
                     className="trailer-poster"
                     src={`${POSTER_URL}${activeTrailer.poster_path}`}
                     alt={activeTrailer.title}
+                    loading="lazy"
+                    decoding="async"
                   />
                 )}
 
@@ -291,6 +615,8 @@ function Movies() {
                       <img
                         src={`${POSTER_URL}${movie.poster_path}`}
                         alt={movie.title}
+                        loading="lazy"
+                        decoding="async"
                       />
                     )}
 
@@ -318,47 +644,72 @@ function Movies() {
       {loading && <p className="movies-loading">Loading movies...</p>}
 
       {!loading &&
-        SECTIONS.map((section) => (
-          <section className="movie-row-section" key={section.id}>
-            <div className="movie-row-header">
-              <div>
-                <span className="section-kicker">Prestige Movies</span>
-                <h2>{section.title}</h2>
+        SECTIONS.map((section) => {
+          const sectionMovies = sectionsData[section.id] || [];
+          const visibleCount = visibleCounts[section.id] || INITIAL_VISIBLE;
+          const visibleMovies = sectionMovies.slice(0, visibleCount);
+
+          const currentPage = sectionPages[section.id] || 1;
+          const isLoadingMore = Boolean(loadingMoreSections[section.id]);
+          const isAnimating = Boolean(animatingRows[section.id]);
+
+          const canGoLeft = Boolean(rowCanGoLeft[section.id]);
+
+          const canGoRight =
+            visibleCount < sectionMovies.length ||
+            currentPage < MAX_SECTION_PAGES;
+
+          return (
+            <section className="movie-row-section" key={section.id}>
+              <div className="movie-row-header">
+                <div>
+                  <span className="section-kicker">Prestige Movies</span>
+                  <h2>{section.title}</h2>
+                </div>
+
+                <Link to="/search" className="view-more-link">
+                  View more
+                  <i className="bx bx-chevron-right"></i>
+                </Link>
               </div>
 
-              <Link to="/search" className="view-more-link">
-                View more
-                <i className="bx bx-chevron-right"></i>
-              </Link>
-            </div>
+              <div className="movie-row-wrap">
+                <button
+                  className="row-arrow row-arrow-left"
+                  type="button"
+                  onClick={() => scrollRow(section, "left")}
+                  disabled={!canGoLeft || isAnimating}
+                  aria-label={`Scroll ${section.title} left`}
+                >
+                  <i className="bx bx-chevron-left"></i>
+                </button>
 
-            <div className="movie-row-wrap">
-              <button
-                className="row-arrow row-arrow-left"
-                type="button"
-                onClick={() => scrollRow(section.id, "left")}
-                aria-label={`Scroll ${section.title} left`}
-              >
-                <i className="bx bx-chevron-left"></i>
-              </button>
+                <div
+                  className={`movie-row ${isAnimating ? "is-animating" : ""}`}
+                  id={`movie-row-${section.id}`}
+                  onScroll={(event) => handleRowScroll(section.id, event)}
+                >
+                  {visibleMovies.map((movie) => (
+                    <MovieCard
+                      key={`${section.id}-${movie.id}`}
+                      movie={movie}
+                    />
+                  ))}
+                </div>
 
-              <div className="movie-row" id={`movie-row-${section.id}`}>
-                {(sectionsData[section.id] || []).slice(0, 18).map((movie) => (
-                  <MovieCard key={`${section.id}-${movie.id}`} movie={movie} />
-                ))}
+                <button
+                  className="row-arrow row-arrow-right"
+                  type="button"
+                  onClick={() => scrollRow(section, "right")}
+                  disabled={!canGoRight || isLoadingMore || isAnimating}
+                  aria-label={`Scroll ${section.title} right`}
+                >
+                  <i className="bx bx-chevron-right"></i>
+                </button>
               </div>
-
-              <button
-                className="row-arrow row-arrow-right"
-                type="button"
-                onClick={() => scrollRow(section.id, "right")}
-                aria-label={`Scroll ${section.title} right`}
-              >
-                <i className="bx bx-chevron-right"></i>
-              </button>
-            </div>
-          </section>
-        ))}
+            </section>
+          );
+        })}
     </main>
   );
 }
