@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import MovieCard from "../components/MovieCard";
@@ -7,8 +7,16 @@ import "./TvShows.css";
 
 const API_KEY = "36669667bad13a98c59f98b32ebb67f5";
 const BASE_URL = "https://api.themoviedb.org/3";
-const BACKDROP_URL = "https://image.tmdb.org/t/p/original";
-const POSTER_URL = "https://image.tmdb.org/t/p/w500";
+
+const BACKDROP_URL = "https://image.tmdb.org/t/p/w1280";
+const POSTER_URL = "https://image.tmdb.org/t/p/w342";
+
+const INITIAL_VISIBLE = 9;
+const LOAD_MORE = 4;
+const MAX_SECTION_PAGES = 6;
+const PREFETCH_OFFSET = 6;
+const SCROLL_ANIMATION_MS = 600;
+const AUTO_LOAD_SCROLL_OFFSET = 420;
 
 const SECTIONS = [
   {
@@ -62,67 +70,136 @@ const SECTIONS = [
   },
 ];
 
+const preloadedPosterUrls = new Set();
+
+function normalizeShow(show) {
+  return {
+    ...show,
+    media_type: "tv",
+    title: show.title || show.name,
+    release_date: show.release_date || show.first_air_date,
+  };
+}
+
+function buildSectionUrl(section, page = 1) {
+  return `${BASE_URL}${section.endpoint}?api_key=${API_KEY}&language=en-US&page=${page}${
+    section.params || ""
+  }`;
+}
+
+function getShowKey(show) {
+  if (!show?.id) return null;
+  return String(show.id);
+}
+
+async function fetchRawSectionPage(section, page) {
+  const res = await fetch(buildSectionUrl(section, page));
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch ${section.title}, page ${page}`);
+  }
+
+  const data = await res.json();
+  return (data.results || []).map(normalizeShow);
+}
+
+function mergeUniqueShows(oldShows, newShows) {
+  const map = new Map();
+
+  [...oldShows, ...newShows].forEach((show) => {
+    const key = getShowKey(show);
+
+    if (key) {
+      map.set(key, show);
+    }
+  });
+
+  return Array.from(map.values());
+}
+
+function filterShowsForSection(fetchedShows, sectionId, allSectionsData) {
+  const usedShowIds = new Set();
+
+  Object.entries(allSectionsData).forEach(([currentSectionId, shows]) => {
+    if (currentSectionId === sectionId) return;
+
+    shows.forEach((show) => {
+      const key = getShowKey(show);
+
+      if (key) {
+        usedShowIds.add(key);
+      }
+    });
+  });
+
+  return fetchedShows.filter((show) => {
+    const key = getShowKey(show);
+
+    if (!key || usedShowIds.has(key)) return false;
+
+    usedShowIds.add(key);
+    return true;
+  });
+}
+
+function getPosterUrl(show) {
+  if (!show?.poster_path) return null;
+  return `${POSTER_URL}${show.poster_path}`;
+}
+
+function preloadPoster(show) {
+  const posterUrl = getPosterUrl(show);
+
+  if (!posterUrl || preloadedPosterUrls.has(posterUrl)) return;
+
+  preloadedPosterUrls.add(posterUrl);
+
+  const img = new Image();
+  img.src = posterUrl;
+}
+
+function getCardScrollDistance(row, count) {
+  const card = row.querySelector(".movie-card");
+
+  if (!card) return 520;
+
+  const rowStyles = window.getComputedStyle(row);
+  const gap = parseFloat(rowStyles.columnGap || rowStyles.gap || "0") || 0;
+
+  return (card.getBoundingClientRect().width + gap) * count;
+}
+
 function TVShows() {
   const [trailerShows, setTrailerShows] = useState([]);
   const [activeTrailerIndex, setActiveTrailerIndex] = useState(0);
+
   const [sectionsData, setSectionsData] = useState({});
+  const [sectionPages, setSectionPages] = useState({});
+  const [visibleCounts, setVisibleCounts] = useState({});
+  const [loadingMoreSections, setLoadingMoreSections] = useState({});
+  const [animatingRows, setAnimatingRows] = useState({});
+  const [rowCanGoLeft, setRowCanGoLeft] = useState({});
+
   const [loading, setLoading] = useState(true);
 
-  const normalizeShow = (show) => ({
-    ...show,
-    media_type: "tv",
-    title: show.name,
-    release_date: show.first_air_date,
-  });
+  const loadMoreLocksRef = useRef(new Set());
 
   useEffect(() => {
     async function fetchTrailerShows() {
       try {
-        const res = await fetch(
-          `${BASE_URL}/tv/on_the_air?api_key=${API_KEY}&language=en-US&page=1`
+        const shows = await fetchRawSectionPage(
+          {
+            title: "On The Air",
+            endpoint: "/tv/on_the_air",
+          },
+          1
         );
 
-        const data = await res.json();
-        const shows = data.results || [];
+        const filteredShows = shows
+          .filter((show) => show.backdrop_path)
+          .slice(0, 8);
 
-        const showsWithVideos = await Promise.all(
-          shows.slice(0, 8).map(async (show) => {
-            try {
-              const videoRes = await fetch(
-                `${BASE_URL}/tv/${show.id}/videos?api_key=${API_KEY}&language=en-US`
-              );
-
-              const videoData = await videoRes.json();
-
-              const trailer =
-                videoData.results?.find(
-                  (video) =>
-                    video.site === "YouTube" &&
-                    video.type === "Trailer" &&
-                    video.official
-                ) ||
-                videoData.results?.find(
-                  (video) =>
-                    video.site === "YouTube" && video.type === "Trailer"
-                ) ||
-                videoData.results?.find((video) => video.site === "YouTube");
-
-              return {
-                ...normalizeShow(show),
-                trailerKey: trailer?.key || null,
-              };
-            } catch (error) {
-              console.error("Trailer fetch failed:", error);
-
-              return {
-                ...normalizeShow(show),
-                trailerKey: null,
-              };
-            }
-          })
-        );
-
-        setTrailerShows(showsWithVideos.filter((show) => show.backdrop_path));
+        setTrailerShows(filteredShows);
       } catch (error) {
         console.error("Failed to fetch trailer shows:", error);
       }
@@ -136,29 +213,74 @@ function TVShows() {
       setLoading(true);
 
       try {
-        const results = await Promise.all(
+        const firstPages = await Promise.all(
           SECTIONS.map(async (section) => {
-            const url = `${BASE_URL}${section.endpoint}?api_key=${API_KEY}&language=en-US&page=1${
-              section.params || ""
-            }`;
-
-            const res = await fetch(url);
-            const data = await res.json();
+            const shows = await fetchRawSectionPage(section, 1);
 
             return {
-              id: section.id,
-              shows: (data.results || []).map(normalizeShow),
+              section,
+              shows,
             };
           })
         );
 
+        const usedShowIds = new Set();
         const nextData = {};
+        const nextPages = {};
+        const nextVisibleCounts = {};
+        const nextCanGoLeft = {};
 
-        results.forEach((section) => {
-          nextData[section.id] = section.shows;
-        });
+        for (const result of firstPages) {
+          const { section } = result;
+
+          let currentPage = 1;
+          const uniqueShows = [];
+
+          const addUniqueShows = (shows) => {
+            shows.forEach((show) => {
+              const key = getShowKey(show);
+
+              if (!key || usedShowIds.has(key)) return;
+
+              usedShowIds.add(key);
+              uniqueShows.push(show);
+            });
+          };
+
+          addUniqueShows(result.shows);
+
+          while (
+            uniqueShows.length < INITIAL_VISIBLE &&
+            currentPage < MAX_SECTION_PAGES
+          ) {
+            currentPage += 1;
+
+            try {
+              const moreShows = await fetchRawSectionPage(
+                section,
+                currentPage
+              );
+
+              addUniqueShows(moreShows);
+            } catch (error) {
+              console.error(`Failed to fill section ${section.title}:`, error);
+              break;
+            }
+          }
+
+          nextData[section.id] = uniqueShows;
+          nextPages[section.id] = currentPage;
+          nextVisibleCounts[section.id] = Math.min(
+            INITIAL_VISIBLE,
+            uniqueShows.length
+          );
+          nextCanGoLeft[section.id] = false;
+        }
 
         setSectionsData(nextData);
+        setSectionPages(nextPages);
+        setVisibleCounts(nextVisibleCounts);
+        setRowCanGoLeft(nextCanGoLeft);
       } catch (error) {
         console.error("Failed to fetch TV sections:", error);
       } finally {
@@ -180,6 +302,33 @@ function TVShows() {
 
     return () => clearInterval(interval);
   }, [trailerShows.length]);
+
+  useEffect(() => {
+    if (loading) return;
+
+    const preloadNextImages = () => {
+      SECTIONS.forEach((section) => {
+        const shows = sectionsData[section.id] || [];
+        const visibleCount = visibleCounts[section.id] || INITIAL_VISIBLE;
+
+        shows
+          .slice(visibleCount, visibleCount + LOAD_MORE)
+          .forEach((show) => preloadPoster(show));
+      });
+    };
+
+    if ("requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(preloadNextImages, {
+        timeout: 1500,
+      });
+
+      return () => window.cancelIdleCallback(idleId);
+    }
+
+    const timeoutId = setTimeout(preloadNextImages, 400);
+
+    return () => clearTimeout(timeoutId);
+  }, [loading, sectionsData, visibleCounts]);
 
   const activeTrailer = trailerShows[activeTrailerIndex];
 
@@ -215,14 +364,243 @@ function TVShows() {
     }
   };
 
-  const scrollRow = (sectionId, direction) => {
-    const row = document.getElementById(`series-row-${sectionId}`);
+  const setRowLeftState = (sectionId, canGoLeft) => {
+    setRowCanGoLeft((prev) => {
+      if (prev[sectionId] === canGoLeft) return prev;
+
+      return {
+        ...prev,
+        [sectionId]: canGoLeft,
+      };
+    });
+  };
+
+  const fetchSectionPage = async (section, page, baseSectionsData) => {
+    if (loadingMoreSections[section.id]) {
+      return {
+        shows: baseSectionsData[section.id] || [],
+        sectionsData: baseSectionsData,
+      };
+    }
+
+    setLoadingMoreSections((prev) => ({
+      ...prev,
+      [section.id]: true,
+    }));
+
+    try {
+      const fetchedShows = await fetchRawSectionPage(section, page);
+
+      const filteredShows = filterShowsForSection(
+        fetchedShows,
+        section.id,
+        baseSectionsData
+      );
+
+      const currentShows = baseSectionsData[section.id] || [];
+      const combinedShows = mergeUniqueShows(currentShows, filteredShows);
+
+      const nextSectionsData = {
+        ...baseSectionsData,
+        [section.id]: combinedShows,
+      };
+
+      setSectionsData((prev) => {
+        const latestFilteredShows = filterShowsForSection(
+          fetchedShows,
+          section.id,
+          prev
+        );
+
+        return {
+          ...prev,
+          [section.id]: mergeUniqueShows(
+            prev[section.id] || [],
+            latestFilteredShows
+          ),
+        };
+      });
+
+      setSectionPages((prev) => ({
+        ...prev,
+        [section.id]: Math.max(prev[section.id] || 1, page),
+      }));
+
+      return {
+        shows: combinedShows,
+        sectionsData: nextSectionsData,
+      };
+    } catch (error) {
+      console.error("Failed to fetch more series:", error);
+
+      return {
+        shows: baseSectionsData[section.id] || [],
+        sectionsData: baseSectionsData,
+      };
+    } finally {
+      setLoadingMoreSections((prev) => ({
+        ...prev,
+        [section.id]: false,
+      }));
+    }
+  };
+
+  const loadMoreForSection = async ({
+    section,
+    row,
+    shouldAnimateScroll = false,
+  }) => {
+    const sectionId = section.id;
 
     if (!row) return;
+    if (loadMoreLocksRef.current.has(sectionId)) return;
+    if (animatingRows[sectionId]) return;
 
-    row.scrollBy({
-      left: direction === "left" ? -520 : 520,
-      behavior: "smooth",
+    const currentVisible = visibleCounts[sectionId] || INITIAL_VISIBLE;
+    const currentPage = sectionPages[sectionId] || 1;
+    const currentShows = sectionsData[sectionId] || [];
+
+    const hasMoreInCurrentData = currentVisible < currentShows.length;
+    const canFetchMorePages = currentPage < MAX_SECTION_PAGES;
+
+    if (!hasMoreInCurrentData && !canFetchMorePages) return;
+
+    loadMoreLocksRef.current.add(sectionId);
+
+    try {
+      let workingSectionsData = sectionsData;
+      let shows = workingSectionsData[sectionId] || [];
+      let totalShows = shows.length;
+
+      let nextPage = currentPage;
+      const wantedVisible = currentVisible + LOAD_MORE;
+
+      while (
+        wantedVisible > totalShows - PREFETCH_OFFSET &&
+        nextPage < MAX_SECTION_PAGES
+      ) {
+        nextPage += 1;
+
+        const result = await fetchSectionPage(
+          section,
+          nextPage,
+          workingSectionsData
+        );
+
+        workingSectionsData = result.sectionsData;
+        shows = result.shows;
+        totalShows = shows.length;
+
+        if (totalShows >= wantedVisible) {
+          break;
+        }
+      }
+
+      const nextVisible = Math.min(wantedVisible, totalShows);
+      const addedCount = nextVisible - currentVisible;
+
+      if (addedCount <= 0) return;
+
+      const distance = getCardScrollDistance(row, addedCount);
+
+      if (shouldAnimateScroll) {
+        setAnimatingRows((prev) => ({
+          ...prev,
+          [sectionId]: true,
+        }));
+      }
+
+      setVisibleCounts((prev) => ({
+        ...prev,
+        [sectionId]: nextVisible,
+      }));
+
+      if (shouldAnimateScroll) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            row.scrollBy({
+              left: distance,
+              behavior: "smooth",
+            });
+          });
+        });
+
+        setTimeout(() => {
+          setAnimatingRows((prev) => {
+            const next = { ...prev };
+            delete next[sectionId];
+            return next;
+          });
+
+          setRowLeftState(sectionId, true);
+        }, SCROLL_ANIMATION_MS);
+      }
+    } finally {
+      const unlockDelay = shouldAnimateScroll ? SCROLL_ANIMATION_MS + 80 : 350;
+
+      setTimeout(() => {
+        loadMoreLocksRef.current.delete(sectionId);
+      }, unlockDelay);
+    }
+  };
+
+  const handleRowScroll = (section, event) => {
+    const sectionId = section.id;
+    const row = event.currentTarget;
+
+    setRowLeftState(sectionId, row.scrollLeft > 8);
+
+    const isNearEnd =
+      row.scrollLeft + row.clientWidth >=
+      row.scrollWidth - AUTO_LOAD_SCROLL_OFFSET;
+
+    if (isNearEnd) {
+      loadMoreForSection({
+        section,
+        row,
+        shouldAnimateScroll: false,
+      });
+    }
+  };
+
+  const scrollRow = async (section, direction) => {
+    const sectionId = section.id;
+    const row = document.getElementById(`series-row-${sectionId}`);
+
+    if (!row || animatingRows[sectionId]) return;
+
+    if (direction === "left") {
+      if (!rowCanGoLeft[sectionId]) return;
+
+      const distance = getCardScrollDistance(row, LOAD_MORE);
+
+      setAnimatingRows((prev) => ({
+        ...prev,
+        [sectionId]: true,
+      }));
+
+      row.scrollBy({
+        left: -distance,
+        behavior: "smooth",
+      });
+
+      setTimeout(() => {
+        setAnimatingRows((prev) => {
+          const next = { ...prev };
+          delete next[sectionId];
+          return next;
+        });
+
+        setRowLeftState(sectionId, row.scrollLeft > 8);
+      }, SCROLL_ANIMATION_MS);
+
+      return;
+    }
+
+    await loadMoreForSection({
+      section,
+      row,
+      shouldAnimateScroll: true,
     });
   };
 
@@ -241,6 +619,8 @@ function TVShows() {
                 className="trailer-backdrop"
                 src={`${BACKDROP_URL}${activeTrailer.backdrop_path}`}
                 alt={activeTrailer.title}
+                decoding="async"
+                fetchPriority="high"
               />
 
               <div className="trailer-gradient" />
@@ -251,7 +631,7 @@ function TVShows() {
                 onClick={goPrevTrailer}
                 aria-label="Previous series"
               >
-                <i className="bx bx-chevron-left"></i>
+                <i className="bx bx-chevron-left" aria-hidden="true"></i>
               </button>
 
               <button
@@ -260,7 +640,7 @@ function TVShows() {
                 onClick={goNextTrailer}
                 aria-label="Next series"
               >
-                <i className="bx bx-chevron-right"></i>
+                <i className="bx bx-chevron-right" aria-hidden="true"></i>
               </button>
 
               <div className="trailer-info">
@@ -269,12 +649,14 @@ function TVShows() {
                     className="trailer-poster"
                     src={`${POSTER_URL}${activeTrailer.poster_path}`}
                     alt={activeTrailer.title}
+                    loading="lazy"
+                    decoding="async"
                   />
                 )}
 
                 <div className="trailer-copy">
                   <span className="trailer-play">
-                    <i className="bx bx-play"></i>
+                    <i className="bx bx-play" aria-hidden="true"></i>
                   </span>
 
                   <div>
@@ -288,17 +670,17 @@ function TVShows() {
 
                     <div className="trailer-meta">
                       <span>
-                        <i className="bx bxs-star"></i>
+                        <i className="bx bxs-star" aria-hidden="true"></i>
                         {activeTrailer.vote_average?.toFixed(1) || "N/A"}
                       </span>
 
                       <span>
-                        <i className="bx bx-calendar"></i>
+                        <i className="bx bx-calendar" aria-hidden="true"></i>
                         {activeTrailer.release_date?.slice(0, 4) || "Soon"}
                       </span>
 
                       <span>
-                        <i className="bx bx-tv"></i>
+                        <i className="bx bx-tv" aria-hidden="true"></i>
                         Series
                       </span>
                     </div>
@@ -322,19 +704,21 @@ function TVShows() {
                       <img
                         src={`${POSTER_URL}${show.poster_path}`}
                         alt={show.title}
+                        loading="lazy"
+                        decoding="async"
                       />
                     )}
 
                     <div>
                       <span className="mini-play">
-                        <i className="bx bx-play"></i>
+                        <i className="bx bx-play" aria-hidden="true"></i>
                       </span>
 
                       <strong>{show.title}</strong>
                       <small>Open series details</small>
 
                       <span className="up-next-rating">
-                        <i className="bx bxs-star"></i>
+                        <i className="bx bxs-star" aria-hidden="true"></i>
                         {show.vote_average?.toFixed(1) || "N/A"}
                       </span>
                     </div>
@@ -349,47 +733,69 @@ function TVShows() {
       {loading && <p className="movies-loading">Loading series...</p>}
 
       {!loading &&
-        SECTIONS.map((section) => (
-          <section className="movie-row-section" key={section.id}>
-            <div className="movie-row-header">
-              <div>
-                <span className="section-kicker">Prestige Series</span>
-                <h2>{section.title}</h2>
+        SECTIONS.map((section) => {
+          const sectionShows = sectionsData[section.id] || [];
+          const visibleCount = visibleCounts[section.id] || INITIAL_VISIBLE;
+          const visibleShows = sectionShows.slice(0, visibleCount);
+
+          const currentPage = sectionPages[section.id] || 1;
+          const isLoadingMore = Boolean(loadingMoreSections[section.id]);
+          const isAnimating = Boolean(animatingRows[section.id]);
+
+          const canGoLeft = Boolean(rowCanGoLeft[section.id]);
+
+          const canGoRight =
+            visibleCount < sectionShows.length ||
+            currentPage < MAX_SECTION_PAGES;
+
+          return (
+            <section className="movie-row-section" key={section.id}>
+              <div className="movie-row-header">
+                <div>
+                  <span className="section-kicker">Prestige Series</span>
+                  <h2>{section.title}</h2>
+                </div>
+
+                <Link to="/search" className="view-more-link">
+                  View more
+                  <i className="bx bx-chevron-right" aria-hidden="true"></i>
+                </Link>
               </div>
 
-              <Link to="/search" className="view-more-link">
-                View more
-                <i className="bx bx-chevron-right"></i>
-              </Link>
-            </div>
+              <div className="movie-row-wrap">
+                <button
+                  className="row-arrow row-arrow-left"
+                  type="button"
+                  onClick={() => scrollRow(section, "left")}
+                  disabled={!canGoLeft || isAnimating}
+                  aria-label={`Scroll ${section.title} left`}
+                >
+                  <i className="bx bx-chevron-left" aria-hidden="true"></i>
+                </button>
 
-            <div className="movie-row-wrap">
-              <button
-                className="row-arrow row-arrow-left"
-                type="button"
-                onClick={() => scrollRow(section.id, "left")}
-                aria-label={`Scroll ${section.title} left`}
-              >
-                <i className="bx bx-chevron-left"></i>
-              </button>
+                <div
+                  className={`movie-row ${isAnimating ? "is-animating" : ""}`}
+                  id={`series-row-${section.id}`}
+                  onScroll={(event) => handleRowScroll(section, event)}
+                >
+                  {visibleShows.map((show) => (
+                    <MovieCard key={`${section.id}-${show.id}`} movie={show} />
+                  ))}
+                </div>
 
-              <div className="movie-row" id={`series-row-${section.id}`}>
-                {(sectionsData[section.id] || []).slice(0, 18).map((show) => (
-                  <MovieCard key={`${section.id}-${show.id}`} movie={show} />
-                ))}
+                <button
+                  className="row-arrow row-arrow-right"
+                  type="button"
+                  onClick={() => scrollRow(section, "right")}
+                  disabled={!canGoRight || isLoadingMore || isAnimating}
+                  aria-label={`Scroll ${section.title} right`}
+                >
+                  <i className="bx bx-chevron-right" aria-hidden="true"></i>
+                </button>
               </div>
-
-              <button
-                className="row-arrow row-arrow-right"
-                type="button"
-                onClick={() => scrollRow(section.id, "right")}
-                aria-label={`Scroll ${section.title} right`}
-              >
-                <i className="bx bx-chevron-right"></i>
-              </button>
-            </div>
-          </section>
-        ))}
+            </section>
+          );
+        })}
     </main>
   );
 }

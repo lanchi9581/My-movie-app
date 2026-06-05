@@ -376,6 +376,33 @@
   right: -12px;
 }
 
+.series-page .movie-row.is-animating {
+  pointer-events: none;
+}
+
+.series-page .row-arrow {
+  transition: opacity 0.25s ease, transform 0.25s ease, background 0.22s ease,
+    border-color 0.22s ease;
+}
+
+.series-page .row-arrow:not(:disabled) {
+  opacity: 1;
+}
+
+.series-page .row-arrow:disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.series-page .row-arrow:disabled:hover {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.055)),
+    rgba(7, 10, 18, 0.62);
+  border-color: rgba(255, 255, 255, 0.16);
+  transform: translateY(-50%);
+}
+
 @media (max-width: 1100px) {
   .series-page .trailers-layout {
     grid-template-columns: 1fr;
