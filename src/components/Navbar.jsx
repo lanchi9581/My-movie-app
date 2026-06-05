@@ -6,7 +6,12 @@ const MAIN_LINKS = [
   { to: "/", label: "Home", icon: "bx bxs-home" },
   { to: "/movies", label: "Movies", icon: "bx bxs-movie" },
   { to: "/series", label: "Series", icon: "bx bxs-tv" },
-  { to: "/search", label: "Search", icon: "bx bx-search-alt-2", mobileOnly: true },
+  {
+    to: "/search",
+    label: "Search",
+    icon: "bx bx-search-alt-2",
+    mobileOnly: true,
+  },
 ];
 
 const BOTTOM_LINKS = [
@@ -30,10 +35,15 @@ function Navbar() {
 
   return (
     <header className="site-header">
-      <nav className="navbar">
+      <nav className="navbar" aria-label="Main navigation">
         <NavLink to="/" className="brand" onClick={closeMenu}>
           <div className="brand-mark">
-            <img src="/logo3.webp" alt="Prestige Movies" width="42" height="42" />
+            <img
+              src="/logo3.webp"
+              alt="Prestige Movies"
+              width="42"
+              height="42"
+            />
           </div>
 
           <div className="brand-text">
@@ -46,14 +56,20 @@ function Navbar() {
           className="nav-search-button"
           type="button"
           onClick={goToSearch}
+          aria-label="Search movies and series"
         >
-          <i className="bx bx-search"></i>
+          <i className="bx bx-search" aria-hidden="true"></i>
           <span>Search</span>
         </button>
 
         <div className={`nav-menu ${isMenuOpen ? "nav-open" : ""}`}>
-          <button className="mobile-menu-close" onClick={closeMenu} type="button">
-            <i className="bx bx-x"></i>
+          <button
+            className="mobile-menu-close"
+            onClick={closeMenu}
+            type="button"
+            aria-label="Close navigation menu"
+          >
+            <i className="bx bx-x" aria-hidden="true"></i>
           </button>
 
           <ul className="nav-list">
@@ -69,12 +85,13 @@ function Navbar() {
                   }
                   onClick={closeMenu}
                 >
-                  <i className={`${link.icon} nav-icon`}></i>
+                  <i className={`${link.icon} nav-icon`} aria-hidden="true"></i>
                   <span>{link.label}</span>
                 </NavLink>
               </li>
             ))}
           </ul>
+
           <ul className="nav-list nav-list-bottom">
             {BOTTOM_LINKS.map((link) => (
               <li key={link.to}>
@@ -85,7 +102,7 @@ function Navbar() {
                   }
                   onClick={closeMenu}
                 >
-                  <i className={`${link.icon} nav-icon`}></i>
+                  <i className={`${link.icon} nav-icon`} aria-hidden="true"></i>
                   <span>{link.label}</span>
                 </NavLink>
               </li>
@@ -95,13 +112,24 @@ function Navbar() {
 
         <button
           className="hamburger-btn"
+          type="button"
           onClick={() => setIsMenuOpen((prev) => !prev)}
-          aria-label="Toggle navigation menu"
+          aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+          aria-expanded={isMenuOpen}
         >
-          <i className={`bx ${isMenuOpen ? "bx-x" : "bx-menu"}`}></i>
+          <i
+            className={`bx ${isMenuOpen ? "bx-x" : "bx-menu"}`}
+            aria-hidden="true"
+          ></i>
         </button>
 
-        {isMenuOpen && <div className="nav-overlay" onClick={closeMenu}></div>}
+        {isMenuOpen && (
+          <div
+            className="nav-overlay"
+            onClick={closeMenu}
+            aria-hidden="true"
+          ></div>
+        )}
       </nav>
     </header>
   );
