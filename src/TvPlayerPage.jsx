@@ -7,6 +7,9 @@ const API_KEY = "36669667bad13a98c59f98b32ebb67f5";
 const BASE_URL = "https://api.themoviedb.org/3";
 const BACKDROP_URL = "https://image.tmdb.org/t/p/original";
 
+const RECENTLY_VIEWED_KEY = "prestige_recently_viewed";
+const CONTINUE_WATCHING_KEY = "prestige_continue_watching";
+
 const HOSTS = [
   {
     id: "vidlink",
@@ -57,6 +60,66 @@ const HOSTS = [
       `https://player.autoembed.app/embed/tv/${id}/${season}/${episode}`,
   },
 ];
+
+function readStorageList(key) {
+  try {
+    const stored = localStorage.getItem(key);
+    if (!stored) return [];
+
+    const parsed = JSON.parse(stored);
+
+    if (Array.isArray(parsed)) return parsed.filter(Boolean);
+    if (parsed && typeof parsed === "object") return Object.values(parsed).filter(Boolean);
+
+    return [];
+  } catch {
+    return [];
+  }
+}
+
+function saveStorageItem(key, item, limit = 12) {
+  if (!item?.id) return;
+
+  try {
+    const storedItems = readStorageList(key);
+    const type = item.media_type || "tv";
+
+    const filteredItems = storedItems.filter((storedItem) => {
+      const storedType = storedItem.media_type || "movie";
+      return `${storedType}-${storedItem.id}` !== `${type}-${item.id}`;
+    });
+
+    const nextItems = [item, ...filteredItems].slice(0, limit);
+
+    localStorage.setItem(key, JSON.stringify(nextItems));
+  } catch {
+    // localStorage can fail in private/incognito mode.
+  }
+}
+
+function createTvStorageItem(tvShow, seasonNum = null, episodeNum = null, episodeName = "") {
+  const hasEpisode = Boolean(seasonNum && episodeNum);
+
+  return {
+    id: tvShow.id,
+    title: tvShow.name,
+    name: tvShow.name,
+    overview: tvShow.overview,
+    poster_path: tvShow.poster_path,
+    backdrop_path: tvShow.backdrop_path,
+    vote_average: tvShow.vote_average,
+    first_air_date: tvShow.first_air_date,
+    release_date: tvShow.first_air_date,
+    media_type: "tv",
+    continue_path: hasEpisode
+      ? `/series/${tvShow.id}/watch?season=${seasonNum}&episode=${episodeNum}`
+      : `/series/${tvShow.id}`,
+    continue_label: hasEpisode
+      ? `S${seasonNum} E${episodeNum}${episodeName ? ` · ${episodeName}` : ""}`
+      : "Series details",
+    viewed_at: new Date().toISOString(),
+  };
+}
 
 function TvPlayerPage() {
   const { id } = useParams();
@@ -150,6 +213,21 @@ function TvPlayerPage() {
     );
   }, [seasonData, episode]);
 
+  const currentEpisodeName = currentEpisode?.name || "";
+
+  useEffect(() => {
+    if (!tvShow?.id) return;
+
+    saveStorageItem(RECENTLY_VIEWED_KEY, createTvStorageItem(tvShow));
+
+    if (!trailerKey) {
+      saveStorageItem(
+        CONTINUE_WATCHING_KEY,
+        createTvStorageItem(tvShow, season, episode, currentEpisodeName)
+      );
+    }
+  }, [tvShow, trailerKey, season, episode, currentEpisodeName]);
+
   const nextEpisode = useMemo(() => {
     if (!seasonData?.episodes?.length) return null;
 
@@ -217,6 +295,13 @@ function TvPlayerPage() {
   };
 
   const activatePlayer = () => {
+    if (tvShow?.id && !trailerKey) {
+      saveStorageItem(
+        CONTINUE_WATCHING_KEY,
+        createTvStorageItem(tvShow, season, episode, currentEpisodeName)
+      );
+    }
+
     setPlayerActive(true);
     setIframeKey((prev) => prev + 1);
   };
@@ -257,7 +342,12 @@ function TvPlayerPage() {
           </button>
 
           <div className="player-title-block">
-            <span>{trailerKey ? "Official Trailer" : `Season ${season} • Episode ${episode}`}</span>
+            <span>
+              {trailerKey
+                ? "Official Trailer"
+                : `Season ${season} • Episode ${episode}`}
+            </span>
+
             <h1>{tvShow.name}</h1>
 
             <div className="player-meta-line">

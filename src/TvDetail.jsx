@@ -4,12 +4,78 @@ import { Helmet } from "react-helmet-async";
 
 import ShareButton from "./components/Fav-Share-Watch-Button/ShareButton";
 import "./TvDetail.css";
+import FavoriteButton from "./components/Fav-Share-Watch-Button/FavoriteButton";
+import WatchLaterButton from "./components/Fav-Share-Watch-Button/WatchLaterButton";
 
 const API_KEY = "36669667bad13a98c59f98b32ebb67f5";
 const BASE_URL = "https://api.themoviedb.org/3";
 const BACKDROP_URL = "https://image.tmdb.org/t/p/original";
 const POSTER_URL = "https://image.tmdb.org/t/p/w500";
 const PROFILE_URL = "https://image.tmdb.org/t/p/w185";
+
+const RECENTLY_VIEWED_KEY = "prestige_recently_viewed";
+const CONTINUE_WATCHING_KEY = "prestige_continue_watching";
+const STORAGE_LIMIT = 15;
+
+function readStorageList(key) {
+  try {
+    const stored = localStorage.getItem(key);
+    if (!stored) return [];
+
+    const parsed = JSON.parse(stored);
+
+    if (Array.isArray(parsed)) return parsed.filter(Boolean);
+    if (parsed && typeof parsed === "object") return Object.values(parsed).filter(Boolean);
+
+    return [];
+  } catch {
+    return [];
+  }
+}
+
+function saveStorageItem(key, item, limit = STORAGE_LIMIT) {
+  if (!item?.id || !item?.name) return;
+
+  try {
+    const storedItems = readStorageList(key);
+    const type = item.media_type || "tv";
+
+    const filteredItems = storedItems.filter((storedItem) => {
+      const storedType = storedItem.media_type || "movie";
+      return `${storedType}-${storedItem.id}` !== `${type}-${item.id}`;
+    });
+
+    const nextItems = [item, ...filteredItems].slice(0, limit);
+
+    localStorage.setItem(key, JSON.stringify(nextItems));
+  } catch {
+    // Ignore localStorage errors.
+  }
+}
+
+function createTvStorageItem(tvShow, seasonNum = null, episodeNum = null, episodeName = "") {
+  const hasEpisode = Boolean(seasonNum && episodeNum);
+
+  return {
+    id: tvShow.id,
+    title: tvShow.name,
+    name: tvShow.name,
+    overview: tvShow.overview,
+    poster_path: tvShow.poster_path,
+    backdrop_path: tvShow.backdrop_path,
+    vote_average: tvShow.vote_average,
+    first_air_date: tvShow.first_air_date,
+    release_date: tvShow.first_air_date,
+    media_type: "tv",
+    continue_path: hasEpisode
+      ? `/series/${tvShow.id}/watch?season=${seasonNum}&episode=${episodeNum}`
+      : `/series/${tvShow.id}`,
+    continue_label: hasEpisode
+      ? `S${seasonNum} E${episodeNum}${episodeName ? ` · ${episodeName}` : ""}`
+      : "Series details",
+    viewed_at: new Date().toISOString(),
+  };
+}
 
 function TvDetail() {
   const { id } = useParams();
@@ -41,6 +107,10 @@ function TvDetail() {
           fetch(`${BASE_URL}/tv/${id}/videos?api_key=${API_KEY}&language=en-US`),
         ]);
 
+        if (!tvRes.ok) {
+          throw new Error("Series not found");
+        }
+
         const tvData = await tvRes.json();
         const creditsData = await creditsRes.json();
         const videosData = await videosRes.json();
@@ -49,6 +119,10 @@ function TvDetail() {
 
         setTvShow(tvData);
         setCast(creditsData.cast?.slice(0, 12) || []);
+
+        if (tvData?.id && tvData?.name) {
+          saveStorageItem(RECENTLY_VIEWED_KEY, createTvStorageItem(tvData));
+        }
 
         const trailer =
           videosData.results?.find(
@@ -108,6 +182,7 @@ function TvDetail() {
         }
       } catch (error) {
         console.error("Failed to fetch TV show data:", error);
+        if (!cancelled) setTvShow(null);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -148,7 +223,17 @@ function TvDetail() {
   };
 
   const goToEpisode = (seasonNum, episodeNum) => {
-    if (!seasonNum || !episodeNum) return;
+    if (!seasonNum || !episodeNum || !tvShow) return;
+
+    const episodeItem = seasons[seasonNum]?.find(
+      (item) => item.episode_number === episodeNum
+    );
+
+    saveStorageItem(
+      CONTINUE_WATCHING_KEY,
+      createTvStorageItem(tvShow, seasonNum, episodeNum, episodeItem?.name || "")
+    );
+
     navigate(`/series/${id}/watch?season=${seasonNum}&episode=${episodeNum}`);
   };
 
@@ -179,11 +264,19 @@ function TvDetail() {
     });
   };
 
-  if (loading || !tvShow) {
+  if (loading) {
     return (
       <main className="tv-detail-loading">
         <div className="tv-detail-spinner"></div>
         <p>Loading series...</p>
+      </main>
+    );
+  }
+
+  if (!tvShow) {
+    return (
+      <main className="tv-detail-loading">
+        <p>Series not found.</p>
       </main>
     );
   }
@@ -301,6 +394,22 @@ function TvDetail() {
                   <i className="bx bx-movie-play"></i>
                   Trailer
                 </button>
+
+                <FavoriteButton
+                  id={tvShow.id}
+                  media_type="tv"
+                  title={tvShow.name}
+                  poster_path={tvShow.poster_path}
+                  vote_average={tvShow.vote_average}
+                />
+
+                <WatchLaterButton
+                  id={tvShow.id}
+                  media_type="tv"
+                  title={tvShow.name}
+                  poster_path={tvShow.poster_path}
+                  vote_average={tvShow.vote_average}
+                />
 
                 <ShareButton movieUrl={tvUrl} />
               </div>

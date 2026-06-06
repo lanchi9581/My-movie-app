@@ -1,60 +1,192 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useMemo, useState } from "react";
+import { Link, NavLink } from "react-router-dom";
+import CustomSelect from "../components/CustomSelect/CustomSelect";
 import "./FavoritePage.css";
 
-const API_KEY = '36669667bad13a98c59f98b32ebb67f5';
-const BASE_URL = 'https://api.themoviedb.org/3';
-const IMG_URL = 'https://image.tmdb.org/t/p/w300';
+const IMG_URL = "https://image.tmdb.org/t/p/w342";
 const PLACEHOLDER_IMG =
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1665px-No-Image-Placeholder.svg.png';
+  "https://placehold.co/342x513/10131f/ffffff?text=No+Poster";
+
+const localStorageKey = "favoriteItems";
+
+function readItems(key) {
+  try {
+    const stored = localStorage.getItem(key);
+    const parsed = JSON.parse(stored || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function getItemTitle(item) {
+  return item.title || item.name || "Untitled";
+}
+
+function getItemYear(item) {
+  const date = item.release_date || item.first_air_date;
+  return date ? date.slice(0, 4) : item.media_type === "tv" ? "Series" : "Movie";
+}
+
+function getItemLink(item) {
+  return item.media_type === "tv" ? `/series/${item.id}` : `/movie/${item.id}`;
+}
 
 function FavoritePage() {
-  const [items, setItems] = useState([]);
-  const localStorageKey = 'favoriteMovies';
+  const [items, setItems] = useState(() => readItems(localStorageKey));
+  const [sortBy, setSortBy] = useState("newest");
 
-  const favoriteIds = JSON.parse(localStorage.getItem(localStorageKey) || '[]');
+  const sortedItems = useMemo(() => {
+    const cloned = [...items];
 
-  useEffect(() => {
-    async function fetchItems() {
-      const data = await Promise.all(
-        favoriteIds.map(async (id) => {
-          const res = await fetch(`${BASE_URL}/movie/${id}?api_key=${API_KEY}`);
-          return res.json();
-        })
-      );
-      setItems(data);
+    if (sortBy === "rating") {
+      return cloned.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
     }
 
-    if (favoriteIds.length) {
-      fetchItems();
-    } else {
-      setItems([]);
+    if (sortBy === "title") {
+      return cloned.sort((a, b) => getItemTitle(a).localeCompare(getItemTitle(b)));
     }
-  },[]);
+
+    if (sortBy === "oldest") {
+      return cloned.reverse();
+    }
+
+    return cloned;
+  }, [items, sortBy]);
+
+  const removeItem = (itemToRemove) => {
+    const nextItems = items.filter(
+      (item) =>
+        !(
+          Number(item.id) === Number(itemToRemove.id) &&
+          item.media_type === itemToRemove.media_type
+        )
+    );
+
+    localStorage.setItem(localStorageKey, JSON.stringify(nextItems));
+    setItems(nextItems);
+  };
+
+  const clearAll = () => {
+    localStorage.setItem(localStorageKey, JSON.stringify([]));
+    setItems([]);
+  };
 
   if (items.length === 0) {
-    return <p>You have no favorite movies yet.</p>;
+    return (
+      <main className="library-page">
+        <section className="library-empty">
+          <div className="library-empty-icon">
+            <i className="bx bxs-heart"></i>
+          </div>
+
+          <span>Favorites Collection</span>
+          <h1>No favorites yet</h1>
+
+          <p>
+            Save movies and TV series you love and build your personal Prestige
+            Movies collection.
+          </p>
+
+          <div className="library-empty-actions">
+            <NavLink to="/movies">
+              <i className="bx bxs-movie"></i>
+              Browse Movies
+            </NavLink>
+
+            <NavLink to="/series">
+              <i className="bx bxs-tv"></i>
+              Browse Series
+            </NavLink>
+          </div>
+        </section>
+      </main>
+    );
   }
 
   return (
-    <main style={{ padding: '1rem' }}>
-      <h1 className="h2-redish" style={{ textAlign: 'left' }}>
-        Your Favorite Movies
-      </h1>
-      <section className="movie-list2">
-        {items.map((item) => (
-          <Link
-            key={item.id}
-            to={`/movie/${item.id}`}
-            className="movie-item2"
-          >
-            <img
-              src={item.poster_path ? `${IMG_URL}${item.poster_path}` : PLACEHOLDER_IMG}
-              alt={item.title}
-              onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMG)}
-            />
-            <h2 className="movie_title2">{item.title}</h2>
-          </Link>
+    <main className="library-page">
+      <section className="library-hero">
+        <div>
+          <span className="library-kicker">Your Collection</span>
+          <h1>Favorites</h1>
+          <p>{items.length} titles saved in your personal collection.</p>
+        </div>
+
+        <div className="library-stats">
+          <div>
+            <strong>{items.length}</strong>
+            <span>Total</span>
+          </div>
+
+          <div>
+            <strong>
+              {items.filter((item) => item.media_type === "tv").length}
+            </strong>
+            <span>Series</span>
+          </div>
+
+          <div>
+            <strong>
+              {items.filter((item) => (item.vote_average || 0) >= 7).length}
+            </strong>
+            <span>Top Rated</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="library-toolbar">
+        <label>
+          Sort
+          <CustomSelect
+            value={sortBy}
+            onChange={setSortBy}
+            options={[
+              { value: "newest", label: "Newest" },
+              { value: "oldest", label: "Oldest" },
+              { value: "rating", label: "Rating" },
+              { value: "title", label: "Title" },
+            ]}
+          />
+        </label>
+
+        <button type="button" onClick={clearAll}>
+          <i className="bx bx-trash"></i>
+          Clear All
+        </button>
+      </section>
+
+      <section className="library-grid">
+        {sortedItems.map((item) => (
+          <article className="library-card" key={`${item.media_type}-${item.id}`}>
+            <Link to={getItemLink(item)} className="library-poster">
+              <img
+                src={item.poster_path ? `${IMG_URL}${item.poster_path}` : PLACEHOLDER_IMG}
+                alt={getItemTitle(item)}
+                onError={(e) => {
+                  e.currentTarget.src = PLACEHOLDER_IMG;
+                }}
+              />
+
+              <span>
+                <i className="bx bxs-star"></i>
+                {item.vote_average ? item.vote_average.toFixed(1) : "N/A"}
+              </span>
+            </Link>
+
+            <div className="library-card-info">
+              <Link to={getItemLink(item)}>
+                <h2>{getItemTitle(item)}</h2>
+              </Link>
+
+              <p>{item.media_type === "tv" ? "Series" : "Movie"} • {getItemYear(item)}</p>
+
+              <button type="button" onClick={() => removeItem(item)}>
+                <i className="bx bx-x"></i>
+                Remove
+              </button>
+            </div>
+          </article>
         ))}
       </section>
     </main>

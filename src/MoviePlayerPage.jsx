@@ -7,6 +7,9 @@ const API_KEY = "36669667bad13a98c59f98b32ebb67f5";
 const BASE_URL = "https://api.themoviedb.org/3";
 const BACKDROP_URL = "https://image.tmdb.org/t/p/original";
 
+const RECENTLY_VIEWED_KEY = "prestige_recently_viewed";
+const CONTINUE_WATCHING_KEY = "prestige_continue_watching";
+
 const HOSTS = [
   {
     id: "vidlink",
@@ -51,6 +54,59 @@ const HOSTS = [
     getUrl: ({ id }) => `https://player.autoembed.app/embed/movie/${id}`,
   },
 ];
+
+function readStorageList(key) {
+  try {
+    const stored = localStorage.getItem(key);
+    if (!stored) return [];
+
+    const parsed = JSON.parse(stored);
+
+    if (Array.isArray(parsed)) return parsed.filter(Boolean);
+    if (parsed && typeof parsed === "object") return Object.values(parsed).filter(Boolean);
+
+    return [];
+  } catch {
+    return [];
+  }
+}
+
+function saveStorageItem(key, item, limit = 12) {
+  if (!item?.id) return;
+
+  try {
+    const storedItems = readStorageList(key);
+    const type = item.media_type || "movie";
+
+    const filteredItems = storedItems.filter((storedItem) => {
+      const storedType = storedItem.media_type || "movie";
+      return `${storedType}-${storedItem.id}` !== `${type}-${item.id}`;
+    });
+
+    const nextItems = [item, ...filteredItems].slice(0, limit);
+
+    localStorage.setItem(key, JSON.stringify(nextItems));
+  } catch {
+    // localStorage can fail in private/incognito mode.
+  }
+}
+
+function createMovieStorageItem(movie) {
+  return {
+    id: movie.id,
+    title: movie.title,
+    name: movie.title,
+    overview: movie.overview,
+    poster_path: movie.poster_path,
+    backdrop_path: movie.backdrop_path,
+    vote_average: movie.vote_average,
+    release_date: movie.release_date,
+    media_type: "movie",
+    continue_path: `/movie/${movie.id}/watch`,
+    continue_label: "Continue movie",
+    viewed_at: new Date().toISOString(),
+  };
+}
 
 function MoviePlayerPage() {
   const { id } = useParams();
@@ -97,6 +153,18 @@ function MoviePlayerPage() {
       cancelled = true;
     };
   }, [id]);
+
+  useEffect(() => {
+    if (!movie?.id) return;
+
+    const storageItem = createMovieStorageItem(movie);
+
+    saveStorageItem(RECENTLY_VIEWED_KEY, storageItem);
+
+    if (!trailerKey) {
+      saveStorageItem(CONTINUE_WATCHING_KEY, storageItem);
+    }
+  }, [movie, trailerKey]);
 
   useEffect(() => {
     setPlayerActive(false);
@@ -151,6 +219,10 @@ function MoviePlayerPage() {
   };
 
   const activatePlayer = () => {
+    if (movie?.id) {
+      saveStorageItem(CONTINUE_WATCHING_KEY, createMovieStorageItem(movie));
+    }
+
     setPlayerActive(true);
     setIframeKey((prev) => prev + 1);
   };
@@ -258,28 +330,28 @@ function MoviePlayerPage() {
               referrerPolicy="origin"
             />
           ) : (
-        <div className="safe-player-card">
-          <div className="safe-icon">
-            <i className="bx bx-play-circle"></i>
-          </div>
+            <div className="safe-player-card">
+              <div className="safe-icon">
+                <i className="bx bx-play-circle"></i>
+              </div>
 
-          <span className="safe-kicker">Ready to watch</span>
+              <span className="safe-kicker">Ready to watch</span>
 
-          <h2>{movie.title}</h2>
+              <h2>{movie.title}</h2>
 
-          <p>
-            The player loads only after clicking to reduce unwanted popups and redirects.
-          </p>
+              <p>
+                The player loads only after clicking to reduce unwanted popups and redirects.
+              </p>
 
-          <button onClick={activatePlayer}>
-            <i className="bx bx-play"></i>
-            Play now
-          </button>
+              <button onClick={activatePlayer}>
+                <i className="bx bx-play"></i>
+                Play now
+              </button>
 
-          <span>
-            Host: <strong>{selectedHost.label}</strong>
-          </span>
-        </div>
+              <span>
+                Host: <strong>{selectedHost.label}</strong>
+              </span>
+            </div>
           )}
         </div>
 

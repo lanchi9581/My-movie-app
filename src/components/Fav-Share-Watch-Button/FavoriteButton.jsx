@@ -1,37 +1,61 @@
 import { useEffect, useState } from "react";
 
-export default function FavoriteButton({ id }) {
-  const localStorageKey = "favoriteMovies";
+export default function FavoriteButton({
+  id,
+  media_type = "movie",
+  title,
+  poster_path,
+  vote_average,
+}) {
+  const localStorageKey = "favoriteItems";
 
   const [favorites, setFavorites] = useState([]);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  const safeParse = (str) => {
+  const safeParse = (value) => {
     try {
-      return JSON.parse(str);
+      const parsed = JSON.parse(value || "[]");
+      return Array.isArray(parsed) ? parsed : [];
     } catch {
       return [];
     }
   };
 
+  const normalizeItem = () => ({
+    id,
+    media_type,
+    title: title || "Untitled",
+    poster_path: poster_path || null,
+    vote_average: vote_average || 0,
+  });
+
   useEffect(() => {
     const stored = localStorage.getItem(localStorageKey);
-    const favs = stored ? safeParse(stored) : [];
-
-    setFavorites(favs);
+    setFavorites(safeParse(stored));
   }, []);
 
   useEffect(() => {
-    setIsFavorite(favorites.includes(id));
-  }, [favorites, id]);
+    setIsFavorite(
+      favorites.some(
+        (item) =>
+          Number(item.id) === Number(id) && item.media_type === media_type
+      )
+    );
+  }, [favorites, id, media_type]);
 
   const toggleFavorite = () => {
     let updatedFavorites;
 
-    if (favorites.includes(id)) {
-      updatedFavorites = favorites.filter((itemId) => itemId !== id);
+    if (isFavorite) {
+      updatedFavorites = favorites.filter(
+        (item) =>
+          !(
+            Number(item.id) === Number(id) &&
+            item.media_type === media_type
+          )
+      );
     } else {
-      updatedFavorites = [...favorites, id];
+      updatedFavorites = [normalizeItem(), ...favorites];
     }
 
     setFavorites(updatedFavorites);

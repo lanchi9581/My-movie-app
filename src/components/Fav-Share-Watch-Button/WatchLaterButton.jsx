@@ -1,37 +1,61 @@
 import { useEffect, useState } from "react";
 
-export default function WatchLaterButton({ id }) {
-  const localStorageKey = "watchLaterMovies";
+export default function WatchLaterButton({
+  id,
+  media_type = "movie",
+  title,
+  poster_path,
+  vote_average,
+}) {
+  const localStorageKey = "watchLaterItems";
 
   const [watchLaterList, setWatchLaterList] = useState([]);
   const [isInWatchLater, setIsInWatchLater] = useState(false);
 
-  const safeParse = (str) => {
+  const safeParse = (value) => {
     try {
-      return JSON.parse(str);
+      const parsed = JSON.parse(value || "[]");
+      return Array.isArray(parsed) ? parsed : [];
     } catch {
       return [];
     }
   };
 
+  const normalizeItem = () => ({
+    id,
+    media_type,
+    title: title || "Untitled",
+    poster_path: poster_path || null,
+    vote_average: vote_average || 0,
+  });
+
   useEffect(() => {
     const stored = localStorage.getItem(localStorageKey);
-    const list = stored ? safeParse(stored) : [];
-
-    setWatchLaterList(list);
+    setWatchLaterList(safeParse(stored));
   }, []);
 
   useEffect(() => {
-    setIsInWatchLater(watchLaterList.includes(id));
-  }, [watchLaterList, id]);
+    setIsInWatchLater(
+      watchLaterList.some(
+        (item) =>
+          Number(item.id) === Number(id) && item.media_type === media_type
+      )
+    );
+  }, [watchLaterList, id, media_type]);
 
   const toggleWatchLater = () => {
     let updatedList;
 
-    if (watchLaterList.includes(id)) {
-      updatedList = watchLaterList.filter((itemId) => itemId !== id);
+    if (isInWatchLater) {
+      updatedList = watchLaterList.filter(
+        (item) =>
+          !(
+            Number(item.id) === Number(id) &&
+            item.media_type === media_type
+          )
+      );
     } else {
-      updatedList = [...watchLaterList, id];
+      updatedList = [normalizeItem(), ...watchLaterList];
     }
 
     setWatchLaterList(updatedList);
