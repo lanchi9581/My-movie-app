@@ -12,7 +12,7 @@ import SearchPage from "./pages/SearchPage";
 import FavoritePage from "./pages/FavoritePage";
 import WatchLaterPage from "./pages/WatchLaterPage";
 
-import About from "./About";
+import About from "./pages/About/About";
 
 import MovieDetail from "./MovieDetail";
 import MoviePlayerPage from "./MoviePlayerPage";
