@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Fuse from "fuse.js";
 import "./SearchPage.css";
@@ -6,9 +6,36 @@ import "./SearchPage.css";
 const API_KEY = "36669667bad13a98c59f98b32ebb67f5";
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMG_URL = "https://image.tmdb.org/t/p/w500";
+const PLACEHOLDER_IMG =
+  "https://placehold.co/500x750/10131f/ffffff?text=No+Poster";
 
 function getTitle(item) {
-  return item.title || item.name || item.original_title || item.original_name || "Untitled";
+  return (
+    item.title ||
+    item.name ||
+    item.original_title ||
+    item.original_name ||
+    "Untitled"
+  );
+}
+
+function getYear(item) {
+  const date = item.release_date || item.first_air_date;
+  return date ? date.slice(0, 4) : "N/A";
+}
+
+function getRating(item) {
+  if (!item.vote_average && item.vote_average !== 0) return "N/A";
+  return item.vote_average.toFixed(1);
+}
+
+function getMediaType(item) {
+  if (item.media_type === "tv") return "tv";
+  return "movie";
+}
+
+function getDetailsPath(item) {
+  return getMediaType(item) === "tv" ? `/series/${item.id}` : `/movie/${item.id}`;
 }
 
 function normalizeText(text = "") {
@@ -40,11 +67,11 @@ export default function SearchPage() {
     async function loadFuzzyLibrary() {
       try {
         const urls = [
-          `${BASE_URL}/movie/popular?api_key=${API_KEY}`,
-          `${BASE_URL}/movie/top_rated?api_key=${API_KEY}`,
-          `${BASE_URL}/tv/popular?api_key=${API_KEY}`,
-          `${BASE_URL}/tv/top_rated?api_key=${API_KEY}`,
-          `${BASE_URL}/trending/all/week?api_key=${API_KEY}`,
+          `${BASE_URL}/movie/popular?api_key=${API_KEY}&language=en-US`,
+          `${BASE_URL}/movie/top_rated?api_key=${API_KEY}&language=en-US`,
+          `${BASE_URL}/tv/popular?api_key=${API_KEY}&language=en-US`,
+          `${BASE_URL}/tv/top_rated?api_key=${API_KEY}&language=en-US`,
+          `${BASE_URL}/trending/all/week?api_key=${API_KEY}&language=en-US`,
         ];
 
         const responses = await Promise.all(urls.map((url) => fetch(url)));
@@ -52,14 +79,13 @@ export default function SearchPage() {
 
         const combined = data
           .flatMap((group) => group.results || [])
-          .filter(
-            (item) =>
-              (item.media_type === "movie" ||
-                item.media_type === "tv" ||
-                item.title ||
-                item.name) &&
+          .filter((item) => {
+            const mediaType = item.media_type || (item.title ? "movie" : "tv");
+            return (
+              (mediaType === "movie" || mediaType === "tv") &&
               item.poster_path
-          )
+            );
+          })
           .map((item) => ({
             ...item,
             media_type: item.media_type || (item.title ? "movie" : "tv"),
@@ -67,7 +93,9 @@ export default function SearchPage() {
           }));
 
         const unique = Array.from(
-          new Map(combined.map((item) => [`${item.media_type}-${item.id}`, item])).values()
+          new Map(
+            combined.map((item) => [`${item.media_type}-${item.id}`, item])
+          ).values()
         );
 
         setLibrary(unique);
@@ -85,6 +113,7 @@ export default function SearchPage() {
     if (!cleanQuery) {
       setResults([]);
       setFuzzyResults([]);
+      setLoading(false);
       return;
     }
 
@@ -93,18 +122,24 @@ export default function SearchPage() {
 
       try {
         const res = await fetch(
-          `${BASE_URL}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(
+          `${BASE_URL}/search/multi?api_key=${API_KEY}&language=en-US&query=${encodeURIComponent(
             cleanQuery
           )}&include_adult=false`
         );
 
         const data = await res.json();
 
-        let tmdbResults = (data.results || []).filter(
-          (item) =>
-            (item.media_type === "movie" || item.media_type === "tv") &&
-            item.poster_path
-        );
+        let tmdbResults = (data.results || [])
+          .filter((item) => {
+            return (
+              (item.media_type === "movie" || item.media_type === "tv") &&
+              item.poster_path
+            );
+          })
+          .map((item) => ({
+            ...item,
+            media_type: item.media_type,
+          }));
 
         if (filter !== "all") {
           tmdbResults = tmdbResults.filter((item) => item.media_type === filter);
@@ -114,7 +149,9 @@ export default function SearchPage() {
         setFuzzyResults([]);
 
         if (tmdbResults.length === 0 && cleanQuery.length >= 2) {
-          let fuzzy = fuse.search(normalizeText(cleanQuery)).map((result) => result.item);
+          let fuzzy = fuse
+            .search(normalizeText(cleanQuery))
+            .map((result) => result.item);
 
           if (filter !== "all") {
             fuzzy = fuzzy.filter((item) => item.media_type === filter);
@@ -135,17 +172,27 @@ export default function SearchPage() {
   }, [query, filter, fuse]);
 
   const cardsToShow = results.length > 0 ? results : fuzzyResults;
+  const hasQuery = query.trim().length > 0;
+  const showDidYouMean =
+    !loading && hasQuery && results.length === 0 && fuzzyResults.length > 0;
+  const showEmpty =
+    !loading && hasQuery && results.length === 0 && fuzzyResults.length === 0;
 
   return (
-    <div className="search-page">
-      <div className="search-hero">
-        <h1>Find your next movie</h1>
-        <p>Search movies and series from one place.</p>
-      </div>
+    <main className="search-page">
+      <section className="search-hero">
+        <span>Prestige Search</span>
+        <h1>Find your next obsession</h1>
+        <p>
+          Search movies and TV series from one cinematic place. Filter your
+          results and jump straight into details.
+        </p>
+      </section>
 
-      <div className="search-controls">
+      <section className="search-controls">
         <div className="search-box">
           <i className="bx bx-search"></i>
+
           <input
             type="text"
             placeholder="Search movies or series..."
@@ -153,45 +200,122 @@ export default function SearchPage() {
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
           />
+
+          {query && (
+            <button
+              className="search-clear"
+              type="button"
+              onClick={() => setQuery("")}
+              aria-label="Clear search"
+            >
+              <i className="bx bx-x"></i>
+            </button>
+          )}
         </div>
 
-        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <option value="all">All</option>
-          <option value="movie">Movies</option>
-          <option value="tv">Series</option>
-        </select>
-      </div>
+        <div className="search-filter" aria-label="Search filter">
+          <button
+            type="button"
+            className={filter === "all" ? "active" : ""}
+            onClick={() => setFilter("all")}
+          >
+            All
+          </button>
 
-      {loading && <p className="search-message">Searching...</p>}
+          <button
+            type="button"
+            className={filter === "movie" ? "active" : ""}
+            onClick={() => setFilter("movie")}
+          >
+            Movies
+          </button>
 
-      {!loading && query && results.length === 0 && fuzzyResults.length === 0 && (
-        <p className="search-message">No results found.</p>
+          <button
+            type="button"
+            className={filter === "tv" ? "active" : ""}
+            onClick={() => setFilter("tv")}
+          >
+            Series
+          </button>
+        </div>
+      </section>
+
+      {loading && (
+        <section className="search-state">
+          <div className="search-spinner"></div>
+          <p>Searching...</p>
+        </section>
       )}
 
-      {!loading && query && results.length === 0 && fuzzyResults.length > 0 && (
-        <div className="did-you-mean">
-          <p>No exact results found.</p>
+      {!loading && !hasQuery && (
+        <section className="search-state search-state-intro">
+          <i className="bx bx-search-alt"></i>
+          <h2>Start searching</h2>
+          <p>Type a movie or TV series name to discover results.</p>
+        </section>
+      )}
+
+      {showEmpty && (
+        <section className="search-state">
+          <i className="bx bx-error-circle"></i>
+          <h2>No results found</h2>
+          <p>Try another title or change the filter.</p>
+        </section>
+      )}
+
+      {showDidYouMean && (
+        <section className="did-you-mean">
+          <span>No exact results found</span>
           <h2>Did you mean this?</h2>
-        </div>
+        </section>
       )}
 
-      <div className="search-grid">
-        {cardsToShow.map((item) => {
-          const title = getTitle(item);
-          const link = item.media_type === "tv" ? `/tv/${item.id}` : `/movie/${item.id}`;
+      {cardsToShow.length > 0 && (
+        <section className="search-grid">
+          {cardsToShow.map((item) => {
+            const title = getTitle(item);
+            const mediaType = getMediaType(item);
+            const link = getDetailsPath(item);
 
-          return (
-            <Link to={link} className="search-card" key={`${item.media_type}-${item.id}`}>
-              <img src={`${IMG_URL}${item.poster_path}`} alt={title} />
+            return (
+              <Link
+                to={link}
+                className="search-card"
+                key={`${mediaType}-${item.id}`}
+              >
+                <div className="search-card-poster">
+                  <img
+                    src={
+                      item.poster_path
+                        ? `${IMG_URL}${item.poster_path}`
+                        : PLACEHOLDER_IMG
+                    }
+                    alt={title}
+                    onError={(e) => {
+                      e.currentTarget.src = PLACEHOLDER_IMG;
+                    }}
+                  />
 
-              <div className="search-card-title">{title}</div>
-              <div className="search-card-type">
-                {item.media_type === "tv" ? "Series" : "Movie"}
-              </div>
-            </Link>
-          );
-        })}
-      </div>
-    </div>
+                  <div className="search-card-overlay">
+                    <span>
+                      <i className="bx bxs-star"></i>
+                      {getRating(item)}
+                    </span>
+
+                    <span>{getYear(item)}</span>
+                  </div>
+                </div>
+
+                <div className="search-card-info">
+                  <h3>{title}</h3>
+
+                  <p>{mediaType === "tv" ? "Series" : "Movie"}</p>
+                </div>
+              </Link>
+            );
+          })}
+        </section>
+      )}
+    </main>
   );
 }
