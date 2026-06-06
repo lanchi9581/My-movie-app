@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 import "./MovieDetail.css";
 
@@ -126,6 +127,21 @@ function MovieDetail() {
   const genres = movie.genres?.map((genre) => genre.name).join(", ") || "N/A";
 
   return (
+    <>
+      <Helmet>
+        <title>{`${movie.title} (${year}) - Watch Online | Prestige Movies`}</title>
+
+        <meta
+          name="description"
+          content={`Watch ${movie.title} online. View rating, release date, runtime, genres, trailer and cast on Prestige Movies.`}
+        />
+
+        <link
+          rel="canonical"
+          href={`https://prestige-movies.vercel.app/movie/${id}`}
+        />
+      </Helmet>
+
     <main className="movie-detail-page">
       <section className="movie-hero">
         <div
@@ -255,7 +271,8 @@ function MovieDetail() {
         </div>
       </section>
     </main>
-  );
+  </>
+);
 }
 
 export default MovieDetail;

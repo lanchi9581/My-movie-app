@@ -1,8 +1,16 @@
 import { NavLink } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import "./Home.css";
 
 function Home() {
   return (
+  <>
+    <Helmet>
+      <title>Prestige Movies - Watch Movies & TV Shows Online</title>
+      <meta name="description" content="Discover movies and TV shows, explore ratings, trailers, cast information and watch your favorite content on Prestige Movies."/>
+      <link rel="canonical" href="https://prestige-movies.vercel.app/" />
+    </Helmet>
+
     <main className="home-page">
       <section className="home-hero">
         <div className="home-hero-content">
@@ -98,7 +106,8 @@ function Home() {
         </NavLink>
       </section>
     </main>
-  );
+  </>
+);
 }
 
 export default Home;

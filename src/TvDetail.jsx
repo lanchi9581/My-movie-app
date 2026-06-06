@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 import ShareButton from "./components/Fav-Share-Watch-Button/ShareButton";
 import "./TvDetail.css";
@@ -200,72 +201,52 @@ function TvDetail() {
   const rating = tvShow.vote_average ? tvShow.vote_average.toFixed(1) : "N/A";
 
   return (
-    <main className="tv-detail-page">
-      <section className="tv-hero">
-        <div
-          className="tv-hero-bg"
-          style={backdrop ? { backgroundImage: `url(${backdrop})` } : undefined}
+    <>
+      <Helmet>
+        <title>{`${tvShow.name} (${year}) - Watch Online | Prestige Movies`}</title>
+
+        <meta
+          name="description"
+          content={`Watch ${tvShow.name} online. View rating, seasons, episodes, genres, trailer and cast on Prestige Movies.`}
         />
 
-        <div className="tv-hero-overlay" />
+        <link
+          rel="canonical"
+          href={`https://prestige-movies.vercel.app/series/${id}`}
+        />
+      </Helmet>
 
-        <button
-          className="tv-back-button"
-          type="button"
-          onClick={handleBackClick}
-          aria-label="Go back"
-        >
-          <i className="bx bx-arrow-back"></i>
-          <span>Back</span>
-        </button>
+      <main className="tv-detail-page">
+        <section className="tv-hero">
+          <div
+            className="tv-hero-bg"
+            style={backdrop ? { backgroundImage: `url(${backdrop})` } : undefined}
+          />
 
-        <div className="tv-hero-layout">
-          <div className="tv-poster-card">
-            {poster ? (
-              <img src={poster} alt={tvShow.name} />
-            ) : (
-              <div className="tv-poster-placeholder">
-                <i className="bx bx-tv"></i>
-              </div>
-            )}
+          <div className="tv-hero-overlay" />
 
-            <button
-              className="tv-poster-play"
-              type="button"
-              onClick={() =>
-                goToEpisode(selectedSeason, firstPlayableEpisode?.episode_number)
-              }
-              disabled={!firstPlayableEpisode}
-            >
-              <i className="bx bx-play"></i>
-            </button>
-          </div>
+          <button
+            className="tv-back-button"
+            type="button"
+            onClick={handleBackClick}
+            aria-label="Go back"
+          >
+            <i className="bx bx-arrow-back"></i>
+            <span>Back</span>
+          </button>
 
-          <div className="tv-info-glass">
-            <span className="tv-kicker">Prestige Series</span>
+          <div className="tv-hero-layout">
+            <div className="tv-poster-card">
+              {poster ? (
+                <img src={poster} alt={tvShow.name} />
+              ) : (
+                <div className="tv-poster-placeholder">
+                  <i className="bx bx-tv"></i>
+                </div>
+              )}
 
-            <h1>{tvShow.name}</h1>
-
-            <div className="tv-meta-row">
-              <span>⭐ {rating}</span>
-              <span>{year}</span>
-              <span>{tvShow.number_of_seasons || 0} seasons</span>
-              <span>{tvShow.number_of_episodes || 0} episodes</span>
-            </div>
-
-            <p className="tv-overview">
-              {tvShow.overview || "No overview available for this series."}
-            </p>
-
-            <div className="tv-genres">
-              {tvShow.genres?.map((genre) => (
-                <span key={genre.id}>{genre.name}</span>
-              ))}
-            </div>
-
-            <div className="tv-actions">
               <button
-                className="tv-primary-btn"
+                className="tv-poster-play"
                 type="button"
                 onClick={() =>
                   goToEpisode(selectedSeason, firstPlayableEpisode?.episode_number)
@@ -273,153 +254,189 @@ function TvDetail() {
                 disabled={!firstPlayableEpisode}
               >
                 <i className="bx bx-play"></i>
-                Start Watching
               </button>
-
-              <button
-                className="tv-secondary-btn"
-                type="button"
-                onClick={goToTrailer}
-                disabled={!trailerKey}
-              >
-                <i className="bx bx-movie-play"></i>
-                Trailer
-              </button>
-
-              <ShareButton movieUrl={tvUrl} />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="tv-detail-sections">
-        <div className="tv-panel">
-          <h2>Series Details</h2>
-
-          <div className="tv-stats-grid">
-            <div>
-              <span>Status</span>
-              <strong>{tvShow.status || "Unknown"}</strong>
             </div>
 
-            <div>
-              <span>First Air Date</span>
-              <strong>{formatDate(tvShow.first_air_date)}</strong>
-            </div>
+            <div className="tv-info-glass">
+              <span className="tv-kicker">Prestige Series</span>
 
-            <div>
-              <span>Last Air Date</span>
-              <strong>{formatDate(tvShow.last_air_date)}</strong>
-            </div>
+              <h1>{tvShow.name}</h1>
 
-            <div>
-              <span>Language</span>
-              <strong>{tvShow.original_language?.toUpperCase() || "N/A"}</strong>
-            </div>
-          </div>
-        </div>
+              <div className="tv-meta-row">
+                <span>⭐ {rating}</span>
+                <span>{year}</span>
+                <span>{tvShow.number_of_seasons || 0} seasons</span>
+                <span>{tvShow.number_of_episodes || 0} episodes</span>
+              </div>
 
-        <div className="tv-panel">
-          <div className="tv-panel-header">
-            <h2>Episodes</h2>
+              <p className="tv-overview">
+                {tvShow.overview || "No overview available for this series."}
+              </p>
 
-            <div className="tv-controls">
-              <label>
-                Season
-                <select
-                  value={selectedSeason ?? ""}
-                  onChange={(e) => setSelectedSeason(Number(e.target.value))}
+              <div className="tv-genres">
+                {tvShow.genres?.map((genre) => (
+                  <span key={genre.id}>{genre.name}</span>
+                ))}
+              </div>
+
+              <div className="tv-actions">
+                <button
+                  className="tv-primary-btn"
+                  type="button"
+                  onClick={() =>
+                    goToEpisode(selectedSeason, firstPlayableEpisode?.episode_number)
+                  }
+                  disabled={!firstPlayableEpisode}
                 >
-                  {sortedSeasons.map((season) => (
-                    <option key={season.id} value={season.season_number}>
-                      {season.season_number === 0
-                        ? "Bonus"
-                        : `Season ${season.season_number}`}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  <i className="bx bx-play"></i>
+                  Start Watching
+                </button>
 
-              <label>
-                Sort
-                <select
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value)}
+                <button
+                  className="tv-secondary-btn"
+                  type="button"
+                  onClick={goToTrailer}
+                  disabled={!trailerKey}
                 >
-                  <option value="asc">Ascending</option>
-                  <option value="desc">Descending</option>
-                </select>
-              </label>
+                  <i className="bx bx-movie-play"></i>
+                  Trailer
+                </button>
+
+                <ShareButton movieUrl={tvUrl} />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="tv-detail-sections">
+          <div className="tv-panel">
+            <h2>Series Details</h2>
+
+            <div className="tv-stats-grid">
+              <div>
+                <span>Status</span>
+                <strong>{tvShow.status || "Unknown"}</strong>
+              </div>
+
+              <div>
+                <span>First Air Date</span>
+                <strong>{formatDate(tvShow.first_air_date)}</strong>
+              </div>
+
+              <div>
+                <span>Last Air Date</span>
+                <strong>{formatDate(tvShow.last_air_date)}</strong>
+              </div>
+
+              <div>
+                <span>Language</span>
+                <strong>{tvShow.original_language?.toUpperCase() || "N/A"}</strong>
+              </div>
             </div>
           </div>
 
-          <div className="episode-list">
-            {sortedEpisodes.length > 0 ? (
-              sortedEpisodes.map((episode) => {
-                const future = isEpisodeFuture(episode.air_date);
+          <div className="tv-panel">
+            <div className="tv-panel-header">
+              <h2>Episodes</h2>
 
-                return (
-                  <button
-                    key={episode.id}
-                    className={future ? "episode-card disabled" : "episode-card"}
-                    type="button"
-                    onClick={() =>
-                      goToEpisode(selectedSeason, episode.episode_number)
-                    }
-                    disabled={future}
+              <div className="tv-controls">
+                <label>
+                  Season
+                  <select
+                    value={selectedSeason ?? ""}
+                    onChange={(e) => setSelectedSeason(Number(e.target.value))}
                   >
-                    <div className="episode-number">Ep {episode.episode_number}</div>
+                    {sortedSeasons.map((season) => (
+                      <option key={season.id} value={season.season_number}>
+                        {season.season_number === 0
+                          ? "Bonus"
+                          : `Season ${season.season_number}`}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-                    <div className="episode-info">
-                      <strong>{episode.name || "Untitled episode"}</strong>
-                      <span>
-                        {future
-                          ? `Coming soon: ${formatDate(episode.air_date)}`
-                          : `Released: ${formatDate(episode.air_date)}`}
-                      </span>
+                <label>
+                  Sort
+                  <select
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value)}
+                  >
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div className="episode-list">
+              {sortedEpisodes.length > 0 ? (
+                sortedEpisodes.map((episode) => {
+                  const future = isEpisodeFuture(episode.air_date);
+
+                  return (
+                    <button
+                      key={episode.id}
+                      className={future ? "episode-card disabled" : "episode-card"}
+                      type="button"
+                      onClick={() =>
+                        goToEpisode(selectedSeason, episode.episode_number)
+                      }
+                      disabled={future}
+                    >
+                      <div className="episode-number">Ep {episode.episode_number}</div>
+
+                      <div className="episode-info">
+                        <strong>{episode.name || "Untitled episode"}</strong>
+                        <span>
+                          {future
+                            ? `Coming soon: ${formatDate(episode.air_date)}`
+                            : `Released: ${formatDate(episode.air_date)}`}
+                        </span>
+                      </div>
+
+                      <i className="bx bx-play-circle"></i>
+                    </button>
+                  );
+                })
+              ) : (
+                <p className="tv-empty-text">No episodes found for this season.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="tv-panel">
+            <h2>Top Cast</h2>
+
+            {cast.length > 0 ? (
+              <div className="tv-cast-grid">
+                {cast.map((actor) => (
+                  <div className="tv-cast-card" key={actor.id}>
+                    {actor.profile_path ? (
+                      <img
+                        src={`${PROFILE_URL}${actor.profile_path}`}
+                        alt={actor.name}
+                      />
+                    ) : (
+                      <div className="tv-cast-placeholder">
+                        <i className="bx bx-user"></i>
+                      </div>
+                    )}
+
+                    <div>
+                      <strong>{actor.name}</strong>
+                      <span>{actor.character || "Unknown role"}</span>
                     </div>
-
-                    <i className="bx bx-play-circle"></i>
-                  </button>
-                );
-              })
+                  </div>
+                ))}
+              </div>
             ) : (
-              <p className="tv-empty-text">No episodes found for this season.</p>
+              <p className="tv-empty-text">No cast information available.</p>
             )}
           </div>
-        </div>
-
-        <div className="tv-panel">
-          <h2>Top Cast</h2>
-
-          {cast.length > 0 ? (
-            <div className="tv-cast-grid">
-              {cast.map((actor) => (
-                <div className="tv-cast-card" key={actor.id}>
-                  {actor.profile_path ? (
-                    <img
-                      src={`${PROFILE_URL}${actor.profile_path}`}
-                      alt={actor.name}
-                    />
-                  ) : (
-                    <div className="tv-cast-placeholder">
-                      <i className="bx bx-user"></i>
-                    </div>
-                  )}
-
-                  <div>
-                    <strong>{actor.name}</strong>
-                    <span>{actor.character || "Unknown role"}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="tv-empty-text">No cast information available.</p>
-          )}
-        </div>
-      </section>
-    </main>
+        </section>
+      </main>
+    </>
   );
 }
 
