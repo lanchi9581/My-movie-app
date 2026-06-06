@@ -15,6 +15,23 @@ const STORAGE_LIMIT = 15;
 const CONTINUE_DISPLAY_LIMIT = 5;
 const RECENTLY_DISPLAY_LIMIT = 8;
 
+const RECENTLY_KEYS = [
+  "prestige_recently_viewed",
+  "recentlyViewed",
+  "recently-viewed",
+  "prestigeRecentlyViewed",
+  "recentlyViewedMovies",
+  "recentlyViewedShows",
+];
+
+const CONTINUE_KEYS = [
+  "prestige_continue_watching",
+  "continueWatching",
+  "continue-watching",
+  "prestigeContinueWatching",
+  "prestige_continueWatching",
+];
+
 const fallbackFeatured = {
   id: 550,
   title: "Prestige Movies",
@@ -67,12 +84,7 @@ function getMediaType(item, fallback = "movie") {
 
 function getDetailsPath(item, fallback = "movie") {
   const mediaType = getMediaType(item, fallback);
-
-  if (mediaType === "tv") {
-    return `/series/${item.id}`;
-  }
-
-  return `/movie/${item.id}`;
+  return mediaType === "tv" ? `/series/${item.id}` : `/movie/${item.id}`;
 }
 
 function getCardPath(item, fallbackType, preferContinuePath = false) {
@@ -155,11 +167,31 @@ function cleanLocalStorageItems(items) {
     .slice(0, STORAGE_LIMIT);
 }
 
+function persistHomeList(keys, items) {
+  localStorage.setItem(keys[0], JSON.stringify(items));
+
+  keys.slice(1).forEach((key) => {
+    localStorage.removeItem(key);
+  });
+}
+
+function removeHomeItem(items, itemToRemove) {
+  return items.filter((item) => {
+    const itemType = getMediaType(item);
+    const removeType = getMediaType(itemToRemove);
+
+    return !(
+      Number(item.id) === Number(itemToRemove.id) && itemType === removeType
+    );
+  });
+}
+
 function PosterCard({
   item,
   fallbackType = "movie",
   preferContinuePath = false,
   index = 0,
+  onRemove,
 }) {
   const title = getTitle(item);
   const poster = getPoster(item?.poster_path);
@@ -167,32 +199,46 @@ function PosterCard({
   const subtitle = item?.continue_label || getYear(item);
 
   return (
-    <NavLink to={path} className="home-poster-card">
-      <div className="home-poster-image">
-        {poster ? (
-          <img
-            src={poster}
-            alt={title}
-            loading={index < 4 ? "eager" : "lazy"}
-            decoding="async"
-          />
-        ) : (
-          <div className="home-poster-placeholder">
-            <i className="bx bxs-movie-play"></i>
+    <article className="home-poster-card-shell">
+      {onRemove && (
+        <button
+          className="home-remove-btn"
+          type="button"
+          onClick={() => onRemove(item)}
+          aria-label={`Remove ${title}`}
+          title="Remove"
+        >
+          <i className="bx bx-x"></i>
+        </button>
+      )}
+
+      <NavLink to={path} className="home-poster-card">
+        <div className="home-poster-image">
+          {poster ? (
+            <img
+              src={poster}
+              alt={title}
+              loading={index < 4 ? "eager" : "lazy"}
+              decoding="async"
+            />
+          ) : (
+            <div className="home-poster-placeholder">
+              <i className="bx bxs-movie-play"></i>
+            </div>
+          )}
+
+          <div className="home-poster-rating">
+            <i className="bx bxs-star"></i>
+            {getRating(item)}
           </div>
-        )}
-
-        <div className="home-poster-rating">
-          <i className="bx bxs-star"></i>
-          {getRating(item)}
         </div>
-      </div>
 
-      <div className="home-poster-info">
-        <h3>{title}</h3>
-        <p>{subtitle}</p>
-      </div>
-    </NavLink>
+        <div className="home-poster-info">
+          <h3>{title}</h3>
+          <p>{subtitle}</p>
+        </div>
+      </NavLink>
+    </article>
   );
 }
 
@@ -201,6 +247,7 @@ function WideCard({
   fallbackType = "movie",
   preferContinuePath = false,
   index = 0,
+  onRemove,
 }) {
   const title = getTitle(item);
   const path = getCardPath(item, fallbackType, preferContinuePath);
@@ -211,47 +258,61 @@ function WideCard({
   const subtitle = item?.continue_label || getYear(item);
 
   return (
-    <NavLink to={path} className="home-wide-card">
-      <div className="home-wide-image">
-        {image ? (
-          <img
-            src={image}
-            alt={title}
-            loading={index < 3 ? "eager" : "lazy"}
-            decoding="async"
-          />
-        ) : (
-          <div className="home-wide-placeholder">
-            <i className="bx bxs-movie-play"></i>
+    <article className="home-wide-card-shell">
+      {onRemove && (
+        <button
+          className="home-remove-btn home-remove-btn-wide"
+          type="button"
+          onClick={() => onRemove(item)}
+          aria-label={`Remove ${title}`}
+          title="Remove"
+        >
+          <i className="bx bx-x"></i>
+        </button>
+      )}
+
+      <NavLink to={path} className="home-wide-card">
+        <div className="home-wide-image">
+          {image ? (
+            <img
+              src={image}
+              alt={title}
+              loading={index < 3 ? "eager" : "lazy"}
+              decoding="async"
+            />
+          ) : (
+            <div className="home-wide-placeholder">
+              <i className="bx bxs-movie-play"></i>
+            </div>
+          )}
+
+          <div className="home-wide-play">
+            <i className="bx bx-play"></i>
           </div>
-        )}
-
-        <div className="home-wide-play">
-          <i className="bx bx-play"></i>
         </div>
-      </div>
 
-      <div className="home-wide-content">
-        <span className="home-wide-kicker">
-          {mediaType === "tv" ? "Series" : "Movie"}
-        </span>
-
-        <h3>{title}</h3>
-
-        <p>{subtitle}</p>
-
-        <div className="home-wide-meta">
-          <span>
-            <i className="bx bxs-star"></i>
-            {getRating(item)}
+        <div className="home-wide-content">
+          <span className="home-wide-kicker">
+            {mediaType === "tv" ? "Series" : "Movie"}
           </span>
 
-          <span>{getYear(item)}</span>
+          <h3>{title}</h3>
 
-          <span>HD</span>
+          <p>{subtitle}</p>
+
+          <div className="home-wide-meta">
+            <span>
+              <i className="bx bxs-star"></i>
+              {getRating(item)}
+            </span>
+
+            <span>{getYear(item)}</span>
+
+            <span>HD</span>
+          </div>
         </div>
-      </div>
-    </NavLink>
+      </NavLink>
+    </article>
   );
 }
 
@@ -264,6 +325,8 @@ function HomeRow({
   preferContinuePath = false,
   variant = "poster",
   displayLimit = 12,
+  onRemove,
+  onClear,
 }) {
   if (!items || items.length === 0) return null;
 
@@ -275,12 +338,20 @@ function HomeRow({
           <h2>{title}</h2>
         </div>
 
-        {viewAllPath && (
-          <NavLink to={viewAllPath} className="home-view-all">
-            View all
-            <i className="bx bx-chevron-right"></i>
-          </NavLink>
-        )}
+        <div className="home-section-actions">
+          {onClear && (
+            <button className="home-clear-btn" type="button" onClick={onClear}>
+              Clear all
+            </button>
+          )}
+
+          {viewAllPath && (
+            <NavLink to={viewAllPath} className="home-view-all">
+              View all
+              <i className="bx bx-chevron-right"></i>
+            </NavLink>
+          )}
+        </div>
       </div>
 
       <div className={variant === "wide" ? "home-wide-row" : "home-row"}>
@@ -292,6 +363,7 @@ function HomeRow({
               fallbackType={fallbackType}
               preferContinuePath={preferContinuePath}
               index={index}
+              onRemove={onRemove}
             />
           ) : (
             <PosterCard
@@ -300,6 +372,7 @@ function HomeRow({
               fallbackType={fallbackType}
               preferContinuePath={preferContinuePath}
               index={index}
+              onRemove={onRemove}
             />
           )
         )}
@@ -317,22 +390,8 @@ function Home() {
   const [continueWatching, setContinueWatching] = useState([]);
 
   useEffect(() => {
-    const storedRecentlyViewed = readLocalStorageList([
-      "prestige_recently_viewed",
-      "recentlyViewed",
-      "recently-viewed",
-      "prestigeRecentlyViewed",
-      "recentlyViewedMovies",
-      "recentlyViewedShows",
-    ]);
-
-    const storedContinueWatching = readLocalStorageList([
-      "prestige_continue_watching",
-      "continueWatching",
-      "continue-watching",
-      "prestigeContinueWatching",
-      "prestige_continueWatching",
-    ]);
+    const storedRecentlyViewed = readLocalStorageList(RECENTLY_KEYS);
+    const storedContinueWatching = readLocalStorageList(CONTINUE_KEYS);
 
     setRecentlyViewed(cleanLocalStorageItems(storedRecentlyViewed));
     setContinueWatching(cleanLocalStorageItems(storedContinueWatching));
@@ -383,22 +442,46 @@ function Home() {
   }, []);
 
   useEffect(() => {
-  const heroMovies = trendingMovies.filter(
-    (movie) => movie.backdrop_path && movie.poster_path
-  );
+    const heroMovies = trendingMovies.filter(
+      (movie) => movie.backdrop_path && movie.poster_path
+    );
 
-  if (heroMovies.length === 0) return;
+    if (heroMovies.length === 0) return;
 
-  const interval = setInterval(() => {
-    setHeroIndex((prev) => {
-      const next = (prev + 1) % heroMovies.length;
-      setFeatured(heroMovies[next]);
-      return next;
-    });
-  }, 12000);
+    const interval = setInterval(() => {
+      setHeroIndex((prev) => {
+        const next = (prev + 1) % heroMovies.length;
+        setFeatured(heroMovies[next]);
+        return next;
+      });
+    }, 12000);
 
-  return () => clearInterval(interval);
-}, [trendingMovies]);
+    return () => clearInterval(interval);
+  }, [trendingMovies]);
+
+  const removeRecentlyViewed = (itemToRemove) => {
+    const nextItems = removeHomeItem(recentlyViewed, itemToRemove);
+
+    setRecentlyViewed(nextItems);
+    persistHomeList(RECENTLY_KEYS, nextItems);
+  };
+
+  const removeContinueWatching = (itemToRemove) => {
+    const nextItems = removeHomeItem(continueWatching, itemToRemove);
+
+    setContinueWatching(nextItems);
+    persistHomeList(CONTINUE_KEYS, nextItems);
+  };
+
+  const clearRecentlyViewed = () => {
+    setRecentlyViewed([]);
+    persistHomeList(RECENTLY_KEYS, []);
+  };
+
+  const clearContinueWatching = () => {
+    setContinueWatching([]);
+    persistHomeList(CONTINUE_KEYS, []);
+  };
 
   const heroBackground = useMemo(() => {
     const backdrop = getBackdrop(featured?.backdrop_path);
@@ -502,6 +585,8 @@ function Home() {
           viewAllPath="/movies"
           variant="poster"
           displayLimit={RECENTLY_DISPLAY_LIMIT}
+          onRemove={removeRecentlyViewed}
+          onClear={clearRecentlyViewed}
         />
 
         <HomeRow
@@ -513,6 +598,8 @@ function Home() {
           preferContinuePath
           variant="wide"
           displayLimit={CONTINUE_DISPLAY_LIMIT}
+          onRemove={removeContinueWatching}
+          onClear={clearContinueWatching}
         />
 
         <HomeRow

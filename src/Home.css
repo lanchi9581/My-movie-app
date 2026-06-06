@@ -38,7 +38,7 @@
   background:
     linear-gradient(
       90deg,
-      rgba(0, 0, 0, 0.90) 0%,
+      rgba(0, 0, 0, 0.9) 0%,
       rgba(0, 0, 0, 0.78) 25%,
       rgba(0, 0, 0, 0.52) 50%,
       rgba(0, 0, 0, 0.68) 75%,
@@ -280,7 +280,15 @@
   text-transform: uppercase;
 }
 
-.home-view-all {
+.home-section-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.home-view-all,
+.home-clear-btn {
+  min-height: 34px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -288,11 +296,28 @@
   text-decoration: none;
   font-size: 0.95rem;
   font-weight: 900;
-  transition: color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .home-view-all:hover {
   color: #fff;
+}
+
+.home-clear-btn {
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(244, 6, 18, 0.22);
+  background: rgba(244, 6, 18, 0.08);
+  cursor: pointer;
+}
+
+.home-clear-btn:hover {
+  color: #fff;
+  background: rgba(244, 6, 18, 0.2);
+  border-color: rgba(244, 6, 18, 0.4);
 }
 
 .home-row {
@@ -334,16 +359,22 @@
   border-radius: 999px;
 }
 
-.home-poster-card {
+.home-poster-card-shell,
+.home-wide-card-shell {
+  position: relative;
   scroll-snap-align: start;
+}
+
+.home-poster-card {
   color: #fff;
   text-decoration: none;
+  display: block;
   transition:
     transform 0.24s ease,
     filter 0.24s ease;
 }
 
-.home-poster-card:hover {
+.home-poster-card-shell:hover .home-poster-card {
   transform: translateY(-6px) scale(1.02);
   filter: brightness(1.08);
 }
@@ -368,7 +399,7 @@
   transition: transform 0.35s ease;
 }
 
-.home-poster-card:hover .home-poster-image img {
+.home-poster-card-shell:hover .home-poster-image img {
   transform: scale(1.06);
 }
 
@@ -428,9 +459,52 @@
   font-weight: 700;
 }
 
+.home-remove-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  background: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.86);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.home-remove-btn i {
+  font-size: 1.25rem;
+}
+
+.home-poster-card-shell:hover .home-remove-btn,
+.home-wide-card-shell:hover .home-remove-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.home-remove-btn:hover {
+  background: rgba(244, 6, 18, 0.86);
+  border-color: rgba(244, 6, 18, 0.86);
+}
+
+.home-remove-btn-wide {
+  top: 12px;
+  right: 12px;
+}
+
 .home-wide-card {
   min-height: 178px;
-  scroll-snap-align: start;
   display: grid;
   grid-template-columns: 170px minmax(0, 1fr);
   overflow: hidden;
@@ -448,7 +522,7 @@
     box-shadow 0.24s ease;
 }
 
-.home-wide-card:hover {
+.home-wide-card-shell:hover .home-wide-card {
   transform: translateY(-5px);
   border-color: rgba(244, 6, 18, 0.42);
   box-shadow: 0 30px 82px rgba(0, 0, 0, 0.46);
@@ -471,7 +545,7 @@
   transition: transform 0.35s ease;
 }
 
-.home-wide-card:hover .home-wide-image img {
+.home-wide-card-shell:hover .home-wide-image img {
   transform: scale(1.06);
 }
 
@@ -721,6 +795,11 @@
     gap: 12px;
   }
 
+  .home-section-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .home-row {
     grid-auto-columns: 145px;
     gap: 13px;
@@ -764,6 +843,11 @@
 
   .home-poster-image {
     border-radius: 18px;
+  }
+
+  .home-remove-btn {
+    opacity: 1;
+    transform: scale(1);
   }
 
   .home-stats {
