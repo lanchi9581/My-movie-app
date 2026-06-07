@@ -1,4 +1,5 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
@@ -20,9 +21,19 @@ import MoviePlayerPage from "./MoviePlayerPage";
 import TvDetail from "./TvDetail";
 import TvPlayerPage from "./TvPlayerPage";
 
+const SITE_URL = "https://prestige-movies.vercel.app";
+
 function App() {
+  const location = useLocation();
+
+  const canonicalUrl = `${SITE_URL}${location.pathname}`;
+
   return (
     <div className="app">
+      <Helmet>
+        <link rel="canonical" href={canonicalUrl} />
+      </Helmet>
+
       <Navbar />
 
       <main className="main-content">
