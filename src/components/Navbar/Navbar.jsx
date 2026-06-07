@@ -1,11 +1,11 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import "./Navbar.css";
 
-const CENTER_LINKS = [
-  { to: "/", label: "Home" },
-  { to: "/movies", label: "Movies" },
-  { to: "/series", label: "Series" },
+const MAIN_LINKS = [
+  { to: "/", label: "Home", icon: "bx bxs-home" },
+  { to: "/movies", label: "Movies", icon: "bx bxs-movie" },
+  { to: "/series", label: "Series", icon: "bx bxs-tv" },
 ];
 
 const LIBRARY_LINKS = [
@@ -14,20 +14,37 @@ const LIBRARY_LINKS = [
   { to: "/about", label: "About", icon: "bx bxs-info-circle" },
 ];
 
-function LibraryDropdown({ closeMenu }) {
+function getActiveIndex(pathname) {
+  if (pathname.startsWith("/movies") || pathname.startsWith("/movie")) return 1;
+  if (pathname.startsWith("/series") || pathname.startsWith("/tv")) return 2;
+  if (pathname.startsWith("/search")) return 3;
+  return 0;
+}
+
+function getMobileTabIndex(pathname) {
+  if (pathname.startsWith("/movies") || pathname.startsWith("/movie")) return 1;
+  if (pathname.startsWith("/series") || pathname.startsWith("/tv")) return 2;
+  return 0;
+}
+
+function LibraryDropdown({ closeMenu, mobile = false }) {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        !mobile &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
         setOpen(false);
       }
     }
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [mobile]);
 
   const handleLinkClick = () => {
     setOpen(false);
@@ -35,29 +52,42 @@ function LibraryDropdown({ closeMenu }) {
   };
 
   return (
-    <div className="library-select" ref={dropdownRef}>
+    <div
+      className={mobile ? "mobile-library-select" : "library-select"}
+      ref={dropdownRef}
+    >
       <button
         type="button"
-        className={`library-select__button ${open ? "active" : ""}`}
+        className={`${mobile ? "mobile-library-button" : "library-select__button"} ${
+          open ? "active" : ""
+        }`}
         onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
       >
         <span>Library</span>
-        <span className="library-select__arrow">▾</span>
+        <span
+          className={mobile ? "mobile-library-arrow" : "library-select__arrow"}
+        >
+          ▾
+        </span>
       </button>
 
       {open && (
-        <div className="library-select__menu">
+        <div className={mobile ? "mobile-library-menu" : "library-select__menu"}>
           {LIBRARY_LINKS.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
+              onClick={handleLinkClick}
               className={({ isActive }) =>
                 isActive
-                  ? "library-select__option selected"
-                  : "library-select__option"
+                  ? mobile
+                    ? "mobile-library-option selected"
+                    : "library-select__option selected"
+                  : mobile
+                    ? "mobile-library-option"
+                    : "library-select__option"
               }
-              onClick={handleLinkClick}
             >
               <i className={link.icon} aria-hidden="true"></i>
               <span>{link.label}</span>
@@ -71,7 +101,24 @@ function LibraryDropdown({ closeMenu }) {
 
 function Navbar() {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showFloatingNav, setShowFloatingNav] = useState(false);
+
+  const floatingIndex = getActiveIndex(location.pathname);
+  const mobileTabIndex = getMobileTabIndex(location.pathname);
+
+  useEffect(() => {
+    function handleScroll() {
+      setShowFloatingNav(window.scrollY > 220);
+    }
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const closeMenu = () => setIsMenuOpen(false);
 
@@ -81,90 +128,137 @@ function Navbar() {
   };
 
   return (
-    <header className="site-header">
-      <nav className="navbar" aria-label="Main navigation">
-        <NavLink to="/" className="brand" onClick={closeMenu}>
-          <img src="/logo3.webp" alt="Prestige Movies" className="brand-logo" />
-          <div className="brand-copy">
-            <span>Prestige</span>
-            <strong>Movies</strong>
-          </div>
-        </NavLink>
+    <>
+      <header className="site-header">
+        <nav className="navbar" aria-label="Main navigation">
+          <div className="navbar-left">
+            <NavLink to="/" className="brand" onClick={closeMenu}>
+              <img
+                src="/logo3.webp"
+                alt="Prestige Movies"
+                className="brand-logo"
+              />
 
-        <button className="search-link" type="button" onClick={goToSearch}>
-          <i className="bx bx-search" aria-hidden="true"></i>
-          <span>Search</span>
-        </button>
-
-        <div className="center-nav">
-          {CENTER_LINKS.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              onClick={closeMenu}
-              className={({ isActive }) =>
-                isActive ? "center-link active" : "center-link"
-              }
-            >
-              {link.label}
+              <div className="brand-copy">
+                <span>Prestige</span>
+                <strong>Movies</strong>
+              </div>
             </NavLink>
-          ))}
-        </div>
 
-        <LibraryDropdown closeMenu={closeMenu} />
+            <button className="search-link" type="button" onClick={goToSearch}>
+              <i className="bx bx-search" aria-hidden="true"></i>
+              <span>Search</span>
+            </button>
+          </div>
 
-        <button
-          className="hamburger-btn"
-          type="button"
-          onClick={() => setIsMenuOpen(true)}
-          aria-label="Open navigation menu"
-        >
-          <i className="bx bx-menu" aria-hidden="true"></i>
-        </button>
-
-        <aside className={`mobile-menu ${isMenuOpen ? "open" : ""}`}>
-          <button
-            className="close-menu"
-            type="button"
-            onClick={closeMenu}
-            aria-label="Close navigation menu"
-          >
-            <i className="bx bx-x" aria-hidden="true"></i>
-          </button>
-
-          <NavLink to="/" className="mobile-brand" onClick={closeMenu}>
-            <img src="/logo3.webp" alt="Prestige Movies" />
-            <div>
-              <span>Prestige</span>
-              <strong>Movies</strong>
-            </div>
-          </NavLink>
-
-          <button className="mobile-search" type="button" onClick={goToSearch}>
-            <i className="bx bx-search" aria-hidden="true"></i>
-            <span>Search</span>
-          </button>
-
-          <div className="mobile-links">
-            {[...CENTER_LINKS, ...LIBRARY_LINKS].map((link) => (
+          <div className="center-nav">
+            {MAIN_LINKS.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
                 onClick={closeMenu}
                 className={({ isActive }) =>
-                  isActive ? "mobile-link active" : "mobile-link"
+                  isActive ? "center-link active" : "center-link"
                 }
               >
-                {link.icon && <i className={link.icon} aria-hidden="true"></i>}
-                <span>{link.label}</span>
+                {link.label}
               </NavLink>
             ))}
           </div>
-        </aside>
 
-        {isMenuOpen && <div className="nav-overlay" onClick={closeMenu}></div>}
+          <LibraryDropdown closeMenu={closeMenu} />
+
+          <button
+            className="hamburger-btn"
+            type="button"
+            onClick={() => setIsMenuOpen(true)}
+            aria-label="Open navigation menu"
+          >
+            <i className="bx bx-menu" aria-hidden="true"></i>
+          </button>
+
+          <aside className={`mobile-menu ${isMenuOpen ? "open" : ""}`}>
+            <div className="mobile-menu-card">
+              <div className="mobile-card-header">
+                <NavLink
+                  to="/"
+                  className="mobile-card-brand"
+                  onClick={closeMenu}
+                >
+                  <img src="/logo3.webp" alt="Prestige Movies" />
+                  <div>
+                    <span>Prestige</span>
+                    <strong>Movies</strong>
+                  </div>
+                </NavLink>
+
+                <button
+                  className="close-menu"
+                  type="button"
+                  onClick={closeMenu}
+                  aria-label="Close navigation menu"
+                >
+                  <i className="bx bx-x" aria-hidden="true"></i>
+                </button>
+              </div>
+
+              <button className="mobile-search" type="button" onClick={goToSearch}>
+                <i className="bx bx-search" aria-hidden="true"></i>
+                <span>Search</span>
+              </button>
+
+              <div className={`mobile-main-links active-${mobileTabIndex}`}>
+                <span className="mobile-tab-indicator"></span>
+
+                {MAIN_LINKS.map((link) => (
+                  <NavLink
+                    key={link.to}
+                    to={link.to}
+                    onClick={closeMenu}
+                    className="mobile-tab"
+                  >
+                    {link.label}
+                  </NavLink>
+                ))}
+              </div>
+
+              <LibraryDropdown closeMenu={closeMenu} mobile />
+            </div>
+          </aside>
+
+          {isMenuOpen && <div className="nav-overlay" onClick={closeMenu}></div>}
+        </nav>
+      </header>
+
+      <nav
+        className={`mobile-floating-nav ${
+          showFloatingNav ? "visible" : ""
+        } active-${floatingIndex}`}
+        aria-label="Mobile quick navigation"
+      >
+        <span className="floating-indicator"></span>
+
+        <NavLink to="/" className="floating-link">
+          <i className="bx bxs-home" aria-hidden="true"></i>
+          <span>Home</span>
+        </NavLink>
+
+        <NavLink to="/movies" className="floating-link">
+          <i className="bx bxs-movie" aria-hidden="true"></i>
+          <span>Movies</span>
+        </NavLink>
+
+        <NavLink to="/series" className="floating-link">
+          <i className="bx bxs-tv" aria-hidden="true"></i>
+          <span>Series</span>
+        </NavLink>
+
+        <button className="floating-link" type="button" onClick={goToSearch}>
+          <i className="bx bx-search" aria-hidden="true"></i>
+          <span>Search</span>
+        </button>
       </nav>
-    </header>
+    </>
   );
 }
 
