@@ -49,7 +49,6 @@ const genres = [
   { name: "Horror", icon: "bx bxs-ghost", path: "/movies" },
   { name: "Comedy", icon: "bx bxs-laugh", path: "/movies" },
   { name: "Sci-Fi", icon: "bx bxs-planet", path: "/movies" },
-  { name: "Animation", icon: "bx bxs-magic-wand", path: "/movies" },
 ];
 
 function getTitle(item) {
@@ -88,10 +87,7 @@ function getDetailsPath(item, fallback = "movie") {
 }
 
 function getCardPath(item, fallbackType, preferContinuePath = false) {
-  if (preferContinuePath && item?.continue_path) {
-    return item.continue_path;
-  }
-
+  if (preferContinuePath && item?.continue_path) return item.continue_path;
   return getDetailsPath(item, fallbackType);
 }
 
@@ -111,10 +107,7 @@ function getCardBackdrop(path) {
 }
 
 function normalizeMovie(movie) {
-  return {
-    ...movie,
-    media_type: "movie",
-  };
+  return { ...movie, media_type: "movie" };
 }
 
 function normalizeShow(show) {
@@ -130,18 +123,12 @@ function readLocalStorageList(keys) {
   for (const key of keys) {
     try {
       const stored = localStorage.getItem(key);
-
       if (!stored) continue;
 
       const parsed = JSON.parse(stored);
 
-      if (Array.isArray(parsed)) {
-        return parsed.filter(Boolean);
-      }
-
-      if (parsed && typeof parsed === "object") {
-        return Object.values(parsed).filter(Boolean);
-      }
+      if (Array.isArray(parsed)) return parsed.filter(Boolean);
+      if (parsed && typeof parsed === "object") return Object.values(parsed).filter(Boolean);
     } catch {
       continue;
     }
@@ -169,10 +156,7 @@ function cleanLocalStorageItems(items) {
 
 function persistHomeList(keys, items) {
   localStorage.setItem(keys[0], JSON.stringify(items));
-
-  keys.slice(1).forEach((key) => {
-    localStorage.removeItem(key);
-  });
+  keys.slice(1).forEach((key) => localStorage.removeItem(key));
 }
 
 function removeHomeItem(items, itemToRemove) {
@@ -180,9 +164,7 @@ function removeHomeItem(items, itemToRemove) {
     const itemType = getMediaType(item);
     const removeType = getMediaType(itemToRemove);
 
-    return !(
-      Number(item.id) === Number(itemToRemove.id) && itemType === removeType
-    );
+    return !(Number(item.id) === Number(itemToRemove.id) && itemType === removeType);
   });
 }
 
@@ -297,7 +279,6 @@ function WideCard({
           </span>
 
           <h3>{title}</h3>
-
           <p>{subtitle}</p>
 
           <div className="home-wide-meta">
@@ -305,9 +286,7 @@ function WideCard({
               <i className="bx bxs-star"></i>
               {getRating(item)}
             </span>
-
             <span>{getYear(item)}</span>
-
             <span>HD</span>
           </div>
         </div>
@@ -401,9 +380,7 @@ function Home() {
     async function fetchHomeData() {
       try {
         const [moviesResponse, seriesResponse] = await Promise.all([
-          fetch(
-            `${BASE_URL}/trending/movie/week?api_key=${API_KEY}&language=en-US`
-          ),
+          fetch(`${BASE_URL}/trending/movie/week?api_key=${API_KEY}&language=en-US`),
           fetch(`${BASE_URL}/tv/popular?api_key=${API_KEY}&language=en-US&page=1`),
         ]);
 
@@ -422,9 +399,7 @@ function Home() {
           ? seriesData.results.map(normalizeShow)
           : [];
 
-        const heroMovies = movies.filter(
-          (movie) => movie.backdrop_path && movie.poster_path
-        );
+        const heroMovies = movies.filter((movie) => movie.backdrop_path && movie.poster_path);
 
         setTrendingMovies(movies);
         setPopularSeries(series);
@@ -442,9 +417,7 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    const heroMovies = trendingMovies.filter(
-      (movie) => movie.backdrop_path && movie.poster_path
-    );
+    const heroMovies = trendingMovies.filter((movie) => movie.backdrop_path && movie.poster_path);
 
     if (heroMovies.length === 0) return;
 
@@ -461,14 +434,12 @@ function Home() {
 
   const removeRecentlyViewed = (itemToRemove) => {
     const nextItems = removeHomeItem(recentlyViewed, itemToRemove);
-
     setRecentlyViewed(nextItems);
     persistHomeList(RECENTLY_KEYS, nextItems);
   };
 
   const removeContinueWatching = (itemToRemove) => {
     const nextItems = removeHomeItem(continueWatching, itemToRemove);
-
     setContinueWatching(nextItems);
     persistHomeList(CONTINUE_KEYS, nextItems);
   };
@@ -485,7 +456,6 @@ function Home() {
 
   const heroBackground = useMemo(() => {
     const backdrop = getBackdrop(featured?.backdrop_path);
-
     if (!backdrop) return undefined;
 
     return {
@@ -524,19 +494,13 @@ function Home() {
                 <i className="bx bxs-star"></i>
                 {getRating(featured)}
               </span>
-
               <span>{getYear(featured)}</span>
-
               <span>{getMediaType(featured) === "tv" ? "Series" : "Movie"}</span>
-
               <span>HD</span>
             </div>
 
             <div className="home-actions">
-              <NavLink
-                to={getDetailsPath(featured, "movie")}
-                className="home-primary-btn"
-              >
+              <NavLink to={getDetailsPath(featured, "movie")} className="home-primary-btn">
                 <i className="bx bxs-right-arrow"></i>
                 Watch Now
               </NavLink>
