@@ -9,6 +9,8 @@ import "boxicons/css/boxicons.min.css";
 import App from "./App.jsx";
 import "./index.css";
 
+Clarity.init("x3zqv2v70a");
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <HelmetProvider>
