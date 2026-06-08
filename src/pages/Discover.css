@@ -1,0 +1,348 @@
+.discover-page {
+  min-height: calc(100vh - 90px);
+  padding: 54px 22px 100px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 0% 14%, rgba(196, 0, 18, 0.18), transparent 34%),
+    radial-gradient(circle at 100% 4%, rgba(80, 110, 255, 0.1), transparent 30%),
+    linear-gradient(90deg, #05060a 0%, #07080d 52%, #05060a 100%);
+  overflow: hidden;
+}
+
+.discover-page.discover-tv {
+  background:
+    radial-gradient(circle at 0% 14%, rgba(132, 65, 255, 0.2), transparent 34%),
+    radial-gradient(circle at 100% 4%, rgba(65, 110, 255, 0.1), transparent 30%),
+    linear-gradient(90deg, #05060a 0%, #07080d 52%, #05060a 100%);
+}
+
+.discover-top,
+.discover-filter-bar,
+.discover-grid,
+.discover-empty {
+  width: min(1500px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.discover-top {
+  min-height: 300px;
+  padding: 44px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  position: relative;
+  border-radius: 32px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.035)),
+    rgba(5, 7, 13, 0.74);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.42);
+  overflow: hidden;
+}
+
+.discover-top::before {
+  content: "";
+  position: absolute;
+  right: -120px;
+  top: -160px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: rgba(196, 0, 18, 0.24);
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.discover-tv .discover-top::before {
+  background: rgba(132, 65, 255, 0.28);
+}
+
+.discover-intro {
+  position: relative;
+  z-index: 2;
+  max-width: 790px;
+}
+
+.discover-kicker {
+  width: fit-content;
+  margin-bottom: 18px;
+  padding: 10px 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  color: #ff4b55;
+  background: rgba(255, 255, 255, 0.105);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  font-size: 0.76rem;
+  font-weight: 950;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.discover-tv .discover-kicker {
+  color: #9c7cff;
+}
+
+.discover-top h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(3rem, 6vw, 6.6rem);
+  line-height: 0.9;
+  letter-spacing: -0.075em;
+  text-transform: uppercase;
+}
+
+.discover-top p {
+  max-width: 660px;
+  margin: 22px 0 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.discover-tabs {
+  position: relative;
+  z-index: 3;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.075);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(18px);
+}
+
+.discover-tabs button {
+  min-width: 105px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.7);
+  background: transparent;
+  font-size: 0.92rem;
+  font-weight: 950;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.discover-tabs button.active {
+  color: #fff;
+  background: linear-gradient(135deg, #f40612, #97000b);
+  box-shadow: 0 12px 30px rgba(244, 6, 18, 0.3);
+}
+
+.discover-tv .discover-tabs button.active {
+  background: linear-gradient(135deg, #8d5cff, #5130c8);
+  box-shadow: 0 12px 30px rgba(132, 92, 255, 0.3);
+}
+
+.discover-filter-bar {
+  margin-top: 24px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 230px 230px;
+  gap: 14px;
+  position: relative;
+  z-index: 10;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.discover-search {
+  min-height: 46px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.discover-search i {
+  color: #ff4b55;
+  font-size: 1.25rem;
+}
+
+.discover-tv .discover-search i {
+  color: #9c7cff;
+}
+
+.discover-search input {
+  width: 100%;
+  border: none;
+  outline: none;
+  color: #fff;
+  background: transparent;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.discover-search input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.discover-select {
+  max-width: none;
+}
+
+.discover-grid {
+  margin-top: 44px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: 26px 18px;
+}
+
+.discover-card-wrap {
+  min-width: 0;
+}
+
+.discover-empty {
+  min-height: 240px;
+  margin-top: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 28px;
+  color: rgba(255, 255, 255, 0.68);
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 1rem;
+  font-weight: 850;
+}
+
+.discover-loader {
+  width: fit-content;
+  min-height: 46px;
+  margin: 46px auto 0;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.075);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.92rem;
+  font-weight: 850;
+}
+
+.discover-loader span {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.18);
+  border-top-color: #ff4b55;
+  animation: discoverSpin 0.8s linear infinite;
+}
+
+.discover-tv .discover-loader span {
+  border-top-color: #9c7cff;
+}
+
+.discover-movie .custom-select__button:hover,
+.discover-movie .custom-select__button.active {
+  border-color: rgba(196, 0, 18, 0.8);
+  background: rgba(196, 0, 18, 0.16);
+  box-shadow: 0 0 0 4px rgba(196, 0, 18, 0.12);
+}
+
+.discover-movie .custom-select__arrow {
+  color: #c40012;
+}
+
+.discover-movie .custom-select__option.selected {
+  background: rgba(196, 0, 18, 0.22);
+}
+
+.discover-tv .custom-select__button:hover,
+.discover-tv .custom-select__button.active {
+  border-color: rgba(132, 92, 255, 0.85);
+  background: rgba(132, 92, 255, 0.18);
+  box-shadow: 0 0 0 4px rgba(132, 92, 255, 0.13);
+}
+
+.discover-tv .custom-select__arrow {
+  color: #9c7cff;
+}
+
+.discover-tv .custom-select__option.selected {
+  background: rgba(132, 92, 255, 0.24);
+}
+
+@keyframes discoverSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 960px) {
+  .discover-top {
+    min-height: auto;
+    padding: 34px 24px 24px;
+    display: block;
+    border-radius: 28px;
+  }
+
+  .discover-tabs {
+    width: fit-content;
+    margin-top: 28px;
+  }
+
+  .discover-filter-bar {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .discover-page {
+    padding: 28px 12px 92px;
+  }
+
+  .discover-top {
+    padding: 28px 18px 20px;
+  }
+
+  .discover-kicker {
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+  }
+
+  .discover-top h1 {
+    font-size: clamp(2.75rem, 13vw, 4.5rem);
+  }
+
+  .discover-top p {
+    margin-top: 18px;
+    font-size: 0.9rem;
+  }
+
+  .discover-tabs {
+    width: 100%;
+  }
+
+  .discover-tabs button {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .discover-filter-bar {
+    margin-top: 18px;
+    padding: 12px;
+    border-radius: 22px;
+  }
+
+  .discover-grid {
+    margin-top: 32px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px 12px;
+  }
+}

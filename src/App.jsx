@@ -8,6 +8,7 @@ import Home from "./Home";
 
 import Movies from "./pages/Movies";
 import TvShows from "./pages/TvShows";
+import Discover from "./pages/Discover";
 
 import SearchPage from "./pages/SearchPage";
 import FavoritePage from "./pages/FavoritePage";
@@ -25,7 +26,6 @@ const SITE_URL = "https://prestige-movies.vercel.app";
 
 function App() {
   const location = useLocation();
-
   const canonicalUrl = `${SITE_URL}${location.pathname}`;
 
   return (
@@ -42,6 +42,8 @@ function App() {
 
           <Route path="/movies" element={<Movies />} />
           <Route path="/series" element={<TvShows />} />
+
+          <Route path="/discover" element={<Discover />} />
 
           <Route path="/search" element={<SearchPage />} />
           <Route path="/favorites" element={<FavoritePage />} />
