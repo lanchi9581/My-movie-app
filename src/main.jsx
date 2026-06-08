@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import Clarity from '@microsoft/clarity';
 import "boxicons/css/boxicons.min.css";
 import App from "./App.jsx";
 import "./index.css";
