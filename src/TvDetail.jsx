@@ -1,21 +1,32 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 
 import ShareButton from "./components/Fav-Share-Watch-Button/ShareButton";
-import "./TvDetail.css";
 import FavoriteButton from "./components/Fav-Share-Watch-Button/FavoriteButton";
 import WatchLaterButton from "./components/Fav-Share-Watch-Button/WatchLaterButton";
+import MovieCard from "./components/MovieCard/MovieCard";
+import "./TvDetail.css";
 
 const API_KEY = "36669667bad13a98c59f98b32ebb67f5";
 const BASE_URL = "https://api.themoviedb.org/3";
-const BACKDROP_URL = "https://image.tmdb.org/t/p/original";
-const POSTER_URL = "https://image.tmdb.org/t/p/w500";
-const PROFILE_URL = "https://image.tmdb.org/t/p/w185";
+
+const IMG_ORIGINAL = "https://image.tmdb.org/t/p/original";
+const IMG_BACKDROP = "https://image.tmdb.org/t/p/w1280";
+const IMG_POSTER = "https://image.tmdb.org/t/p/w500";
+const PROFILE_IMG = "https://image.tmdb.org/t/p/w185";
+const LOGO_IMG = "https://image.tmdb.org/t/p/w185";
 
 const RECENTLY_VIEWED_KEY = "prestige_recently_viewed";
 const CONTINUE_WATCHING_KEY = "prestige_continue_watching";
 const STORAGE_LIMIT = 15;
+const MIN_RELATED_VOTES = 500;
+
+const FALLBACK_BACKDROP =
+  "https://placehold.co/1280x720/070a12/ffffff?text=Prestige+Series";
+
+const FALLBACK_POSTER =
+  "https://placehold.co/500x750/10131f/ffffff?text=No+Poster";
 
 function readStorageList(key) {
   try {
@@ -25,7 +36,9 @@ function readStorageList(key) {
     const parsed = JSON.parse(stored);
 
     if (Array.isArray(parsed)) return parsed.filter(Boolean);
-    if (parsed && typeof parsed === "object") return Object.values(parsed).filter(Boolean);
+    if (parsed && typeof parsed === "object") {
+      return Object.values(parsed).filter(Boolean);
+    }
 
     return [];
   } catch {
@@ -77,18 +90,62 @@ function createTvStorageItem(tvShow, seasonNum = null, episodeNum = null, episod
   };
 }
 
+function formatDate(date) {
+  if (!date) return "N/A";
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(date));
+}
+
+function getRuntime(runtimes = []) {
+  const runtime = runtimes.find(Boolean);
+  return runtime ? `${runtime}m` : "N/A";
+}
+
+function normalizeTv(show) {
+  return {
+    ...show,
+    media_type: "tv",
+  };
+}
+
+function cleanRecommended(items) {
+  if (!Array.isArray(items)) return [];
+
+  return items
+    .filter((item) => item.poster_path)
+    .filter((item) => Number(item.vote_count || 0) >= MIN_RELATED_VOTES)
+    .sort((a, b) => {
+      const scoreA =
+        Number(a.vote_average || 0) * Math.log10(Number(a.vote_count || 1));
+      const scoreB =
+        Number(b.vote_average || 0) * Math.log10(Number(b.vote_count || 1));
+
+      return scoreB - scoreA;
+    })
+    .slice(0, 14)
+    .map(normalizeTv);
+}
+
 function TvDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const castScrollRef = useRef(null);
+  const recommendedScrollRef = useRef(null);
 
   const fromPath = location.state?.from || "/series";
   const searchState = location.state?.searchState;
   const tvUrl = window.location.href;
 
   const [tvShow, setTvShow] = useState(null);
-  const [cast, setCast] = useState([]);
-  const [trailerKey, setTrailerKey] = useState(null);
+  const [credits, setCredits] = useState(null);
+  const [videos, setVideos] = useState([]);
+  const [recommendations, setRecommendations] = useState([]);
   const [seasons, setSeasons] = useState({});
   const [selectedSeason, setSelectedSeason] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
@@ -101,11 +158,15 @@ function TvDetail() {
       setLoading(true);
 
       try {
-        const [tvRes, creditsRes, videosRes] = await Promise.all([
-          fetch(`${BASE_URL}/tv/${id}?api_key=${API_KEY}&language=en-US`),
-          fetch(`${BASE_URL}/tv/${id}/credits?api_key=${API_KEY}&language=en-US`),
-          fetch(`${BASE_URL}/tv/${id}/videos?api_key=${API_KEY}&language=en-US`),
-        ]);
+        const [tvRes, creditsRes, videosRes, recommendationsRes] =
+          await Promise.all([
+            fetch(`${BASE_URL}/tv/${id}?api_key=${API_KEY}&language=en-US`),
+            fetch(`${BASE_URL}/tv/${id}/credits?api_key=${API_KEY}&language=en-US`),
+            fetch(`${BASE_URL}/tv/${id}/videos?api_key=${API_KEY}&language=en-US`),
+            fetch(
+              `${BASE_URL}/tv/${id}/recommendations?api_key=${API_KEY}&language=en-US&page=1`
+            ),
+          ]);
 
         if (!tvRes.ok) {
           throw new Error("Series not found");
@@ -114,29 +175,18 @@ function TvDetail() {
         const tvData = await tvRes.json();
         const creditsData = await creditsRes.json();
         const videosData = await videosRes.json();
+        const recommendationsData = await recommendationsRes.json();
 
         if (cancelled) return;
 
         setTvShow(tvData);
-        setCast(creditsData.cast?.slice(0, 12) || []);
+        setCredits(creditsData);
+        setVideos(Array.isArray(videosData.results) ? videosData.results : []);
+        setRecommendations(cleanRecommended(recommendationsData.results));
 
         if (tvData?.id && tvData?.name) {
           saveStorageItem(RECENTLY_VIEWED_KEY, createTvStorageItem(tvData));
         }
-
-        const trailer =
-          videosData.results?.find(
-            (video) =>
-              video.site === "YouTube" &&
-              video.type === "Trailer" &&
-              video.official
-          ) ||
-          videosData.results?.find(
-            (video) => video.site === "YouTube" && video.type === "Trailer"
-          ) ||
-          videosData.results?.find((video) => video.site === "YouTube");
-
-        setTrailerKey(trailer?.key || null);
 
         const realSeasons =
           tvData.seasons?.filter((season) => season.season_number !== 0) || [];
@@ -182,9 +232,14 @@ function TvDetail() {
         }
       } catch (error) {
         console.error("Failed to fetch TV show data:", error);
-        if (!cancelled) setTvShow(null);
+
+        if (!cancelled) {
+          setTvShow(null);
+        }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
@@ -194,6 +249,21 @@ function TvDetail() {
       cancelled = true;
     };
   }, [id]);
+
+  const trailer = useMemo(() => {
+    return (
+      videos.find(
+        (video) =>
+          video.site === "YouTube" &&
+          video.type === "Trailer" &&
+          video.official
+      ) ||
+      videos.find(
+        (video) => video.site === "YouTube" && video.type === "Trailer"
+      ) ||
+      videos.find((video) => video.site === "YouTube")
+    );
+  }, [videos]);
 
   const sortedSeasons = useMemo(() => {
     if (!tvShow?.seasons) return [];
@@ -216,13 +286,15 @@ function TvDetail() {
     );
   }, [selectedEpisodes, sortOrder]);
 
-  const firstPlayableEpisode = sortedEpisodes[0];
+  const firstPlayableEpisode = sortedEpisodes.find(
+    (episode) => !isEpisodeFuture(episode.air_date)
+  );
 
-  const handleBackClick = () => {
+  function handleBackClick() {
     navigate(fromPath, { state: { searchState } });
-  };
+  }
 
-  const goToEpisode = (seasonNum, episodeNum) => {
+  function goToEpisode(seasonNum, episodeNum) {
     if (!seasonNum || !episodeNum || !tvShow) return;
 
     const episodeItem = seasons[seasonNum]?.find(
@@ -235,14 +307,27 @@ function TvDetail() {
     );
 
     navigate(`/series/${id}/watch?season=${seasonNum}&episode=${episodeNum}`);
-  };
+  }
 
-  const goToTrailer = () => {
-    if (!trailerKey) return;
-    navigate(`/series/${id}/watch?trailer=${trailerKey}`);
-  };
+  function goToTrailer() {
+    if (!trailer?.key) {
+      alert("Trailer not available");
+      return;
+    }
 
-  const isEpisodeFuture = (airDate) => {
+    navigate(`/series/${id}/watch?trailer=${trailer.key}`);
+  }
+
+  function scrollRow(ref, direction) {
+    if (!ref.current) return;
+
+    ref.current.scrollBy({
+      left: direction === "left" ? -420 : 420,
+      behavior: "smooth",
+    });
+  }
+
+  function isEpisodeFuture(airDate) {
     if (!airDate) return false;
 
     const today = new Date();
@@ -252,17 +337,7 @@ function TvDetail() {
     episodeDate.setHours(0, 0, 0, 0);
 
     return episodeDate > today;
-  };
-
-  const formatDate = (date) => {
-    if (!date) return "Date unknown";
-
-    return new Date(date).toLocaleDateString(undefined, {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
+  }
 
   if (loading) {
     return (
@@ -282,16 +357,29 @@ function TvDetail() {
   }
 
   const backdrop = tvShow.backdrop_path
-    ? `${BACKDROP_URL}${tvShow.backdrop_path}`
-    : "";
+    ? `${IMG_ORIGINAL}${tvShow.backdrop_path}`
+    : FALLBACK_BACKDROP;
 
-  const poster = tvShow.poster_path ? `${POSTER_URL}${tvShow.poster_path}` : "";
+  const backdropCard = tvShow.backdrop_path
+    ? `${IMG_BACKDROP}${tvShow.backdrop_path}`
+    : FALLBACK_BACKDROP;
+
+  const poster = tvShow.poster_path
+    ? `${IMG_POSTER}${tvShow.poster_path}`
+    : FALLBACK_POSTER;
 
   const year = tvShow.first_air_date
     ? new Date(tvShow.first_air_date).getFullYear()
     : "N/A";
 
   const rating = tvShow.vote_average ? tvShow.vote_average.toFixed(1) : "N/A";
+  const runtime = getRuntime(tvShow.episode_run_time);
+  const cast = credits?.cast?.slice(0, 12) || [];
+  const creators = tvShow.created_by?.map((creator) => creator.name).join(", ") || "N/A";
+  const networks = tvShow.networks || [];
+  const companies = tvShow.production_companies?.slice(0, 4) || [];
+  const mainNetwork = networks[0]?.name || "N/A";
+  const language = tvShow.original_language?.toUpperCase() || "N/A";
 
   return (
     <>
@@ -300,7 +388,7 @@ function TvDetail() {
 
         <meta
           name="description"
-          content={`Watch ${tvShow.name} online. View rating, seasons, episodes, genres, trailer and cast on Prestige Movies.`}
+          content={`Watch ${tvShow.name} online. View rating, seasons, episodes, trailer, cast and recommendations on Prestige Movies.`}
         />
 
         <link
@@ -310,145 +398,317 @@ function TvDetail() {
       </Helmet>
 
       <main className="tv-detail-page">
-        <section className="tv-hero">
+        <section className="tv-detail-hero">
           <div
-            className="tv-hero-bg"
-            style={backdrop ? { backgroundImage: `url(${backdrop})` } : undefined}
+            className="tv-detail-bg"
+            style={{ backgroundImage: `url(${backdrop})` }}
           />
+          <div className="tv-detail-shade" />
 
-          <div className="tv-hero-overlay" />
+          <div className="tv-detail-container">
+            <button
+              className="tv-back-button"
+              type="button"
+              onClick={handleBackClick}
+              aria-label="Go back"
+            >
+              <i className="bx bx-arrow-back"></i>
+              <span>Back</span>
+            </button>
 
-          <button
-            className="tv-back-button"
-            type="button"
-            onClick={handleBackClick}
-            aria-label="Go back"
-          >
-            <i className="bx bx-arrow-back"></i>
-            <span>Back</span>
-          </button>
-
-          <div className="tv-hero-layout">
-            <div className="tv-poster-card">
-              {poster ? (
-                <img src={poster} alt={tvShow.name} />
-              ) : (
-                <div className="tv-poster-placeholder">
-                  <i className="bx bx-tv"></i>
-                </div>
-              )}
-
-              <button
-                className="tv-poster-play"
-                type="button"
-                onClick={() =>
-                  goToEpisode(selectedSeason, firstPlayableEpisode?.episode_number)
-                }
-                disabled={!firstPlayableEpisode}
-              >
-                <i className="bx bx-play"></i>
-              </button>
-            </div>
-
-            <div className="tv-info-glass">
-              <span className="tv-kicker">Prestige Series</span>
-
-              <h1>{tvShow.name}</h1>
-
-              <div className="tv-meta-row">
-                <span>⭐ {rating}</span>
-                <span>{year}</span>
-                <span>{tvShow.number_of_seasons || 0} seasons</span>
-                <span>{tvShow.number_of_episodes || 0} episodes</span>
-              </div>
-
-              <p className="tv-overview">
-                {tvShow.overview || "No overview available for this series."}
-              </p>
-
-              <div className="tv-genres">
-                {tvShow.genres?.map((genre) => (
-                  <span key={genre.id}>{genre.name}</span>
-                ))}
-              </div>
-
-              <div className="tv-actions">
+            <div className="tv-detail-hero-grid">
+              <aside className="tv-poster-column">
                 <button
-                  className="tv-primary-btn"
                   type="button"
+                  className="tv-poster-card"
                   onClick={() =>
                     goToEpisode(selectedSeason, firstPlayableEpisode?.episode_number)
                   }
                   disabled={!firstPlayableEpisode}
+                  aria-label={`Start watching ${tvShow.name}`}
                 >
-                  <i className="bx bx-play"></i>
-                  Start Watching
+                  <img src={poster} alt={tvShow.name} />
+
+                  <span className="tv-poster-play">
+                    <i className="bx bx-play"></i>
+                  </span>
                 </button>
 
-                <button
-                  className="tv-secondary-btn"
-                  type="button"
-                  onClick={goToTrailer}
-                  disabled={!trailerKey}
-                >
-                  <i className="bx bx-movie-play"></i>
-                  Trailer
-                </button>
+                <div className="tv-poster-mini-stats">
+                  <div>
+                    <span>Rating</span>
+                    <strong>{rating}</strong>
+                  </div>
 
-                <FavoriteButton
-                  id={tvShow.id}
-                  media_type="tv"
-                  title={tvShow.name}
-                  poster_path={tvShow.poster_path}
-                  vote_average={tvShow.vote_average}
+                  <div>
+                    <span>Year</span>
+                    <strong>{year}</strong>
+                  </div>
+                </div>
+              </aside>
+
+              <section className="tv-main-copy">
+                <span className="tv-kicker">
+                  <i className="bx bxs-tv"></i>
+                  Prestige Series
+                </span>
+
+                <h1>{tvShow.name}</h1>
+
+                {tvShow.tagline && (
+                  <p className="tv-tagline">“{tvShow.tagline}”</p>
+                )}
+
+                <div className="tv-meta-row">
+                  <span>
+                    <i className="bx bxs-calendar"></i>
+                    {year}
+                  </span>
+                  <span>
+                    <i className="bx bxs-star"></i>
+                    {rating}
+                  </span>
+                  <span>
+                    <i className="bx bxs-collection"></i>
+                    {tvShow.number_of_seasons || 0} Seasons
+                  </span>
+                  <span>
+                    <i className="bx bxs-videos"></i>
+                    {tvShow.number_of_episodes || 0} Episodes
+                  </span>
+                  <span>
+                    <i className="bx bx-world"></i>
+                    {language}
+                  </span>
+                </div>
+
+                <div className="tv-genre-pills">
+                  {tvShow.genres?.length ? (
+                    tvShow.genres.map((genre) => (
+                      <span key={genre.id}>{genre.name}</span>
+                    ))
+                  ) : (
+                    <span>Genre unavailable</span>
+                  )}
+                </div>
+
+                <p className="tv-overview">
+                  {tvShow.overview || "No overview available for this series."}
+                </p>
+
+                <div className="tv-action-row">
+                  <button
+                    className="tv-primary-btn"
+                    type="button"
+                    onClick={() =>
+                      goToEpisode(selectedSeason, firstPlayableEpisode?.episode_number)
+                    }
+                    disabled={!firstPlayableEpisode}
+                  >
+                    <i className="bx bx-play"></i>
+                    Start Watching
+                  </button>
+
+                  <button
+                    className="tv-secondary-btn"
+                    type="button"
+                    onClick={goToTrailer}
+                    disabled={!trailer?.key}
+                  >
+                    <i className="bx bx-movie-play"></i>
+                    Watch Trailer
+                  </button>
+                </div>
+
+                <div className="tv-small-actions">
+                  <FavoriteButton
+                    id={tvShow.id}
+                    media_type="tv"
+                    title={tvShow.name}
+                    poster_path={tvShow.poster_path}
+                    vote_average={tvShow.vote_average}
+                  />
+
+                  <WatchLaterButton
+                    id={tvShow.id}
+                    media_type="tv"
+                    title={tvShow.name}
+                    poster_path={tvShow.poster_path}
+                    vote_average={tvShow.vote_average}
+                  />
+
+                  <ShareButton movieUrl={tvUrl} />
+                </div>
+              </section>
+
+              <aside className="tv-side-card">
+                <div
+                  className="tv-side-backdrop"
+                  style={{ backgroundImage: `url(${backdropCard})` }}
                 />
 
-                <WatchLaterButton
-                  id={tvShow.id}
-                  media_type="tv"
-                  title={tvShow.name}
-                  poster_path={tvShow.poster_path}
-                  vote_average={tvShow.vote_average}
-                />
+                <div className="tv-side-card-content">
+                  <span>Quick Info</span>
 
-                <ShareButton movieUrl={tvUrl} />
-              </div>
+                  <div>
+                    <i className="bx bxs-calendar"></i>
+                    <strong>{formatDate(tvShow.first_air_date)}</strong>
+                    <p>First Air Date</p>
+                  </div>
+
+                  <div>
+                    <i className="bx bxs-tv"></i>
+                    <strong>{tvShow.status || "N/A"}</strong>
+                    <p>Status</p>
+                  </div>
+
+                  <div>
+                    <i className="bx bxs-collection"></i>
+                    <strong>{tvShow.number_of_seasons || 0}</strong>
+                    <p>Seasons</p>
+                  </div>
+
+                  <div>
+                    <i className="bx bxs-videos"></i>
+                    <strong>{tvShow.number_of_episodes || 0}</strong>
+                    <p>Episodes</p>
+                  </div>
+                </div>
+              </aside>
             </div>
           </div>
         </section>
 
-        <section className="tv-detail-sections">
-          <div className="tv-panel">
-            <h2>Series Details</h2>
+        <section className="tv-detail-content">
+          <div className="tv-panel tv-story-panel">
+            <div className="tv-panel-heading">
+              <span>Story</span>
+              <h2>About This Series</h2>
+            </div>
 
-            <div className="tv-stats-grid">
+            <div className="tv-story-grid">
               <div>
-                <span>Status</span>
-                <strong>{tvShow.status || "Unknown"}</strong>
+                <i className="bx bxs-user-voice"></i>
+                <span>Creator</span>
+                <strong>{creators}</strong>
               </div>
 
               <div>
-                <span>First Air Date</span>
-                <strong>{formatDate(tvShow.first_air_date)}</strong>
+                <i className="bx bxs-file"></i>
+                <span>Original Name</span>
+                <strong>{tvShow.original_name || tvShow.name}</strong>
               </div>
 
               <div>
-                <span>Last Air Date</span>
-                <strong>{formatDate(tvShow.last_air_date)}</strong>
+                <i className="bx bxs-line-chart"></i>
+                <span>Popularity</span>
+                <strong>{Math.round(tvShow.popularity || 0)}</strong>
               </div>
 
               <div>
-                <span>Language</span>
-                <strong>{tvShow.original_language?.toUpperCase() || "N/A"}</strong>
+                <i className="bx bxs-user-check"></i>
+                <span>Votes</span>
+                <strong>{tvShow.vote_count || 0}</strong>
               </div>
             </div>
           </div>
 
-          <div className="tv-panel">
-            <div className="tv-panel-header">
-              <h2>Episodes</h2>
+          {(companies.length > 0 || networks.length > 0) && (
+            <div className="tv-panel tv-companies-panel">
+              <div className="tv-panel-heading">
+                <span>Production</span>
+                <h2>Studios</h2>
+              </div>
 
-              <div className="tv-controls">
+              <div className="tv-company-grid">
+                {[...networks, ...companies].slice(0, 4).map((company) => (
+                  <div className="tv-company-card" key={`${company.id}-${company.name}`}>
+                    {company.logo_path ? (
+                      <img
+                        src={`${LOGO_IMG}${company.logo_path}`}
+                        alt={company.name}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <i className="bx bxs-buildings"></i>
+                    )}
+
+                    <strong>{company.name}</strong>
+                    <span>{company.origin_country || "Network"}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="tv-panel tv-cast-panel">
+            <div className="tv-panel-heading tv-panel-heading-row">
+              <div>
+                <span>Actors</span>
+                <h2>Top Cast</h2>
+              </div>
+
+              <div className="tv-panel-controls">
+                <p>{cast.length} featured cast members</p>
+
+                <div className="tv-row-arrows">
+                  <button
+                    type="button"
+                    onClick={() => scrollRow(castScrollRef, "left")}
+                    aria-label="Scroll cast left"
+                  >
+                    <i className="bx bx-left-arrow-alt"></i>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => scrollRow(castScrollRef, "right")}
+                    aria-label="Scroll cast right"
+                  >
+                    <i className="bx bx-right-arrow-alt"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {cast.length === 0 ? (
+              <p className="tv-empty-text">No cast information available.</p>
+            ) : (
+              <div className="tv-cast-slider" ref={castScrollRef}>
+                {cast.map((actor) => (
+                  <article className="tv-cast-card" key={`${actor.id}-${actor.character}`}>
+                    {actor.profile_path ? (
+                      <img
+                        src={`${PROFILE_IMG}${actor.profile_path}`}
+                        alt={actor.name}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <div className="tv-cast-placeholder">
+                        <i className="bx bx-user"></i>
+                      </div>
+                    )}
+
+                    <div>
+                      <strong>{actor.name}</strong>
+                      <span>{actor.character || "Unknown role"}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="tv-panel tv-episodes-panel">
+            <div className="tv-panel-heading tv-panel-heading-row">
+              <div>
+                <span>Episodes</span>
+                <h2>Watch Episodes</h2>
+              </div>
+
+              <div className="tv-episode-controls">
                 <label>
                   Season
                   <select
@@ -478,7 +738,7 @@ function TvDetail() {
               </div>
             </div>
 
-            <div className="episode-list">
+            <div className="tv-episode-list">
               {sortedEpisodes.length > 0 ? (
                 sortedEpisodes.map((episode) => {
                   const future = isEpisodeFuture(episode.air_date);
@@ -486,16 +746,18 @@ function TvDetail() {
                   return (
                     <button
                       key={episode.id}
-                      className={future ? "episode-card disabled" : "episode-card"}
+                      className={future ? "tv-episode-card disabled" : "tv-episode-card"}
                       type="button"
                       onClick={() =>
                         goToEpisode(selectedSeason, episode.episode_number)
                       }
                       disabled={future}
                     >
-                      <div className="episode-number">Ep {episode.episode_number}</div>
+                      <div className="tv-episode-number">
+                        Ep {episode.episode_number}
+                      </div>
 
-                      <div className="episode-info">
+                      <div className="tv-episode-info">
                         <strong>{episode.name || "Untitled episode"}</strong>
                         <span>
                           {future
@@ -514,35 +776,44 @@ function TvDetail() {
             </div>
           </div>
 
-          <div className="tv-panel">
-            <h2>Top Cast</h2>
+          {recommendations.length > 0 && (
+            <div className="tv-panel tv-recommendations-panel">
+              <div className="tv-panel-heading tv-panel-heading-row">
+                <div>
+                  <span>Recommended</span>
+                  <h2>More Like This</h2>
+                </div>
 
-            {cast.length > 0 ? (
-              <div className="tv-cast-grid">
-                {cast.map((actor) => (
-                  <div className="tv-cast-card" key={actor.id}>
-                    {actor.profile_path ? (
-                      <img
-                        src={`${PROFILE_URL}${actor.profile_path}`}
-                        alt={actor.name}
-                      />
-                    ) : (
-                      <div className="tv-cast-placeholder">
-                        <i className="bx bx-user"></i>
-                      </div>
-                    )}
+                <div className="tv-panel-controls">
+                  <p>Based on ratings & viewer votes</p>
 
-                    <div>
-                      <strong>{actor.name}</strong>
-                      <span>{actor.character || "Unknown role"}</span>
-                    </div>
+                  <div className="tv-row-arrows">
+                    <button
+                      type="button"
+                      onClick={() => scrollRow(recommendedScrollRef, "left")}
+                      aria-label="Scroll recommendations left"
+                    >
+                      <i className="bx bx-left-arrow-alt"></i>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => scrollRow(recommendedScrollRef, "right")}
+                      aria-label="Scroll recommendations right"
+                    >
+                      <i className="bx bx-right-arrow-alt"></i>
+                    </button>
                   </div>
+                </div>
+              </div>
+
+              <div className="tv-movie-row" ref={recommendedScrollRef}>
+                {recommendations.map((item, index) => (
+                  <MovieCard key={item.id} movie={item} index={index + 8} />
                 ))}
               </div>
-            ) : (
-              <p className="tv-empty-text">No cast information available.</p>
-            )}
-          </div>
+            </div>
+          )}
         </section>
       </main>
     </>
