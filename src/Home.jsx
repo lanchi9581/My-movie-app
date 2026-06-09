@@ -505,9 +505,9 @@ function Home() {
                 Watch Now
               </NavLink>
 
-              <NavLink to="/movies" className="home-secondary-btn">
-                <i className="bx bxs-movie"></i>
-                Movies
+              <NavLink to="/discover" className="home-secondary-btn">
+                <i className="bx bx-compass"></i>
+                Discover
               </NavLink>
 
               <NavLink to="/series" className="home-secondary-btn">
@@ -571,7 +571,7 @@ function Home() {
           kicker="Popular this week"
           items={trendingMovies}
           fallbackType="movie"
-          viewAllPath="/movies"
+          viewAllPath="/discover"
         />
 
         <HomeRow
@@ -579,7 +579,7 @@ function Home() {
           kicker="Binge-worthy shows"
           items={popularSeries}
           fallbackType="tv"
-          viewAllPath="/series"
+          viewAllPath="/discover"
         />
 
         <section className="home-genres-section">

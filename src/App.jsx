@@ -2,6 +2,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 
 import Navbar from "./components/Navbar/Navbar";
+import ScrollManager from "./components/ScrollManager";
 import Footer from "./components/Footer/Footer";
 
 import Home from "./Home";
@@ -35,6 +36,7 @@ function App() {
       </Helmet>
 
       <Navbar />
+      <ScrollManager />
 
       <main className="main-content">
         <Routes>
