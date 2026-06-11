@@ -23,15 +23,6 @@ const HOSTS = [
     getUrl: ({ id }) => `https://vidlink.pro/movie/${id}`,
   },
   {
-    id: "autoembed",
-    label: "AutoEmbed",
-    note: "Clean backup",
-    type: "TMDB",
-    needsImdb: false,
-    needsDoodId: false,
-    getUrl: ({ id }) => `https://player.autoembed.app/embed/movie/${id}`,
-  },
-  {
     id: "vidsrc",
     label: "VidSrc",
     note: "Backup",
@@ -40,6 +31,16 @@ const HOSTS = [
     needsDoodId: false,
     getUrl: ({ id }) => `https://vsembed.su/embed/movie/${id}`,
   },
+  {
+    id: "autoembed",
+    label: "AutoEmbed",
+    note: "Ad-Free",
+    type: "TMDB",
+    needsImdb: false,
+    needsDoodId: false,
+    getUrl: ({ id }) => `https://player.autoembed.app/embed/movie/${id}`,
+  },
+
   {
     id: "hnembed",
     label: "HNEmbed",

@@ -29,13 +29,18 @@ function App() {
   const location = useLocation();
   const canonicalUrl = `${SITE_URL}${location.pathname}`;
 
+  const isWatchPage =
+    location.pathname.includes("/movie/") && location.pathname.endsWith("/watch") ||
+    location.pathname.includes("/series/") && location.pathname.endsWith("/watch") ||
+    location.pathname.includes("/tv/") && location.pathname.endsWith("/watch");
+
   return (
     <div className="app">
       <Helmet>
         <link rel="canonical" href={canonicalUrl} />
       </Helmet>
 
-      <Navbar />
+      {!isWatchPage && <Navbar />}
       <ScrollManager />
 
       <main className="main-content">
@@ -64,7 +69,7 @@ function App() {
         </Routes>
       </main>
 
-      <Footer />
+      {!isWatchPage && <Footer />}
     </div>
   );
 }

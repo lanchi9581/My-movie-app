@@ -15,6 +15,9 @@ const LIBRARY_LINKS = [
   { to: "/about", label: "About", icon: "bx bxs-info-circle" },
 ];
 
+const HIDE_DELAY = 7000;
+const MOBILE_WIDTH = 980;
+
 function getActiveIndex(pathname) {
   if (pathname.startsWith("/movies") || pathname.startsWith("/movie")) return 1;
   if (pathname.startsWith("/series") || pathname.startsWith("/tv")) return 2;
@@ -38,10 +41,10 @@ function LibraryDropdown({ closeMenu }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLinkClick = () => {
+  function handleLinkClick() {
     setOpen(false);
     closeMenu();
-  };
+  }
 
   return (
     <div className="library-select" ref={dropdownRef}>
@@ -89,21 +92,35 @@ function Navbar() {
 
   const closeMenu = () => {};
 
-  const goToSearch = () => {
+  function goToSearch() {
     navigate("/search");
-  };
+  }
 
   useEffect(() => {
-    function showNavTemporarily() {
-      setShowFloatingNav(true);
+    function isMobile() {
+      return window.innerWidth <= MOBILE_WIDTH;
+    }
 
+    function clearHideTimer() {
       if (hideTimerRef.current) {
         clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
       }
+    }
+
+    function showNavTemporarily() {
+      if (!isMobile()) {
+        setShowFloatingNav(false);
+        clearHideTimer();
+        return;
+      }
+
+      setShowFloatingNav(true);
+      clearHideTimer();
 
       hideTimerRef.current = setTimeout(() => {
         setShowFloatingNav(false);
-      }, 30000);
+      }, HIDE_DELAY);
     }
 
     showNavTemporarily();
@@ -112,16 +129,16 @@ function Navbar() {
     window.addEventListener("touchstart", showNavTemporarily, { passive: true });
     window.addEventListener("mousemove", showNavTemporarily);
     window.addEventListener("keydown", showNavTemporarily);
+    window.addEventListener("resize", showNavTemporarily);
 
     return () => {
-      if (hideTimerRef.current) {
-        clearTimeout(hideTimerRef.current);
-      }
+      clearHideTimer();
 
       window.removeEventListener("scroll", showNavTemporarily);
       window.removeEventListener("touchstart", showNavTemporarily);
       window.removeEventListener("mousemove", showNavTemporarily);
       window.removeEventListener("keydown", showNavTemporarily);
+      window.removeEventListener("resize", showNavTemporarily);
     };
   }, [location.pathname]);
 

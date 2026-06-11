@@ -1,7 +1,7 @@
 .player-page {
   position: relative;
   min-height: 100vh;
-  padding: 96px 0 130px;
+  padding: 72px 0 90px;
   color: #fff;
   overflow-x: hidden;
   background:
@@ -121,7 +121,7 @@
 
 .watch-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-columns: minmax(0, 1fr) 340px;
   gap: 16px;
   align-items: start;
 }
@@ -155,51 +155,52 @@
 
 .watch-start-card {
   grid-area: 1 / 1;
-  width: min(500px, calc(100% - 34px));
-  padding: 30px;
-  border-radius: 28px;
+  width: min(620px, calc(100% - 44px));
+  padding: 42px;
+  border-radius: 32px;
   text-align: center;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.035)),
-    rgba(7, 10, 18, 0.86);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.095), rgba(255, 255, 255, 0.035)),
+    rgba(7, 10, 18, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.13);
   backdrop-filter: blur(18px);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.58);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.62);
 }
 
 .watch-start-icon {
-  width: 68px;
-  height: 68px;
-  margin: 0 auto 15px;
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 18px;
   display: grid;
   place-items: center;
   border-radius: 50%;
   background: rgba(196, 0, 18, 0.18);
   color: #fff;
-  font-size: 2rem;
+  font-size: 2.2rem;
+  box-shadow: 0 0 42px rgba(196, 0, 18, 0.18);
 }
 
 .watch-start-card > span {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 9px;
   color: #ff4b55;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 950;
   letter-spacing: 0.15em;
   text-transform: uppercase;
 }
 
 .watch-start-card h2 {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   color: #fff;
-  font-size: clamp(1.5rem, 4vw, 2.4rem);
-  line-height: 1;
-  letter-spacing: -0.055em;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  line-height: 0.96;
+  letter-spacing: -0.06em;
 }
 
 .watch-start-card p {
-  max-width: 390px;
-  margin: 0 auto 22px;
+  max-width: 430px;
+  margin: 0 auto 24px;
   color: rgba(255, 255, 255, 0.68);
   line-height: 1.58;
 }
@@ -220,6 +221,12 @@
   cursor: pointer;
   box-shadow: 0 16px 38px rgba(196, 0, 18, 0.32);
   transition: 0.22s ease;
+}
+
+.watch-start-card button {
+  max-width: 460px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .watch-start-card button:hover,
@@ -321,8 +328,10 @@
 
 .watch-source-panel {
   min-width: 0;
-  padding: 18px;
-  border-radius: 28px;
+  max-height: 720px;
+  padding: 16px;
+  border-radius: 26px;
+  overflow-y: auto;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025)),
     rgba(7, 10, 18, 0.76);
@@ -331,7 +340,7 @@
 }
 
 .source-panel-head {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -341,7 +350,7 @@
 .source-panel-head h2 {
   margin: 0;
   color: #fff;
-  font-size: 1.65rem;
+  font-size: 1.45rem;
   line-height: 1;
   letter-spacing: -0.055em;
 }
@@ -359,7 +368,8 @@
 }
 
 .selected-source-box {
-  padding: 14px;
+  padding: 13px;
+  margin-bottom: 12px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.055);
   border: 1px solid rgba(255, 255, 255, 0.075);
@@ -368,26 +378,26 @@
 .selected-source-box strong {
   display: block;
   color: #fff;
-  font-size: 1rem;
+  font-size: 0.96rem;
 }
 
 .selected-source-box p {
   margin: 5px 0 0;
   color: rgba(255, 255, 255, 0.56);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
 }
 
 .source-card-list {
-  margin-top: 14px;
+  margin-top: 0;
   display: grid;
-  gap: 9px;
+  gap: 8px;
 }
 
 .source-card {
   width: 100%;
-  min-height: 58px;
-  padding: 10px 12px;
-  border-radius: 16px;
+  min-height: 52px;
+  padding: 9px 12px;
+  border-radius: 15px;
   border: 1px solid rgba(255, 255, 255, 0.075);
   background: rgba(255, 255, 255, 0.055);
   color: #fff;
@@ -402,22 +412,22 @@
 
 .source-card strong {
   display: block;
-  font-size: 0.84rem;
+  font-size: 0.8rem;
 }
 
 .source-card small {
   display: block;
   margin-top: 3px;
   color: rgba(255, 255, 255, 0.5);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
 }
 
 .source-card em {
-  padding: 5px 8px;
+  padding: 4px 7px;
   border-radius: 999px;
   color: #ffd5d8;
   background: rgba(196, 0, 18, 0.18);
-  font-size: 0.66rem;
+  font-size: 0.6rem;
   font-style: normal;
   font-weight: 950;
 }
@@ -435,7 +445,8 @@
 }
 
 .load-source-btn {
-  margin-top: 14px;
+  min-height: 48px;
+  margin: 12px 0 4px;
 }
 
 .watch-help-grid {
@@ -492,9 +503,35 @@
   animation: player-spin 0.8s linear infinite;
 }
 
+.cinema-exit-btn {
+  width: fit-content;
+  min-height: 44px;
+  margin-bottom: 12px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(7, 10, 18, 0.78);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 950;
+  backdrop-filter: blur(18px);
+}
+
+.cinema-exit-btn:hover {
+  background: rgba(196, 0, 18, 0.92);
+}
+
+.cinema-mode {
+  padding-top: 26px;
+}
+
 .cinema-mode .watch-room-header,
 .cinema-mode .watch-source-panel,
-.cinema-mode .watch-help-grid {
+.cinema-mode .watch-help-grid,
+.cinema-mode .watch-underbar {
   display: none;
 }
 
@@ -504,6 +541,18 @@
 
 .cinema-mode .player-shell {
   width: min(1700px, calc(100% - 28px));
+}
+
+.cinema-mode .watch-player-card {
+  min-height: calc(100vh - 92px);
+  aspect-ratio: auto;
+  border-radius: 26px;
+}
+
+.cinema-mode .watch-start-card {
+  height: auto;
+  max-width: 620px;
+  border-radius: 32px;
 }
 
 @keyframes player-spin {
@@ -519,15 +568,15 @@
 
   .watch-source-panel {
     position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    left: 10px;
+    right: 10px;
+    bottom: 18px;
     z-index: 80;
-    max-height: 82vh;
-    padding: 20px 16px 28px;
-    border-radius: 30px 30px 0 0;
+    max-height: min(74vh, 640px);
+    padding: 14px;
+    border-radius: 24px;
     overflow-y: auto;
-    transform: translateY(calc(100% + 30px));
+    transform: translateY(calc(100% + 90px));
     opacity: 0;
     pointer-events: none;
     transition: 0.24s ease;
@@ -539,25 +588,70 @@
     pointer-events: auto;
   }
 
+  .source-panel-head {
+    margin-bottom: 10px;
+  }
+
+  .source-panel-head h2 {
+    font-size: 1.35rem;
+  }
+
+  .source-panel-head span,
+  .selected-source-box span {
+    font-size: 0.62rem;
+  }
+
   .source-panel-head button {
     display: grid;
   }
 
+  .selected-source-box {
+    padding: 11px 13px;
+    border-radius: 16px;
+  }
+
+  .selected-source-box strong {
+    font-size: 0.9rem;
+  }
+
+  .selected-source-box p {
+    font-size: 0.76rem;
+  }
+
+  .source-card-list {
+    gap: 8px;
+  }
+
   .source-card {
-    min-height: 64px;
-    border-radius: 18px;
+    min-height: 48px;
+    padding: 8px 10px;
+    border-radius: 14px;
+  }
+
+  .source-card strong {
+    font-size: 0.8rem;
+  }
+
+  .source-card small {
+    font-size: 0.68rem;
+  }
+
+  .source-card em {
+    padding: 4px 7px;
+    font-size: 0.6rem;
   }
 
   .load-source-btn {
-    min-height: 54px;
+    min-height: 48px;
     position: sticky;
     bottom: 0;
+    z-index: 3;
   }
 }
 
 @media (max-width: 900px) {
   .player-page {
-    padding: 76px 0 130px;
+    padding: 76px 0 90px;
   }
 
   .player-shell {
@@ -673,7 +767,20 @@
   }
 
   .watch-help-grid {
-    grid-template-columns: 1fr;
+    display: none;
+  }
+
+  .cinema-mode {
+    padding: 12px 0 20px;
+  }
+
+  .cinema-mode .player-shell {
+    width: min(100% - 20px, 1500px);
+  }
+
+  .cinema-mode .watch-player-card {
+    min-height: calc(100vh - 92px);
+    border-radius: 22px;
   }
 }
 
@@ -689,25 +796,17 @@
   .watch-start-card button {
     margin-top: 8px;
   }
-}
 
-.cinema-exit-btn {
-  width: fit-content;
-  min-height: 44px;
-  margin-bottom: 12px;
-  padding: 0 16px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 999px;
-  background: rgba(7, 10, 18, 0.78);
-  color: #fff;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  font-weight: 950;
-  backdrop-filter: blur(18px);
-}
+  .selected-source-box {
+    display: none;
+  }
 
-.cinema-exit-btn:hover {
-  background: rgba(196, 0, 18, 0.92);
+  .watch-source-panel {
+    max-height: 68vh;
+  }
+
+  .cinema-exit-btn {
+    min-height: 42px;
+    padding: 0 13px;
+  }
 }
