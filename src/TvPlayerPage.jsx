@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import "./TvPlayerPage.css";
 
 const API_KEY = "36669667bad13a98c59f98b32ebb67f5";
 const BASE_URL = "https://api.themoviedb.org/3";
-const BACKDROP_URL = "https://image.tmdb.org/t/p/original";
+const IMG_ORIGINAL = "https://image.tmdb.org/t/p/original";
 
 const RECENTLY_VIEWED_KEY = "prestige_recently_viewed";
 const CONTINUE_WATCHING_KEY = "prestige_continue_watching";
@@ -14,7 +14,8 @@ const HOSTS = [
   {
     id: "vidlink",
     label: "VidLink",
-    note: "Best",
+    note: "Recommended",
+    type: "TMDB",
     needsImdb: false,
     getUrl: ({ id, season, episode }) =>
       `https://vidlink.pro/tv/${id}/${season}/${episode}`,
@@ -22,15 +23,26 @@ const HOSTS = [
   {
     id: "vidsrc",
     label: "VidSrc",
-    note: "Backup",
+    note: "Main",
+    type: "TMDB",
     needsImdb: false,
     getUrl: ({ id, season, episode }) =>
       `https://vidsrc-embed.ru/embed/tv?tmdb=${id}&season=${season}&episode=${episode}`,
   },
   {
+    id: "autoembed",
+    label: "AutoEmbed",
+    note: "Ad Free",
+    type: "TMDB",
+    needsImdb: false,
+    getUrl: ({ id, season, episode }) =>
+      `https://player.autoembed.app/embed/tv/${id}/${season}/${episode}`,
+  },
+  {
     id: "hnembed",
     label: "HNEmbed",
-    note: "Backup",
+    note: "Alternative",
+    type: "TMDB",
     needsImdb: false,
     getUrl: ({ id, season, episode }) =>
       `https://hnembed.cc/embed/tv/${id}/${season}/${episode}`,
@@ -39,25 +51,10 @@ const HOSTS = [
     id: "superembed",
     label: "SuperEmbed",
     note: "IMDb",
+    type: "IMDb",
     needsImdb: true,
     getUrl: ({ imdbId, season, episode }) =>
       `https://multiembed.mov/?video_id=${imdbId}&s=${season}&e=${episode}`,
-  },
-  {
-    id: "godrive",
-    label: "GoDrive",
-    note: "IMDb",
-    needsImdb: true,
-    getUrl: ({ imdbId, season, episode }) =>
-      `https://godriveplayer.com/player.php?imdb=${imdbId}&season=${season}&episode=${episode}`,
-  },
-  {
-    id: "autoembed",
-    label: "AutoEmbed",
-    note: "Ad-Free",
-    needsImdb: false,
-    getUrl: ({ id, season, episode }) =>
-      `https://player.autoembed.app/embed/tv/${id}/${season}/${episode}`,
   },
 ];
 
@@ -69,7 +66,9 @@ function readStorageList(key) {
     const parsed = JSON.parse(stored);
 
     if (Array.isArray(parsed)) return parsed.filter(Boolean);
-    if (parsed && typeof parsed === "object") return Object.values(parsed).filter(Boolean);
+    if (parsed && typeof parsed === "object") {
+      return Object.values(parsed).filter(Boolean);
+    }
 
     return [];
   } catch {
@@ -89,11 +88,9 @@ function saveStorageItem(key, item, limit = 12) {
       return `${storedType}-${storedItem.id}` !== `${type}-${item.id}`;
     });
 
-    const nextItems = [item, ...filteredItems].slice(0, limit);
-
-    localStorage.setItem(key, JSON.stringify(nextItems));
+    localStorage.setItem(key, JSON.stringify([item, ...filteredItems].slice(0, limit)));
   } catch {
-    // localStorage can fail in private/incognito mode.
+    // Ignore localStorage errors.
   }
 }
 
@@ -115,10 +112,91 @@ function createTvStorageItem(tvShow, seasonNum = null, episodeNum = null, episod
       ? `/series/${tvShow.id}/watch?season=${seasonNum}&episode=${episodeNum}`
       : `/series/${tvShow.id}`,
     continue_label: hasEpisode
-      ? `S${seasonNum} E${episodeNum}${episodeName ? ` · ${episodeName}` : ""}`
+      ? `Continue S${seasonNum} E${episodeNum}${episodeName ? ` · ${episodeName}` : ""}`
       : "Series details",
     viewed_at: new Date().toISOString(),
   };
+}
+
+function formatEpisodeCode(season, episode) {
+  return `S${String(season).padStart(2, "0")}E${String(episode).padStart(2, "0")}`;
+}
+
+function formatDate(date) {
+  if (!date) return "Air date N/A";
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(date));
+}
+
+function isEpisodeFuture(airDate) {
+  if (!airDate) return false;
+
+  const today = new Date();
+  const episodeDate = new Date(airDate);
+
+  today.setHours(0, 0, 0, 0);
+  episodeDate.setHours(0, 0, 0, 0);
+
+  return episodeDate > today;
+}
+
+function CustomDropdown({ label, value, options, onChange }) {
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const activeOption = options.find((item) => String(item.value) === String(value));
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (!dropdownRef.current?.contains(event.target)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, []);
+
+  return (
+    <div className={open ? "series-custom-select open" : "series-custom-select"} ref={dropdownRef}>
+      <span>{label}</span>
+
+      <button type="button" className="series-custom-trigger" onClick={() => setOpen((prev) => !prev)}>
+        <strong>{activeOption?.label || "Select"}</strong>
+        <i className={open ? "bx bx-chevron-up" : "bx bx-chevron-down"}></i>
+      </button>
+
+      {open && (
+        <div className="series-custom-options">
+          {options.map((item) => (
+            <button
+              key={item.value}
+              type="button"
+              className={String(item.value) === String(value) ? "active" : ""}
+              disabled={item.disabled}
+              onClick={() => {
+                if (item.disabled) return;
+                onChange(item.value);
+                setOpen(false);
+              }}
+            >
+              <strong>{item.label}</strong>
+              {item.meta && <small>{item.meta}</small>}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function TvPlayerPage() {
@@ -137,6 +215,9 @@ function TvPlayerPage() {
   const [playerActive, setPlayerActive] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [sourceOpen, setSourceOpen] = useState(false);
+  const [episodeOpen, setEpisodeOpen] = useState(false);
+  const [cinemaMode, setCinemaMode] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -145,17 +226,14 @@ function TvPlayerPage() {
       setLoading(true);
 
       try {
-        const res = await fetch(
-          `${BASE_URL}/tv/${id}?api_key=${API_KEY}&language=en-US`
-        );
-
+        const res = await fetch(`${BASE_URL}/tv/${id}?api_key=${API_KEY}&language=en-US`);
         const data = await res.json();
 
         if (!cancelled) {
           setTvShow(data);
         }
-      } catch (err) {
-        console.error("Failed to fetch TV show:", err);
+      } catch (error) {
+        console.error("Failed to fetch TV show:", error);
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -171,11 +249,11 @@ function TvPlayerPage() {
   }, [id]);
 
   useEffect(() => {
+    if (trailerKey) return undefined;
+
     let cancelled = false;
 
     async function fetchSeason() {
-      if (trailerKey) return;
-
       try {
         const res = await fetch(
           `${BASE_URL}/tv/${id}/season/${season}?api_key=${API_KEY}&language=en-US`
@@ -186,8 +264,12 @@ function TvPlayerPage() {
         if (!cancelled) {
           setSeasonData(data);
         }
-      } catch (err) {
-        console.error("Failed to fetch season:", err);
+      } catch (error) {
+        console.error("Failed to fetch season:", error);
+
+        if (!cancelled) {
+          setSeasonData(null);
+        }
       }
     }
 
@@ -207,13 +289,68 @@ function TvPlayerPage() {
     return HOSTS.find((item) => item.id === host) || HOSTS[0];
   }, [host]);
 
+  const realSeasons = useMemo(() => {
+    if (!tvShow?.seasons) return [];
+
+    return tvShow.seasons
+      .filter((item) => item.season_number !== 0)
+      .sort((a, b) => a.season_number - b.season_number);
+  }, [tvShow]);
+
+  const episodes = useMemo(() => {
+    return Array.isArray(seasonData?.episodes) ? seasonData.episodes : [];
+  }, [seasonData]);
+
   const currentEpisode = useMemo(() => {
-    return seasonData?.episodes?.find(
-      (item) => item.episode_number === episode
-    );
-  }, [seasonData, episode]);
+    return episodes.find((item) => item.episode_number === episode);
+  }, [episodes, episode]);
 
   const currentEpisodeName = currentEpisode?.name || "";
+  const episodeCode = formatEpisodeCode(season, episode);
+
+  const previousEpisode = useMemo(() => {
+    const previousInSeason = episodes.find(
+      (item) => item.episode_number === episode - 1 && !isEpisodeFuture(item.air_date)
+    );
+
+    if (previousInSeason) {
+      return {
+        season,
+        episode: previousInSeason.episode_number,
+      };
+    }
+
+    const previousSeason = realSeasons.filter((item) => item.season_number < season).at(-1);
+
+    if (!previousSeason) return null;
+
+    return {
+      season: previousSeason.season_number,
+      episode: previousSeason.episode_count || 1,
+    };
+  }, [episodes, episode, season, realSeasons]);
+
+  const nextEpisode = useMemo(() => {
+    const nextInSeason = episodes.find(
+      (item) => item.episode_number === episode + 1 && !isEpisodeFuture(item.air_date)
+    );
+
+    if (nextInSeason) {
+      return {
+        season,
+        episode: nextInSeason.episode_number,
+      };
+    }
+
+    const nextSeason = realSeasons.find((item) => item.season_number > season);
+
+    if (!nextSeason) return null;
+
+    return {
+      season: nextSeason.season_number,
+      episode: 1,
+    };
+  }, [episodes, episode, season, realSeasons]);
 
   useEffect(() => {
     if (!tvShow?.id) return;
@@ -227,34 +364,6 @@ function TvPlayerPage() {
       );
     }
   }, [tvShow, trailerKey, season, episode, currentEpisodeName]);
-
-  const nextEpisode = useMemo(() => {
-    if (!seasonData?.episodes?.length) return null;
-
-    const nextInSeason = seasonData.episodes.find(
-      (item) => item.episode_number === episode + 1
-    );
-
-    if (nextInSeason) {
-      return {
-        season,
-        episode: nextInSeason.episode_number,
-      };
-    }
-
-    const nextSeason = tvShow?.seasons?.find(
-      (item) => item.season_number === season + 1
-    );
-
-    if (nextSeason) {
-      return {
-        season: season + 1,
-        episode: 1,
-      };
-    }
-
-    return null;
-  }, [seasonData, episode, season, tvShow]);
 
   const embedSrc = useMemo(() => {
     if (trailerKey) {
@@ -275,26 +384,32 @@ function TvPlayerPage() {
     });
   }, [id, tvShow, selectedHost, season, episode, trailerKey]);
 
-  const backdrop = tvShow?.backdrop_path
-    ? `${BACKDROP_URL}${tvShow.backdrop_path}`
-    : "";
-
+  const backdrop = tvShow?.backdrop_path ? `${IMG_ORIGINAL}${tvShow.backdrop_path}` : "";
   const rating = tvShow?.vote_average ? tvShow.vote_average.toFixed(1) : "N/A";
+  const year = tvShow?.first_air_date ? tvShow.first_air_date.slice(0, 4) : "N/A";
 
-  const handleBackClick = () => {
+  const seasonOptions = realSeasons.map((item) => ({
+    value: item.season_number,
+    label: `Season ${item.season_number}`,
+    meta: `${item.episode_count || 0} episodes`,
+  }));
+
+  const episodeOptions = episodes.map((item) => ({
+    value: item.episode_number,
+    label: `Episode ${item.episode_number}`,
+    meta: item.name || formatDate(item.air_date),
+    disabled: isEpisodeFuture(item.air_date),
+  }));
+
+  function backToDetail() {
     navigate(`/series/${id}`);
-  };
+  }
 
-  const changeHost = (hostId) => {
-    if (hostId === host) return;
-    setHost(hostId);
-  };
-
-  const refreshPlayer = () => {
+  function reloadPlayer() {
     setIframeKey((prev) => prev + 1);
-  };
+  }
 
-  const activatePlayer = () => {
+  function activatePlayer() {
     if (tvShow?.id && !trailerKey) {
       saveStorageItem(
         CONTINUE_WATCHING_KEY,
@@ -304,192 +419,398 @@ function TvPlayerPage() {
 
     setPlayerActive(true);
     setIframeKey((prev) => prev + 1);
-  };
+  }
 
-  const goToNextEpisode = () => {
-    if (!nextEpisode) return;
+  function goToEpisode(nextSeason, nextEpisode) {
+    if (!nextSeason || !nextEpisode) return;
 
-    navigate(
-      `/series/${id}/watch?season=${nextEpisode.season}&episode=${nextEpisode.episode}`
-    );
+    navigate(`/series/${id}/watch?season=${nextSeason}&episode=${nextEpisode}`);
 
     setPlayerActive(false);
-  };
+    setSourceOpen(false);
+    setEpisodeOpen(false);
+  }
+
+  function changeHost(nextHost) {
+    if (nextHost === host) {
+      setSourceOpen(false);
+      return;
+    }
+
+    setHost(nextHost);
+    setSourceOpen(false);
+  }
+
+  function isHostUnavailable(item) {
+    return item.needsImdb && !tvShow?.imdb_id;
+  }
+
+  function unavailableMessage() {
+    if (selectedHost.needsImdb && !tvShow?.imdb_id) {
+      return "This source needs IMDb ID, but this series does not have one.";
+    }
+
+    return "This source is currently unavailable.";
+  }
 
   if (loading || !tvShow) {
     return (
-      <main className="player-loading-page">
-        <div className="player-spinner"></div>
+      <main className="series-player-loading">
+        <div className="series-player-spinner"></div>
         <p>Loading player...</p>
       </main>
     );
   }
 
   return (
-    <main className="player-page">
+    <main className={cinemaMode ? "series-player-page cinema-mode" : "series-player-page"}>
       <div
-        className="player-bg"
+        className="series-player-bg"
         style={backdrop ? { backgroundImage: `url(${backdrop})` } : undefined}
       />
+      <div className="series-player-shade" />
 
-      <div className="player-bg-overlay" />
-
-      <section className="player-shell">
-        <div className="player-topbar">
-          <button className="player-back-btn" onClick={handleBackClick}>
+      <section className="series-player-shell">
+        <header className="series-watch-header">
+          <button className="series-pill-btn series-back-btn" onClick={backToDetail}>
             <i className="bx bx-arrow-back"></i>
             <span>Back</span>
           </button>
 
-          <div className="player-title-block">
-            <span>
-              {trailerKey
-                ? "Official Trailer"
-                : `Season ${season} • Episode ${episode}`}
-            </span>
-
+          <div className="series-title-block">
+            <span>{trailerKey ? "Official Trailer" : "Now Watching"}</span>
             <h1>{tvShow.name}</h1>
 
-            <div className="player-meta-line">
+            <div className="series-watch-meta">
+              <small>{year}</small>
               <small>★ {rating}</small>
+              {!trailerKey && <small>{episodeCode}</small>}
               {!trailerKey && <small>{selectedHost.label}</small>}
-              {!trailerKey && currentEpisode?.name && (
-                <small>{currentEpisode.name}</small>
-              )}
             </div>
           </div>
 
-          {!trailerKey && (
-            <div className="tv-player-top-actions">
-              <button className="player-refresh-btn" onClick={refreshPlayer}>
+          <div className="series-header-actions">
+            {!trailerKey && (
+              <button className="series-pill-btn" onClick={reloadPlayer}>
                 <i className="bx bx-refresh"></i>
                 <span>Reload</span>
               </button>
+            )}
 
-              <button
-                className="tv-next-episode-btn"
-                onClick={goToNextEpisode}
-                disabled={!nextEpisode}
-              >
-                <i className="bx bx-skip-next"></i>
-                <span>
-                  {nextEpisode
-                    ? `Next S${nextEpisode.season} E${nextEpisode.episode}`
-                    : "No Next"}
-                </span>
+            {!trailerKey && (
+              <button className="series-pill-btn" onClick={() => setSourceOpen(true)}>
+                <i className="bx bx-slider-alt"></i>
+                <span>Sources</span>
               </button>
+            )}
+
+            <button className="series-pill-btn" onClick={() => setCinemaMode((prev) => !prev)}>
+              <i className="bx bx-tv"></i>
+              <span>{cinemaMode ? "Normal" : "Cinema"}</span>
+            </button>
+          </div>
+        </header>
+
+        <section className="series-watch-layout">
+          <div className="series-watch-main">
+            {cinemaMode && (
+              <button className="series-cinema-exit-btn" onClick={() => setCinemaMode(false)}>
+                <i className="bx bx-x"></i>
+                <span>Exit cinema</span>
+              </button>
+            )}
+
+            <div className="series-player-card">
+              {!embedSrc ? (
+                <div className="series-player-message">
+                  <i className="bx bx-error-circle"></i>
+                  <h2>Player unavailable</h2>
+                  <p>{unavailableMessage()}</p>
+                </div>
+              ) : trailerKey ? (
+                <iframe
+                  key={iframeKey}
+                  className="series-iframe"
+                  src={embedSrc}
+                  title={`${tvShow.name} Trailer`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                  allowFullScreen
+                  frameBorder="0"
+                />
+              ) : playerActive ? (
+                <iframe
+                  key={iframeKey}
+                  className="series-iframe"
+                  src={embedSrc}
+                  title={`${selectedHost.label} Player`}
+                  allow="fullscreen *; autoplay *; encrypted-media *; picture-in-picture *"
+                  allowFullScreen
+                  frameBorder="0"
+                  referrerPolicy="origin"
+                />
+              ) : (
+                <div className="series-start-card">
+                  <div className="series-start-icon">
+                    <i className="bx bx-play"></i>
+                  </div>
+
+                  <span>Ready to watch</span>
+                  <h2>{episodeCode}</h2>
+
+                  <p>
+                    {currentEpisode?.name
+                      ? currentEpisode.name
+                      : `Start watching ${tvShow.name}. If one source does not load, switch host or reload.`}
+                  </p>
+
+                  <button onClick={activatePlayer}>
+                    <i className="bx bx-play"></i>
+                    Play episode
+                  </button>
+
+                  <small>
+                    Selected source: <strong>{selectedHost.label}</strong>
+                  </small>
+                </div>
+              )}
             </div>
+
+            {!trailerKey && (
+              <div className="series-underbar">
+                <div className="series-underbar-info">
+                  <span className="series-live-dot"></span>
+                  <strong>{selectedHost.label}</strong>
+                  <small>{selectedHost.note}</small>
+                </div>
+
+                <div className="series-underbar-actions">
+                  <button
+                    onClick={() => goToEpisode(previousEpisode?.season, previousEpisode?.episode)}
+                    disabled={!previousEpisode}
+                  >
+                    <i className="bx bx-skip-previous"></i>
+                    Previous
+                  </button>
+
+                  <button onClick={() => setEpisodeOpen(true)}>
+                    <i className="bx bxs-videos"></i>
+                    Episodes
+                  </button>
+
+                  <button
+                    onClick={() => goToEpisode(nextEpisode?.season, nextEpisode?.episode)}
+                    disabled={!nextEpisode}
+                  >
+                    <i className="bx bx-skip-next"></i>
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {!trailerKey && (
+            <aside className="series-control-panel">
+              <div className="series-panel-head">
+                <div>
+                  <span>Episode room</span>
+                  <h2>{episodeCode}</h2>
+                </div>
+              </div>
+
+              <div className="series-current-box">
+                <span>Current episode</span>
+                <strong>{currentEpisode?.name || "Episode title unavailable"}</strong>
+                <p>{formatDate(currentEpisode?.air_date)}</p>
+              </div>
+
+              <div className="series-mini-nav">
+                <button
+                  onClick={() => goToEpisode(previousEpisode?.season, previousEpisode?.episode)}
+                  disabled={!previousEpisode}
+                >
+                  <i className="bx bx-skip-previous"></i>
+                  Previous
+                </button>
+
+                <button
+                  onClick={() => goToEpisode(nextEpisode?.season, nextEpisode?.episode)}
+                  disabled={!nextEpisode}
+                >
+                  Next
+                  <i className="bx bx-skip-next"></i>
+                </button>
+              </div>
+
+              <div className="series-select-row">
+                <CustomDropdown
+                  label="Season"
+                  value={season}
+                  options={seasonOptions}
+                  onChange={(nextSeason) => goToEpisode(Number(nextSeason), 1)}
+                />
+
+                <CustomDropdown
+                  label="Episode"
+                  value={episode}
+                  options={episodeOptions}
+                  onChange={(nextEpisode) => goToEpisode(season, Number(nextEpisode))}
+                />
+              </div>
+
+              <div className="series-source-block">
+                <div className="series-panel-head compact">
+                  <div>
+                    <span>Streaming source</span>
+                    <h2>Choose host</h2>
+                  </div>
+                </div>
+
+                <div className="series-source-list">
+                  {HOSTS.map((item) => {
+                    const unavailable = isHostUnavailable(item);
+
+                    return (
+                      <button
+                        key={item.id}
+                        className={item.id === host ? "series-source-card active" : "series-source-card"}
+                        disabled={unavailable}
+                        onClick={() => changeHost(item.id)}
+                      >
+                        <span>
+                          <strong>{item.label}</strong>
+                          <small>{unavailable ? "Unavailable" : item.note}</small>
+                        </span>
+
+                        <em>{item.type}</em>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button className="series-load-source-btn" onClick={activatePlayer}>
+                  <i className="bx bx-play"></i>
+                  Load selected source
+                </button>
+              </div>
+            </aside>
           )}
-        </div>
+        </section>
 
         {!trailerKey && (
-          <div className="host-panel">
-            <div className="host-panel-text">
-              <strong>Streaming host</strong>
-              <span>
-                If the player does not work well, change host or press reload.
-              </span>
+          <section className="series-help-grid">
+            <div>
+              <i className="bx bx-refresh"></i>
+              <strong>Black screen?</strong>
+              <span>Reload or switch source.</span>
             </div>
 
-            <div className="host-buttons">
+            <div>
+              <i className="bx bxs-videos"></i>
+              <strong>Episode controls</strong>
+              <span>Jump between seasons and episodes.</span>
+            </div>
+
+            <div>
+              <i className="bx bx-mobile-alt"></i>
+              <strong>Mobile</strong>
+              <span>Use Sources or Episodes bottom sheet.</span>
+            </div>
+          </section>
+        )}
+      </section>
+
+      {!trailerKey && (
+        <>
+          <aside className={sourceOpen ? "series-source-sheet open" : "series-source-sheet"}>
+            <div className="series-sheet-head">
+              <div>
+                <span>Streaming source</span>
+                <h2>Choose host</h2>
+              </div>
+
+              <button onClick={() => setSourceOpen(false)}>
+                <i className="bx bx-x"></i>
+              </button>
+            </div>
+
+            <div className="series-selected-source">
+              <span>Selected</span>
+              <strong>{selectedHost.label}</strong>
+              <p>{selectedHost.note}</p>
+            </div>
+
+            <div className="series-source-list">
               {HOSTS.map((item) => {
-                const disabled = item.needsImdb && !tvShow.imdb_id;
+                const unavailable = isHostUnavailable(item);
 
                 return (
                   <button
                     key={item.id}
-                    className={host === item.id ? "host-btn active" : "host-btn"}
+                    className={item.id === host ? "series-source-card active" : "series-source-card"}
+                    disabled={unavailable}
                     onClick={() => changeHost(item.id)}
-                    disabled={disabled}
-                    title={disabled ? "IMDb ID not available" : item.label}
                   >
-                    <strong>{item.label}</strong>
-                    <span>{disabled ? "Unavailable" : item.note}</span>
+                    <span>
+                      <strong>{item.label}</strong>
+                      <small>{unavailable ? "Unavailable" : item.note}</small>
+                    </span>
+
+                    <em>{item.type}</em>
                   </button>
                 );
               })}
             </div>
-          </div>
-        )}
 
-        <div className="player-frame-card">
-          {!embedSrc ? (
-            <div className="player-message">
-              <i className="bx bx-error-circle"></i>
-              <h2>Player unavailable</h2>
-              <p>This host needs an IMDb ID, but this series does not have one.</p>
-            </div>
-          ) : trailerKey ? (
-            <iframe
-              key={iframeKey}
-              className="movie-iframe active"
-              src={embedSrc}
-              title={`${tvShow.name} Trailer`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-              allowFullScreen
-              frameBorder="0"
-            />
-          ) : playerActive ? (
-            <iframe
-              key={iframeKey}
-              className="movie-iframe active"
-              src={embedSrc}
-              title={`${selectedHost.label} Player`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-              allowFullScreen
-              webkitallowfullscreen="true"
-              mozallowfullscreen="true"
-              frameBorder="0"
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <div className="safe-player-card">
-              <div className="safe-icon">
-                <i className="bx bx-play-circle"></i>
+            <button className="series-load-source-btn" onClick={activatePlayer}>
+              <i className="bx bx-play"></i>
+              Load selected source
+            </button>
+          </aside>
+
+          <aside className={episodeOpen ? "series-episode-sheet open" : "series-episode-sheet"}>
+            <div className="series-sheet-head">
+              <div>
+                <span>Episodes</span>
+                <h2>Season {season}</h2>
               </div>
 
-              <span className="safe-kicker">Ready to watch</span>
-
-              <h2>{tvShow.name}</h2>
-
-              <p>
-                The player loads only after clicking to reduce unwanted popups and redirects.
-              </p>
-
-              <button onClick={activatePlayer}>
-                <i className="bx bx-play"></i>
-                Play now
+              <button onClick={() => setEpisodeOpen(false)}>
+                <i className="bx bx-x"></i>
               </button>
-
-              <span>
-                Host: <strong>{selectedHost.label}</strong>
-              </span>
-            </div>
-          )}
-        </div>
-
-        {!trailerKey && (
-          <div className="player-help">
-            <div>
-              <strong>Current episode</strong>
-              <span>
-                S{season} E{episode}
-                {currentEpisode?.name ? ` — ${currentEpisode.name}` : ""}
-              </span>
             </div>
 
-            <div>
-              <strong>Black screen?</strong>
-              <span>Try another host or reload.</span>
+            <div className="series-select-row mobile-sheet-row">
+              <CustomDropdown
+                label="Season"
+                value={season}
+                options={seasonOptions}
+                onChange={(nextSeason) => goToEpisode(Number(nextSeason), 1)}
+              />
             </div>
 
-            <div>
-              <strong>Mobile</strong>
-              <span>Rotate your phone for best view.</span>
+            <div className="series-episode-list">
+              {episodes.map((item) => {
+                const active = item.episode_number === episode;
+                const future = isEpisodeFuture(item.air_date);
+
+                return (
+                  <button
+                    key={item.id}
+                    className={active ? "series-episode-card active" : "series-episode-card"}
+                    disabled={future}
+                    onClick={() => goToEpisode(season, item.episode_number)}
+                  >
+                    <span>EP {item.episode_number}</span>
+                    <strong>{item.name || "Untitled episode"}</strong>
+                    <small>{future ? `Coming ${formatDate(item.air_date)}` : formatDate(item.air_date)}</small>
+                  </button>
+                );
+              })}
             </div>
-          </div>
-        )}
-      </section>
+          </aside>
+        </>
+      )}
     </main>
   );
 }
