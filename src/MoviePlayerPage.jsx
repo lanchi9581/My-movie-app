@@ -5,53 +5,76 @@ import "./MoviePlayerPage.css";
 
 const API_KEY = "36669667bad13a98c59f98b32ebb67f5";
 const BASE_URL = "https://api.themoviedb.org/3";
-const BACKDROP_URL = "https://image.tmdb.org/t/p/original";
+const IMG_ORIGINAL = "https://image.tmdb.org/t/p/original";
 
 const RECENTLY_VIEWED_KEY = "prestige_recently_viewed";
 const CONTINUE_WATCHING_KEY = "prestige_continue_watching";
+
+const DOODSTREAM_MOVIE_IDS = {};
 
 const HOSTS = [
   {
     id: "vidlink",
     label: "VidLink",
-    note: "Best",
+    note: "Recommended",
+    type: "TMDB",
     needsImdb: false,
+    needsDoodId: false,
     getUrl: ({ id }) => `https://vidlink.pro/movie/${id}`,
+  },
+  {
+    id: "autoembed",
+    label: "AutoEmbed",
+    note: "Clean backup",
+    type: "TMDB",
+    needsImdb: false,
+    needsDoodId: false,
+    getUrl: ({ id }) => `https://player.autoembed.app/embed/movie/${id}`,
   },
   {
     id: "vidsrc",
     label: "VidSrc",
     note: "Backup",
+    type: "TMDB",
     needsImdb: false,
+    needsDoodId: false,
     getUrl: ({ id }) => `https://vsembed.su/embed/movie/${id}`,
   },
   {
     id: "hnembed",
     label: "HNEmbed",
-    note: "Backup",
+    note: "Alternative",
+    type: "TMDB",
     needsImdb: false,
+    needsDoodId: false,
     getUrl: ({ id }) => `https://hnembed.cc/embed/movie/${id}`,
   },
   {
     id: "superembed",
     label: "SuperEmbed",
-    note: "IMDb",
+    note: "IMDb source",
+    type: "IMDb",
     needsImdb: true,
+    needsDoodId: false,
     getUrl: ({ imdbId }) => `https://multiembed.mov/?video_id=${imdbId}`,
   },
   {
     id: "godrive",
     label: "GoDrive",
-    note: "IMDb",
+    note: "IMDb backup",
+    type: "IMDb",
     needsImdb: true,
+    needsDoodId: false,
     getUrl: ({ imdbId }) => `https://godriveplayer.com/player.php?imdb=${imdbId}`,
   },
   {
-    id: "autoembed",
-    label: "AutoEmbed",
-    note: "Ad-Free",
+    id: "doodstream",
+    label: "DoodStream",
+    note: "Manual code",
+    type: "Manual",
     needsImdb: false,
-    getUrl: ({ id }) => `https://player.autoembed.app/embed/movie/${id}`,
+    needsDoodId: true,
+    getUrl: ({ doodId }) => `https://doodstream.com/e/${doodId}`,
   },
 ];
 
@@ -63,7 +86,9 @@ function readStorageList(key) {
     const parsed = JSON.parse(stored);
 
     if (Array.isArray(parsed)) return parsed.filter(Boolean);
-    if (parsed && typeof parsed === "object") return Object.values(parsed).filter(Boolean);
+    if (parsed && typeof parsed === "object") {
+      return Object.values(parsed).filter(Boolean);
+    }
 
     return [];
   } catch {
@@ -87,7 +112,7 @@ function saveStorageItem(key, item, limit = 12) {
 
     localStorage.setItem(key, JSON.stringify(nextItems));
   } catch {
-    // localStorage can fail in private/incognito mode.
+    // Ignore localStorage errors.
   }
 }
 
@@ -118,9 +143,12 @@ function MoviePlayerPage() {
   const [playerActive, setPlayerActive] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [sourceOpen, setSourceOpen] = useState(false);
+  const [cinemaMode, setCinemaMode] = useState(false);
 
   const searchParams = new URLSearchParams(location.search);
   const trailerKey = searchParams.get("trailer");
+  const doodId = DOODSTREAM_MOVIE_IDS[id];
 
   useEffect(() => {
     let cancelled = false;
@@ -138,8 +166,8 @@ function MoviePlayerPage() {
         if (!cancelled) {
           setMovie(data);
         }
-      } catch (err) {
-        console.error("Failed to fetch movie:", err);
+      } catch (error) {
+        console.error("Failed to fetch movie:", error);
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -186,46 +214,68 @@ function MoviePlayerPage() {
       return null;
     }
 
+    if (selectedHost.needsDoodId && !doodId) {
+      return null;
+    }
+
     return selectedHost.getUrl({
       id,
       imdbId: movie.imdb_id,
+      doodId,
     });
-  }, [id, movie, selectedHost, trailerKey]);
+  }, [id, movie, selectedHost, trailerKey, doodId]);
 
   const backdrop = movie?.backdrop_path
-    ? `${BACKDROP_URL}${movie.backdrop_path}`
+    ? `${IMG_ORIGINAL}${movie.backdrop_path}`
     : "";
 
-  const releaseYear = movie?.release_date
-    ? new Date(movie.release_date).getFullYear()
-    : "Movie";
+  const year = movie?.release_date ? movie.release_date.slice(0, 4) : "N/A";
+  const rating = movie?.vote_average ? movie.vote_average.toFixed(1) : "N/A";
 
-  const rating = movie?.vote_average
-    ? movie.vote_average.toFixed(1)
-    : "N/A";
-
-  const handleBackClick = () => {
+  function backToDetail() {
     navigate(`/movie/${id}`);
-  };
+  }
 
-  const changeHost = (hostId) => {
-    if (hostId === host) return;
-
-    setHost(hostId);
-  };
-
-  const refreshPlayer = () => {
+  function reloadPlayer() {
     setIframeKey((prev) => prev + 1);
-  };
+  }
 
-  const activatePlayer = () => {
+  function playMovie() {
     if (movie?.id) {
       saveStorageItem(CONTINUE_WATCHING_KEY, createMovieStorageItem(movie));
     }
 
     setPlayerActive(true);
     setIframeKey((prev) => prev + 1);
-  };
+  }
+
+  function changeHost(nextHost) {
+    if (nextHost === host) {
+      setSourceOpen(false);
+      return;
+    }
+
+    setHost(nextHost);
+    setSourceOpen(false);
+  }
+
+  function isHostUnavailable(item) {
+    if (item.needsImdb && !movie?.imdb_id) return true;
+    if (item.needsDoodId && !doodId) return true;
+    return false;
+  }
+
+  function unavailableMessage() {
+    if (selectedHost.needsImdb && !movie?.imdb_id) {
+      return "This source needs IMDb ID, but this movie does not have one.";
+    }
+
+    if (selectedHost.needsDoodId && !doodId) {
+      return "DoodStream needs a manual file code inside DOODSTREAM_MOVIE_IDS.";
+    }
+
+    return "This source is currently unavailable.";
+  }
 
   if (loading || !movie) {
     return (
@@ -237,141 +287,206 @@ function MoviePlayerPage() {
   }
 
   return (
-    <main className="player-page">
+    <main className={cinemaMode ? "player-page cinema-mode" : "player-page"}>
       <div
         className="player-bg"
         style={backdrop ? { backgroundImage: `url(${backdrop})` } : undefined}
       />
-
-      <div className="player-bg-overlay" />
+      <div className="player-shade" />
 
       <section className="player-shell">
-        <div className="player-topbar">
-          <button className="player-back-btn" onClick={handleBackClick}>
+        <header className="watch-room-header">
+          <button className="watch-pill-btn watch-back-btn" onClick={backToDetail}>
             <i className="bx bx-arrow-back"></i>
             <span>Back</span>
           </button>
 
-          <div className="player-title-block">
-            <span>{trailerKey ? "Official Trailer" : "Now Playing"}</span>
+          <div className="watch-title-block">
+            <span>{trailerKey ? "Official Trailer" : "Now Watching"}</span>
             <h1>{movie.title}</h1>
 
-            <div className="player-meta-line">
-              <small>{releaseYear}</small>
+            <div className="watch-meta">
+              <small>{year}</small>
               <small>★ {rating}</small>
               {!trailerKey && <small>{selectedHost.label}</small>}
             </div>
           </div>
 
-          {!trailerKey && (
-            <button className="player-refresh-btn" onClick={refreshPlayer}>
-              <i className="bx bx-refresh"></i>
-              <span>Reload</span>
+          <div className="watch-header-actions">
+            {!trailerKey && (
+              <button className="watch-pill-btn" onClick={reloadPlayer}>
+                <i className="bx bx-refresh"></i>
+                <span>Reload</span>
+              </button>
+            )}
+
+            <button
+              className="watch-pill-btn"
+              onClick={() => setCinemaMode((prev) => !prev)}
+            >
+              <i className="bx bx-tv"></i>
+              <span>{cinemaMode ? "Normal" : "Cinema"}</span>
             </button>
-          )}
-        </div>
-
-        {!trailerKey && (
-          <div className="host-panel">
-            <div className="host-panel-text">
-              <strong>Streaming host</strong>
-              <span>
-                If the player does not work well, change host or press reload.
-              </span>
-            </div>
-
-            <div className="host-buttons">
-              {HOSTS.map((item) => {
-                const disabled = item.needsImdb && !movie.imdb_id;
-
-                return (
-                  <button
-                    key={item.id}
-                    className={host === item.id ? "host-btn active" : "host-btn"}
-                    onClick={() => changeHost(item.id)}
-                    disabled={disabled}
-                    title={disabled ? "IMDb ID not available" : item.label}
-                  >
-                    <strong>{item.label}</strong>
-                    <span>{disabled ? "Unavailable" : item.note}</span>
-                  </button>
-                );
-              })}
-            </div>
           </div>
-        )}
+        </header>
+            
+        <section className="watch-layout">
+          <div className="watch-main">
+            {cinemaMode && (
+              <button
+                className="cinema-exit-btn"
+                onClick={() => setCinemaMode(false)}
+              >
+                <i className="bx bx-x"></i>
+                <span>Exit cinema</span>
+              </button>
+            )}
+            <div className="watch-player-card">
+              {!embedSrc ? (
+                <div className="player-message">
+                  <i className="bx bx-error-circle"></i>
+                  <h2>Player unavailable</h2>
+                  <p>{unavailableMessage()}</p>
+                </div>
+              ) : trailerKey ? (
+                <iframe
+                  key={iframeKey}
+                  className="movie-iframe"
+                  src={embedSrc}
+                  title={`${movie.title} Trailer`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                  allowFullScreen
+                  frameBorder="0"
+                />
+              ) : playerActive ? (
+                <iframe
+                  key={iframeKey}
+                  className="movie-iframe"
+                  src={embedSrc}
+                  title={`${selectedHost.label} Player`}
+                  allow="fullscreen *; autoplay *; encrypted-media *; picture-in-picture *"
+                  allowFullScreen
+                  frameBorder="0"
+                  referrerPolicy="origin"
+                />
+              ) : (
+                <div className="watch-start-card">
+                  <div className="watch-start-icon">
+                    <i className="bx bx-play"></i>
+                  </div>
 
-        <div className="player-frame-card">
-          {!embedSrc ? (
-            <div className="player-message">
-              <i className="bx bx-error-circle"></i>
-              <h2>Player unavailable</h2>
-              <p>This host needs an IMDb ID, but this movie does not have one.</p>
+                  <span>Ready to watch</span>
+                  <h2>{movie.title}</h2>
+
+                  <p>
+                    Press play to load the selected source. If it does not work,
+                    change the host or reload the player.
+                  </p>
+
+                  <button onClick={playMovie}>
+                    <i className="bx bx-play"></i>
+                    Play movie
+                  </button>
+
+                  <small>
+                    Selected source: <strong>{selectedHost.label}</strong>
+                  </small>
+                </div>
+              )}
             </div>
-          ) : trailerKey ? (
-            <iframe
-              key={iframeKey}
-              className="movie-iframe active"
-              src={embedSrc}
-              title={`${movie.title} Trailer`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-              allowFullScreen
-              frameBorder="0"
-            />
-          ) : playerActive ? (
-            <iframe
-              key={iframeKey}
-              className="movie-iframe active"
-              src={embedSrc}
-              title={`${selectedHost.label} Player`}
-              allow="fullscreen *; autoplay *; encrypted-media *; picture-in-picture *"
-              allowFullScreen
-              frameBorder="0"
-              referrerPolicy="origin"
-            />
-          ) : (
-            <div className="safe-player-card">
-              <div className="safe-icon">
-                <i className="bx bx-play-circle"></i>
+
+            {!trailerKey && (
+              <div className="watch-underbar">
+                <div className="watch-underbar-info">
+                  <span className="watch-live-dot"></span>
+                  <strong>{selectedHost.label}</strong>
+                  <small>{selectedHost.note}</small>
+                </div>
+
+                <div className="watch-underbar-actions">
+                  <button onClick={reloadPlayer}>
+                    <i className="bx bx-refresh"></i>
+                    Reload
+                  </button>
+
+                  <button onClick={() => setSourceOpen(true)}>
+                    <i className="bx bx-slider-alt"></i>
+                    Sources
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {!trailerKey && (
+            <aside className={sourceOpen ? "watch-source-panel open" : "watch-source-panel"}>
+              <div className="source-panel-head">
+                <div>
+                  <span>Streaming source</span>
+                  <h2>Choose host</h2>
+                </div>
+
+                <button onClick={() => setSourceOpen(false)}>
+                  <i className="bx bx-x"></i>
+                </button>
               </div>
 
-              <span className="safe-kicker">Ready to watch</span>
+              <div className="selected-source-box">
+                <span>Selected</span>
+                <strong>{selectedHost.label}</strong>
+                <p>{selectedHost.note}</p>
+              </div>
 
-              <h2>{movie.title}</h2>
+              <div className="source-card-list">
+                {HOSTS.map((item) => {
+                  const unavailable = isHostUnavailable(item);
 
-              <p>
-                The player loads only after clicking to reduce unwanted popups and redirects.
-              </p>
+                  return (
+                    <button
+                      key={item.id}
+                      className={item.id === host ? "source-card active" : "source-card"}
+                      disabled={unavailable}
+                      onClick={() => changeHost(item.id)}
+                    >
+                      <span>
+                        <strong>{item.label}</strong>
+                        <small>{unavailable ? "Unavailable" : item.note}</small>
+                      </span>
 
-              <button onClick={activatePlayer}>
+                      <em>{item.type}</em>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button className="load-source-btn" onClick={playMovie}>
                 <i className="bx bx-play"></i>
-                Play now
+                Load selected source
               </button>
-
-              <span>
-                Host: <strong>{selectedHost.label}</strong>
-              </span>
-            </div>
+            </aside>
           )}
-        </div>
+        </section>
 
         {!trailerKey && (
-          <div className="player-help">
+          <section className="watch-help-grid">
             <div>
+              <i className="bx bx-refresh"></i>
               <strong>Black screen?</strong>
-              <span>Try another host or reload.</span>
+              <span>Reload or switch host.</span>
             </div>
 
             <div>
-              <strong>Fullscreen?</strong>
-              <span>Some hosts block it inside iframe.</span>
+              <i className="bx bx-slider-alt"></i>
+              <strong>Source problem?</strong>
+              <span>Try VidLink, AutoEmbed or VidSrc.</span>
             </div>
 
             <div>
+              <i className="bx bx-mobile-alt"></i>
               <strong>Mobile</strong>
-              <span>Rotate your phone for best view.</span>
+              <span>Rotate phone for best player view.</span>
             </div>
-          </div>
+          </section>
         )}
       </section>
     </main>
