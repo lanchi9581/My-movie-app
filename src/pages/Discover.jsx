@@ -78,6 +78,8 @@ function Discover() {
   const [totalPages, setTotalPages] = useState(1);
   const [status, setStatus] = useState("idle");
 
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
   const observerRef = useRef(null);
   const loadingRef = useRef(false);
   const seenIdsRef = useRef(new Set());
@@ -120,6 +122,20 @@ function Discover() {
       setQuery("");
     }
   }, [location.pathname, mediaType]);
+
+  useEffect(() => {
+    function handleScroll() {
+      setShowBackToTop(window.scrollY > 800);
+    }
+
+    window.addEventListener("scroll", handleScroll);
+
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const fetchItems = useCallback(
     async (pageNumber) => {
@@ -164,9 +180,7 @@ function Discover() {
         );
 
         if (!response.ok) {
-          throw new Error(
-            "Failed to load discover feed"
-          );
+          throw new Error("Failed to load discover feed");
         }
 
         const data = await response.json();
@@ -187,9 +201,7 @@ function Discover() {
             const key =
               `${mediaType}-${item.id}`;
 
-            if (
-              seenIdsRef.current.has(key)
-            ) {
+            if (seenIdsRef.current.has(key)) {
               return false;
             }
 
@@ -205,10 +217,7 @@ function Discover() {
         );
 
         setTotalPages(
-          Math.min(
-            data.total_pages || 1,
-            500
-          )
+          Math.min(data.total_pages || 1, 500)
         );
 
         setPage(pageNumber + 1);
@@ -241,8 +250,7 @@ function Discover() {
       setTotalPages(1);
       setStatus("idle");
 
-      seenIdsRef.current =
-        new Set();
+      seenIdsRef.current = new Set();
 
       fetchItems(1);
     }, isSearching ? 350 : 0);
@@ -261,8 +269,7 @@ function Discover() {
 
     if (
       mediaType === "tv" &&
-      sortBy ===
-        "primary_release_date.desc"
+      sortBy === "primary_release_date.desc"
     ) {
       setSortBy("popularity.desc");
     }
@@ -282,6 +289,13 @@ function Discover() {
         ? "/discover/movies"
         : "/discover/series"
     );
+  }
+
+  function scrollToTop() {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   }
 
   const lastItemRef = useCallback(
@@ -443,6 +457,18 @@ function Discover() {
           <span></span>
           Loading more titles...
         </div>
+      )}
+
+      {showBackToTop && (
+        <button
+          type="button"
+          className="discover-back-to-top"
+          onClick={scrollToTop}
+          aria-label="Back to top"
+          title="Back to top"
+        >
+          <i className="bx bx-up-arrow-alt"></i>
+        </button>
       )}
     </main>
   );
