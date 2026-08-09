@@ -12,6 +12,15 @@ const CONTINUE_WATCHING_KEY = "prestige_continue_watching";
 
 const HOSTS = [
   {
+    id: "vidsrc",
+    label: "VidSrc",
+    note: "Best",
+    type: "TMDB",
+    needsImdb: false,
+    getUrl: ({ id, season, episode }) =>
+      `https://vidsrc-embed.ru/embed/tv?tmdb=${id}&season=${season}&episode=${episode}`,
+  },
+  {
     id: "vidlink",
     label: "VidLink",
     note: "Recommended",
@@ -19,15 +28,6 @@ const HOSTS = [
     needsImdb: false,
     getUrl: ({ id, season, episode }) =>
       `https://vidlink.pro/tv/${id}/${season}/${episode}`,
-  },
-  {
-    id: "vidsrc",
-    label: "VidSrc",
-    note: "Main",
-    type: "TMDB",
-    needsImdb: false,
-    getUrl: ({ id, season, episode }) =>
-      `https://vidsrc-embed.ru/embed/tv?tmdb=${id}&season=${season}&episode=${episode}`,
   },
   {
     id: "autoembed",
@@ -211,7 +211,7 @@ function TvPlayerPage() {
 
   const [tvShow, setTvShow] = useState(null);
   const [seasonData, setSeasonData] = useState(null);
-  const [host, setHost] = useState("vidlink");
+  const [host, setHost] = useState("vidsrc");
   const [playerActive, setPlayerActive] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -447,10 +447,10 @@ function TvPlayerPage() {
 
   function unavailableMessage() {
     if (selectedHost.needsImdb && !tvShow?.imdb_id) {
-      return "This source needs IMDb ID, but this series does not have one.";
+      return "This Host needs IMDb ID, but this series does not have one.";
     }
 
-    return "This source is currently unavailable.";
+    return "This Host is currently unavailable.";
   }
 
   if (loading || !tvShow) {
@@ -500,13 +500,13 @@ function TvPlayerPage() {
             {!trailerKey && (
               <button className="series-pill-btn" onClick={() => setSourceOpen(true)}>
                 <i className="bx bx-slider-alt"></i>
-                <span>Sources</span>
+                <span>Hosts</span>
               </button>
             )}
 
             <button className="series-pill-btn" onClick={() => setCinemaMode((prev) => !prev)}>
               <i className="bx bx-tv"></i>
-              <span>{cinemaMode ? "Normal" : "Cinema"}</span>
+              <span>{cinemaMode ? "Normal" : "Fullscreen"}</span>
             </button>
           </div>
         </header>
@@ -516,7 +516,7 @@ function TvPlayerPage() {
             {cinemaMode && (
               <button className="series-cinema-exit-btn" onClick={() => setCinemaMode(false)}>
                 <i className="bx bx-x"></i>
-                <span>Exit cinema</span>
+                <span>Exit fullscreen</span>
               </button>
             )}
 
@@ -560,7 +560,7 @@ function TvPlayerPage() {
                   <p>
                     {currentEpisode?.name
                       ? currentEpisode.name
-                      : `Start watching ${tvShow.name}. If one source does not load, switch host or reload.`}
+                      : `Start watching ${tvShow.name}. If one host does not load, switch host or reload.`}
                   </p>
 
                   <button onClick={activatePlayer}>
@@ -569,7 +569,7 @@ function TvPlayerPage() {
                   </button>
 
                   <small>
-                    Selected source: <strong>{selectedHost.label}</strong>
+                    Selected Host: <strong>{selectedHost.label}</strong>
                   </small>
                 </div>
               )}
@@ -661,7 +661,7 @@ function TvPlayerPage() {
               <div className="series-source-block">
                 <div className="series-panel-head compact">
                   <div>
-                    <span>Streaming source</span>
+                    <span>Streaming Host</span>
                     <h2>Choose host</h2>
                   </div>
                 </div>
@@ -690,7 +690,7 @@ function TvPlayerPage() {
 
                 <button className="series-load-source-btn" onClick={activatePlayer}>
                   <i className="bx bx-play"></i>
-                  Load selected source
+                  Load selected Host
                 </button>
               </div>
             </aside>
@@ -702,7 +702,7 @@ function TvPlayerPage() {
             <div>
               <i className="bx bx-refresh"></i>
               <strong>Black screen?</strong>
-              <span>Reload or switch source.</span>
+              <span>Reload or switch Host.</span>
             </div>
 
             <div>
@@ -714,7 +714,7 @@ function TvPlayerPage() {
             <div>
               <i className="bx bx-mobile-alt"></i>
               <strong>Mobile</strong>
-              <span>Use Sources or Episodes bottom sheet.</span>
+              <span>Use Hosts or Episodes bottom sheet.</span>
             </div>
           </section>
         )}
@@ -725,7 +725,7 @@ function TvPlayerPage() {
           <aside className={sourceOpen ? "series-source-sheet open" : "series-source-sheet"}>
             <div className="series-sheet-head">
               <div>
-                <span>Streaming source</span>
+                <span>Streaming Host</span>
                 <h2>Choose host</h2>
               </div>
 
@@ -764,7 +764,7 @@ function TvPlayerPage() {
 
             <button className="series-load-source-btn" onClick={activatePlayer}>
               <i className="bx bx-play"></i>
-              Load selected source
+              Load selected Host
             </button>
           </aside>
 

@@ -14,22 +14,22 @@ const DOODSTREAM_MOVIE_IDS = {};
 
 const HOSTS = [
   {
-    id: "vidlink",
-    label: "VidLink",
-    note: "Recommended",
-    type: "TMDB",
-    needsImdb: false,
-    needsDoodId: false,
-    getUrl: ({ id }) => `https://vidlink.pro/movie/${id}`,
-  },
-  {
     id: "vidsrc",
     label: "VidSrc",
-    note: "Backup",
+    note: "Best",
     type: "TMDB",
     needsImdb: false,
     needsDoodId: false,
     getUrl: ({ id }) => `https://vsembed.su/embed/movie/${id}`,
+  },
+  {
+    id: "vidlink",
+    label: "VidLink",
+    note: "Backup",
+    type: "TMDB",
+    needsImdb: false,
+    needsDoodId: false,
+    getUrl: ({ id }) => `https://vidlink.pro/movie/${id}`,
   },
   {
     id: "autoembed",
@@ -53,7 +53,7 @@ const HOSTS = [
   {
     id: "superembed",
     label: "SuperEmbed",
-    note: "IMDb source",
+    note: "IMDb host",
     type: "IMDb",
     needsImdb: true,
     needsDoodId: false,
@@ -140,7 +140,7 @@ function MoviePlayerPage() {
   const location = useLocation();
 
   const [movie, setMovie] = useState(null);
-  const [host, setHost] = useState("vidlink");
+  const [host, setHost] = useState("vidsrc");
   const [playerActive, setPlayerActive] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -268,14 +268,14 @@ function MoviePlayerPage() {
 
   function unavailableMessage() {
     if (selectedHost.needsImdb && !movie?.imdb_id) {
-      return "This source needs IMDb ID, but this movie does not have one.";
+      return "This Host needs IMDb ID, but this movie does not have one.";
     }
 
     if (selectedHost.needsDoodId && !doodId) {
       return "DoodStream needs a manual file code inside DOODSTREAM_MOVIE_IDS.";
     }
 
-    return "This source is currently unavailable.";
+    return "This Host is currently unavailable.";
   }
 
   if (loading || !movie) {
@@ -326,7 +326,7 @@ function MoviePlayerPage() {
               onClick={() => setCinemaMode((prev) => !prev)}
             >
               <i className="bx bx-tv"></i>
-              <span>{cinemaMode ? "Normal" : "Cinema"}</span>
+              <span>{cinemaMode ? "Normal" : "Fullscreen"}</span>
             </button>
           </div>
         </header>
@@ -339,7 +339,7 @@ function MoviePlayerPage() {
                 onClick={() => setCinemaMode(false)}
               >
                 <i className="bx bx-x"></i>
-                <span>Exit cinema</span>
+                <span>Exit fullscreen</span>
               </button>
             )}
             <div className="watch-player-card">
@@ -380,7 +380,7 @@ function MoviePlayerPage() {
                   <h2>{movie.title}</h2>
 
                   <p>
-                    Press play to load the selected source. If it does not work,
+                    Press play to load the selected Host. If it does not work,
                     change the host or reload the player.
                   </p>
 
@@ -390,7 +390,7 @@ function MoviePlayerPage() {
                   </button>
 
                   <small>
-                    Selected source: <strong>{selectedHost.label}</strong>
+                    Selected Host: <strong>{selectedHost.label}</strong>
                   </small>
                 </div>
               )}
@@ -412,7 +412,7 @@ function MoviePlayerPage() {
 
                   <button onClick={() => setSourceOpen(true)}>
                     <i className="bx bx-slider-alt"></i>
-                    Sources
+                    Host
                   </button>
                 </div>
               </div>
@@ -423,7 +423,7 @@ function MoviePlayerPage() {
             <aside className={sourceOpen ? "watch-source-panel open" : "watch-source-panel"}>
               <div className="source-panel-head">
                 <div>
-                  <span>Streaming source</span>
+                  <span>Streaming Host</span>
                   <h2>Choose host</h2>
                 </div>
 
@@ -462,7 +462,7 @@ function MoviePlayerPage() {
 
               <button className="load-source-btn" onClick={playMovie}>
                 <i className="bx bx-play"></i>
-                Load selected source
+                Load selected Host
               </button>
             </aside>
           )}
@@ -478,7 +478,7 @@ function MoviePlayerPage() {
 
             <div>
               <i className="bx bx-slider-alt"></i>
-              <strong>Source problem?</strong>
+              <strong>Host problem?</strong>
               <span>Try VidLink, AutoEmbed or VidSrc.</span>
             </div>
 
