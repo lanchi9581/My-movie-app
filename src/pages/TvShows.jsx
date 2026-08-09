@@ -389,7 +389,7 @@ function TVShows() {
                     Watch Now
                   </Link>
 
-                  <Link to="/discover/series" className="series-secondary-btn">
+                  <Link to="/discover/" className="series-secondary-btn">
                     <i className="bx bx-grid-alt"></i>
                     View more
                   </Link>

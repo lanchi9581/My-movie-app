@@ -385,7 +385,7 @@ function Movies() {
                     Watch Now
                   </Link>
 
-                  <Link to="/discover/movies" className="movies-secondary-btn">
+                  <Link to="/discover/" className="movies-secondary-btn">
                     <i className="bx bx-grid-alt"></i>
                     View more
                   </Link>
