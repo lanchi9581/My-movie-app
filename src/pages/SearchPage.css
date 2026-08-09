@@ -1,11 +1,7 @@
-
 .search-page {
   min-height: calc(100vh - 90px);
-
   padding: 72px 28px 90px;
-
   position: relative;
-
   color: #fff;
 
   background:
@@ -32,10 +28,8 @@
 
 .search-page::before {
   content: "";
-
   position: absolute;
   inset: 0;
-
   pointer-events: none;
 
   background:
@@ -65,9 +59,7 @@
 .search-state,
 .did-you-mean {
   position: relative;
-
   width: min(1500px, 100%);
-
   margin-left: auto;
   margin-right: auto;
 }
@@ -79,71 +71,44 @@
 
 .search-hero {
   z-index: 2;
-
   max-width: 900px;
-
   text-align: center;
-
   margin-bottom: 28px;
 }
 
 .search-hero span {
   display: inline-flex;
-
   margin-bottom: 14px;
-
   color: #ff4b55;
-
   font-size: 0.78rem;
   font-weight: 950;
-
   letter-spacing: 0.16em;
-
   text-transform: uppercase;
 }
 
 .search-hero h1 {
   margin: 0;
-
   color: #fff;
 
-  font-size: clamp(
-    2.8rem,
-    6vw,
-    6rem
-  );
-
+  font-size: clamp(2.8rem, 6vw, 6rem);
   line-height: 0.9;
-
   letter-spacing: -0.075em;
 
   text-transform: uppercase;
 
   text-shadow:
-    0 10px 36px
-      rgba(0, 0, 0, 0.7),
-    0 0 30px
-      rgba(229, 9, 20, 0.18);
+    0 10px 36px rgba(0, 0, 0, 0.7),
+    0 0 30px rgba(229, 9, 20, 0.18);
 }
 
 .search-hero p {
   max-width: 680px;
+  margin: 18px auto 0;
 
-  margin:
-    18px auto 0;
-
-  color:
-    rgba(
-      255,
-      255,
-      255,
-      0.66
-    );
+  color: rgba(255, 255, 255, 0.66);
 
   font-size: 1rem;
-
   line-height: 1.65;
-
   font-weight: 700;
 }
 
@@ -160,9 +125,7 @@
   margin-bottom: 42px;
 
   display: flex;
-
   gap: 14px;
-
   align-items: flex-end;
 
   overflow: visible;
@@ -175,18 +138,13 @@
 
 .search-box {
   flex: 1;
-
   min-width: 0;
-
   min-height: 62px;
 
-  padding:
-    0 18px 0 22px;
+  padding: 0 18px 0 22px;
 
   display: flex;
-
   align-items: center;
-
   gap: 14px;
 
   border-radius: 22px;
@@ -194,53 +152,17 @@
   background:
     linear-gradient(
       180deg,
-      rgba(
-        255,
-        255,
-        255,
-        0.105
-      ),
-      rgba(
-        255,
-        255,
-        255,
-        0.04
-      )
+      rgba(255, 255, 255, 0.105),
+      rgba(255, 255, 255, 0.04)
     ),
-    rgba(
-      12,
-      14,
-      24,
-      0.82
-    );
+    rgba(12, 14, 24, 0.82);
 
-  border:
-    1px solid
-    rgba(
-      255,
-      255,
-      255,
-      0.105
-    );
+  border: 1px solid rgba(255, 255, 255, 0.105);
 
   box-shadow:
-    0 22px 70px
-      rgba(
-        0,
-        0,
-        0,
-        0.35
-      ),
-    inset 0 1px 0
-      rgba(
-        255,
-        255,
-        255,
-        0.045
-      );
+    0 20px 55px rgba(0, 0, 0, 0.35);
 
-  backdrop-filter:
-    blur(16px);
+  backdrop-filter: blur(16px);
 
   transition:
     transform 0.25s ease,
@@ -249,68 +171,38 @@
 }
 
 .search-box:focus-within {
-  transform:
-    translateY(-2px);
+  transform: translateY(-2px);
 
-  border-color:
-    rgba(
-      244,
-      6,
-      18,
-      0.55
-    );
+  border-color: rgba(244, 6, 18, 0.55);
 
   box-shadow:
-    0 0 34px
-      rgba(
-        229,
-        9,
-        20,
-        0.24
-      ),
-    0 22px 70px
-      rgba(
-        0,
-        0,
-        0,
-        0.48
-      );
+    0 0 34px rgba(229, 9, 20, 0.24),
+    0 22px 70px rgba(0, 0, 0, 0.48);
 }
 
 .search-box > i {
   flex-shrink: 0;
-
   color: #ff1d2d;
-
   font-size: 1.55rem;
 }
 
 .search-box input {
   width: 100%;
-
   min-width: 0;
 
   background: transparent;
 
   border: none;
-
   outline: none;
 
   color: #fff;
 
   font-size: 1rem;
-
   font-weight: 850;
 }
 
 .search-box input::placeholder {
-  color:
-    rgba(
-      255,
-      255,
-      255,
-      0.48
-    );
+  color: rgba(255, 255, 255, 0.48);
 }
 
 .search-clear {
@@ -318,24 +210,16 @@
   height: 38px;
 
   display: grid;
-
   place-items: center;
 
   flex-shrink: 0;
 
   border-radius: 50%;
-
   border: none;
 
   color: #fff;
 
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      0.095
-    );
+  background: rgba(255, 255, 255, 0.095);
 
   cursor: pointer;
 
@@ -345,16 +229,8 @@
 }
 
 .search-clear:hover {
-  transform:
-    scale(1.06);
-
-  background:
-    rgba(
-      244,
-      6,
-      18,
-      0.34
-    );
+  transform: scale(1.06);
+  background: rgba(244, 6, 18, 0.34);
 }
 
 .search-clear i {
@@ -372,9 +248,7 @@
   padding: 6px;
 
   display: flex;
-
   align-items: center;
-
   gap: 6px;
 
   flex-shrink: 0;
@@ -384,72 +258,34 @@
   background:
     linear-gradient(
       180deg,
-      rgba(
-        255,
-        255,
-        255,
-        0.095
-      ),
-      rgba(
-        255,
-        255,
-        255,
-        0.035
-      )
+      rgba(255, 255, 255, 0.095),
+      rgba(255, 255, 255, 0.035)
     ),
-    rgba(
-      12,
-      14,
-      24,
-      0.82
-    );
+    rgba(12, 14, 24, 0.82);
 
-  border:
-    1px solid
-    rgba(
-      255,
-      255,
-      255,
-      0.105
-    );
+  border: 1px solid rgba(255, 255, 255, 0.105);
 
   box-shadow:
-    0 22px 70px
-      rgba(
-        0,
-        0,
-        0,
-        0.28
-      );
+    0 22px 70px rgba(0, 0, 0, 0.28);
 
-  backdrop-filter:
-    blur(16px);
+  backdrop-filter: blur(16px);
 }
 
 .search-filter button {
   min-height: 48px;
 
-  padding:
-    0 18px;
+  padding: 0 18px;
 
   border-radius: 16px;
-
   border: none;
 
   background: transparent;
 
-  color:
-    rgba(
-      255,
-      255,
-      255,
-      0.66
-    );
+  color: rgba(255, 255, 255, 0.66);
 
   cursor: pointer;
 
   font-size: 0.9rem;
-
   font-weight: 950;
 
   transition:
@@ -461,14 +297,7 @@
 
 .search-filter button:hover {
   color: #fff;
-
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      0.075
-    );
+  background: rgba(255, 255, 255, 0.075);
 }
 
 .search-filter button.active {
@@ -482,20 +311,8 @@
     );
 
   box-shadow:
-    0 12px 32px
-      rgba(
-        244,
-        6,
-        18,
-        0.3
-      ),
-    inset 0 1px 0
-      rgba(
-        255,
-        255,
-        255,
-        0.14
-      );
+    0 12px 32px rgba(244, 6, 18, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 
@@ -505,191 +322,135 @@
 
 .review-filter {
   position: relative;
-
   z-index: 100;
 
   width: 260px;
-
   flex-shrink: 0;
 }
 
 .review-filter-label {
   display: block;
 
-  margin:
-    0 0 7px 6px;
+  margin: 0 0 7px 6px;
 
-  color:
-    rgba(
-      255,
-      255,
-      255,
-      0.46
-    );
+  color: rgba(255, 255, 255, 0.46);
 
   font-size: 0.67rem;
-
   font-weight: 900;
 
   letter-spacing: 0.055em;
-
   text-transform: uppercase;
 }
 
+
+/* MAIN BUTTON */
+
 .review-filter-button {
   width: 100%;
-
   min-height: 62px;
 
-  padding:
-    6px 14px;
+  padding: 6px 14px;
 
   display: flex;
-
   align-items: center;
-
   gap: 11px;
 
   border-radius: 22px;
 
-  border:
-    1px solid
-    rgba(
-      244,
-      6,
-      18,
-      0.38
-    );
+  /* SAME NEUTRAL BORDER STYLE AS OTHER CONTROLS */
+  border: 1px solid rgba(255, 255, 255, 0.105);
 
+  /*
+    IMPORTANT:
+    Solid/dark background instead of transparent red-tinted background.
+  */
   background:
     linear-gradient(
       180deg,
-      rgba(
-        255,
-        255,
-        255,
-        0.09
-      ),
-      rgba(
-        255,
-        255,
-        255,
-        0.035
-      )
+      rgba(255, 255, 255, 0.075),
+      rgba(255, 255, 255, 0.025)
     ),
-    rgba(
-      12,
-      14,
-      24,
-      0.9
-    );
+    #11131c;
 
   color: #fff;
 
   cursor: pointer;
 
-  box-shadow:
-    0 20px 55px
-      rgba(
-        0,
-        0,
-        0,
-        0.35
-      ),
-    0 0 22px
-      rgba(
-        229,
-        9,
-        20,
-        0.07
-      );
+  /* ONLY BLACK SHADOW */
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.28);
 
-  backdrop-filter:
-    blur(18px);
+  /* Remove backdrop-filter so red page background cannot bleed through */
+  backdrop-filter: none;
 
   transition:
+    background 0.22s ease,
     border-color 0.22s ease,
-    box-shadow 0.22s ease,
-    transform 0.22s ease;
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
 }
+
+
+/* HOVER */
 
 .review-filter-button:hover {
-  transform:
-    translateY(-1px);
+  transform: translateY(-1px);
 
-  border-color:
-    rgba(
-      244,
-      6,
-      18,
-      0.72
-    );
+  border-color: rgba(255, 255, 255, 0.18);
 
-  box-shadow:
-    0 0 30px
-      rgba(
-        229,
-        9,
-        20,
-        0.15
-      ),
-    0 22px 60px
-      rgba(
-        0,
-        0,
-        0,
-        0.4
-      );
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0.035)
+    ),
+    #11131c;
+
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.32);
 }
+
+
+/* WHEN DROPDOWN IS OPEN */
 
 .review-filter-button.open {
-  border-color:
-    #f40612;
+  /*
+    NO RED BORDER HERE.
+    It stays neutral when opened.
+  */
+  border-color: rgba(255, 255, 255, 0.2);
 
-  box-shadow:
-    0 0 30px
-      rgba(
-        244,
-        6,
-        18,
-        0.2
-      ),
-    0 22px 60px
-      rgba(
-        0,
-        0,
-        0,
-        0.42
-      );
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0.035)
+    ),
+    #11131c;
+
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.35);
 }
+
+
+/* RED ICON */
 
 .review-filter-icon {
   width: 36px;
   height: 36px;
 
   display: grid;
-
   place-items: center;
 
   flex-shrink: 0;
 
   border-radius: 50%;
 
-  background:
-    linear-gradient(
-      135deg,
-      #f40612,
-      #9e0010
-    );
+  background: linear-gradient(
+    135deg,
+    #f40612,
+    #9e0010
+  );
 
-  box-shadow:
-    0 8px 24px
-      rgba(
-        244,
-        6,
-        18,
-        0.26
-      );
+  /* NO GLOW */
+  box-shadow: none;
 
   color: #fff;
 }
@@ -698,9 +459,11 @@
   font-size: 1.1rem;
 }
 
+
+/* BUTTON TEXT */
+
 .review-filter-button-text {
   flex: 1;
-
   min-width: 0;
 
   text-align: left;
@@ -708,7 +471,6 @@
   color: #fff;
 
   font-size: 0.84rem;
-
   font-weight: 900;
 
   line-height: 1.2;
@@ -716,9 +478,11 @@
   white-space: nowrap;
 
   overflow: hidden;
-
   text-overflow: ellipsis;
 }
+
+
+/* ARROW */
 
 .review-chevron {
   flex-shrink: 0;
@@ -727,13 +491,11 @@
 
   font-size: 1.45rem;
 
-  transition:
-    transform 0.22s ease;
+  transition: transform 0.22s ease;
 }
 
 .review-chevron.open {
-  transform:
-    rotate(180deg);
+  transform: rotate(180deg);
 }
 
 
@@ -748,68 +510,36 @@
 
   pointer-events: auto;
 
-  top:
-    calc(100% + 12px);
-
+  top: calc(100% + 12px);
   right: 0;
 
   width: 390px;
 
-  max-width:
-    calc(100vw - 32px);
+  max-width: calc(100vw - 32px);
 
   padding: 14px;
 
   border-radius: 22px;
 
-  border:
-    1px solid
-    rgba(
-      255,
-      255,
-      255,
-      0.11
-    );
+  border: 1px solid rgba(255, 255, 255, 0.11);
 
   background:
     linear-gradient(
       180deg,
-      rgba(
-        25,
-        27,
-        36,
-        0.98
-      ),
-      rgba(
-        10,
-        11,
-        17,
-        0.99
-      )
+      rgba(25, 27, 36, 0.98),
+      rgba(10, 11, 17, 0.99)
     );
 
+  /*
+    Removed the red glow from the dropdown too.
+  */
   box-shadow:
-    0 30px 80px
-      rgba(
-        0,
-        0,
-        0,
-        0.62
-      ),
-    0 0 35px
-      rgba(
-        229,
-        9,
-        20,
-        0.08
-      );
+    0 30px 80px rgba(0, 0, 0, 0.62);
 
-  backdrop-filter:
-    blur(24px);
+  backdrop-filter: blur(24px);
 
   animation:
-    review-dropdown-in
-    0.18s ease-out;
+    review-dropdown-in 0.18s ease-out;
 }
 
 .review-dropdown::before {
@@ -825,26 +555,10 @@
 
   background: #171820;
 
-  border-left:
-    1px solid
-    rgba(
-      255,
-      255,
-      255,
-      0.1
-    );
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 
-  border-top:
-    1px solid
-    rgba(
-      255,
-      255,
-      255,
-      0.1
-    );
-
-  transform:
-    rotate(45deg);
+  transform: rotate(45deg);
 }
 
 @keyframes review-dropdown-in {
@@ -866,19 +580,11 @@
 }
 
 .review-dropdown-title {
-  padding:
-    4px 5px 12px;
+  padding: 4px 5px 12px;
 
-  color:
-    rgba(
-      255,
-      255,
-      255,
-      0.5
-    );
+  color: rgba(255, 255, 255, 0.5);
 
   font-size: 0.71rem;
-
   font-weight: 950;
 
   letter-spacing: 0.09em;
@@ -894,35 +600,19 @@
   pointer-events: auto;
 
   width: 100%;
-
   min-height: 86px;
 
   padding: 12px;
 
   display: flex;
-
   align-items: center;
-
   gap: 11px;
 
   border-radius: 17px;
 
-  border:
-    1px solid
-    rgba(
-      255,
-      255,
-      255,
-      0.075
-    );
+  border: 1px solid rgba(255, 255, 255, 0.075);
 
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      0.025
-    );
+  background: rgba(255, 255, 255, 0.025);
 
   color: #fff;
 
@@ -933,77 +623,35 @@
   transition:
     border-color 0.2s ease,
     background 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    transform 0.2s ease;
 }
 
-.review-option +
-.review-option {
+.review-option + .review-option {
   margin-top: 8px;
 }
 
 .review-option:hover {
-  transform:
-    translateY(-1px);
+  transform: translateY(-1px);
 
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      0.05
-    );
+  background: rgba(255, 255, 255, 0.05);
 
-  border-color:
-    rgba(
-      255,
-      255,
-      255,
-      0.13
-    );
+  border-color: rgba(255, 255, 255, 0.13);
 }
 
 .review-option.active {
-  border-color:
-    rgba(
-      244,
-      6,
-      18,
-      0.5
-    );
+  border-color: rgba(244, 6, 18, 0.5);
 
   background:
     linear-gradient(
       135deg,
-      rgba(
-        244,
-        6,
-        18,
-        0.12
-      ),
-      rgba(
-        255,
-        255,
-        255,
-        0.025
-      )
+      rgba(244, 6, 18, 0.12),
+      rgba(255, 255, 255, 0.025)
     );
 
-  box-shadow:
-    inset 0 0 25px
-      rgba(
-        244,
-        6,
-        18,
-        0.035
-      ),
-    0 0 25px
-      rgba(
-        244,
-        6,
-        18,
-        0.06
-      );
+  /*
+    No red outer glow.
+  */
+  box-shadow: none;
 }
 
 .review-option-check {
@@ -1011,46 +659,30 @@
   height: 24px;
 
   display: grid;
-
   place-items: center;
 
   flex-shrink: 0;
 
   border-radius: 50%;
 
-  border:
-    2px solid
-    rgba(
-      255,
-      255,
-      255,
-      0.12
-    );
+  border: 2px solid rgba(255, 255, 255, 0.12);
 
   color: #fff;
 }
 
-.review-option.active
-.review-option-check {
-  border-color:
-    #f40612;
+.review-option.active .review-option-check {
+  border-color: #f40612;
 
-  background:
-    #f40612;
+  background: #f40612;
 
-  box-shadow:
-    0 6px 18px
-      rgba(
-        244,
-        6,
-        18,
-        0.35
-      );
+  /*
+    Removed glow.
+  */
+  box-shadow: none;
 }
 
 .review-option-check i {
   font-size: 1rem;
-
   font-weight: 950;
 }
 
@@ -1059,32 +691,18 @@
   height: 42px;
 
   display: grid;
-
   place-items: center;
 
   flex-shrink: 0;
 
   border-radius: 50%;
 
-  color:
-    rgba(
-      255,
-      255,
-      255,
-      0.7
-    );
+  color: rgba(255, 255, 255, 0.7);
 
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      0.1
-    );
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.review-option.active
-.review-option-icon {
+.review-option.active .review-option-icon {
   color: #fff;
 
   background:
@@ -1094,14 +712,10 @@
       #97000b
     );
 
-  box-shadow:
-    0 8px 24px
-      rgba(
-        244,
-        6,
-        18,
-        0.25
-      );
+  /*
+    Removed glow.
+  */
+  box-shadow: none;
 }
 
 .review-option-icon i {
@@ -1110,11 +724,9 @@
 
 .review-option-content {
   flex: 1;
-
   min-width: 0;
 
   display: flex;
-
   flex-direction: column;
 
   gap: 4px;
@@ -1124,23 +736,15 @@
   color: #fff;
 
   font-size: 0.9rem;
-
   font-weight: 900;
 
   line-height: 1.2;
 }
 
 .review-option-content small {
-  color:
-    rgba(
-      255,
-      255,
-      255,
-      0.46
-    );
+  color: rgba(255, 255, 255, 0.46);
 
   font-size: 0.74rem;
-
   font-weight: 700;
 
   line-height: 1.3;
@@ -1149,31 +753,17 @@
 .review-status {
   min-width: 42px;
 
-  padding:
-    6px 10px;
+  padding: 6px 10px;
 
   flex-shrink: 0;
 
   border-radius: 999px;
 
-  color:
-    rgba(
-      255,
-      255,
-      255,
-      0.55
-    );
+  color: rgba(255, 255, 255, 0.55);
 
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      0.075
-    );
+  background: rgba(255, 255, 255, 0.075);
 
   font-size: 0.67rem;
-
   font-weight: 950;
 
   text-align: center;
@@ -1191,14 +781,10 @@
       #97000b
     );
 
-  box-shadow:
-    0 7px 20px
-      rgba(
-        244,
-        6,
-        18,
-        0.24
-      );
+  /*
+    Removed glow.
+  */
+  box-shadow: none;
 }
 
 
@@ -1214,7 +800,6 @@
   display: grid;
 
   place-items: center;
-
   align-content: center;
 
   text-align: center;
@@ -1233,12 +818,7 @@
 
   color: #fff;
 
-  font-size:
-    clamp(
-      1.8rem,
-      3vw,
-      3rem
-    );
+  font-size: clamp(1.8rem, 3vw, 3rem);
 
   line-height: 1;
 
@@ -1248,16 +828,9 @@
 }
 
 .search-state p {
-  margin:
-    12px 0 0;
+  margin: 12px 0 0;
 
-  color:
-    rgba(
-      255,
-      255,
-      255,
-      0.62
-    );
+  color: rgba(255, 255, 255, 0.62);
 
   font-weight: 800;
 }
@@ -1270,27 +843,17 @@
 
   border-radius: 50%;
 
-  border:
-    3px solid
-    rgba(
-      255,
-      255,
-      255,
-      0.14
-    );
+  border: 3px solid rgba(255, 255, 255, 0.14);
 
-  border-top-color:
-    #f40612;
+  border-top-color: #f40612;
 
   animation:
-    search-spin
-    0.8s linear infinite;
+    search-spin 0.8s linear infinite;
 }
 
 @keyframes search-spin {
   to {
-    transform:
-      rotate(360deg);
+    transform: rotate(360deg);
   }
 }
 
@@ -1308,16 +871,9 @@
 }
 
 .did-you-mean span {
-  color:
-    rgba(
-      255,
-      255,
-      255,
-      0.68
-    );
+  color: rgba(255, 255, 255, 0.68);
 
   font-size: 0.78rem;
-
   font-weight: 950;
 
   letter-spacing: 0.15em;
@@ -1326,17 +882,11 @@
 }
 
 .did-you-mean h2 {
-  margin:
-    8px 0 0;
+  margin: 8px 0 0;
 
   color: #fff;
 
-  font-size:
-    clamp(
-      2rem,
-      4vw,
-      3.8rem
-    );
+  font-size: clamp(2rem, 4vw, 3.8rem);
 
   line-height: 0.95;
 
@@ -1358,10 +908,7 @@
   grid-template-columns:
     repeat(
       auto-fill,
-      minmax(
-        168px,
-        1fr
-      )
+      minmax(168px, 1fr)
     );
 
   gap: 24px;
@@ -1384,8 +931,7 @@
     translateY(-8px)
     scale(1.02);
 
-  filter:
-    brightness(1.08);
+  filter: brightness(1.08);
 }
 
 .search-card-poster {
@@ -1400,12 +946,7 @@
   background:
     radial-gradient(
       circle at 30% 20%,
-      rgba(
-        244,
-        6,
-        18,
-        0.32
-      ),
+      rgba(244, 6, 18, 0.32),
       transparent 36%
     ),
     linear-gradient(
@@ -1414,23 +955,10 @@
       #07080d
     );
 
-  border:
-    1px solid
-    rgba(
-      255,
-      255,
-      255,
-      0.09
-    );
+  border: 1px solid rgba(255, 255, 255, 0.09);
 
   box-shadow:
-    0 24px 62px
-      rgba(
-        0,
-        0,
-        0,
-        0.4
-      );
+    0 24px 62px rgba(0, 0, 0, 0.4);
 }
 
 .search-card-poster img {
@@ -1445,17 +973,14 @@
     transform 0.35s ease;
 }
 
-.search-card:hover
-.search-card-poster img {
-  transform:
-    scale(1.06);
+.search-card:hover .search-card-poster img {
+  transform: scale(1.06);
 }
 
 .search-card-poster::after {
   content: "";
 
   position: absolute;
-
   inset: 0;
 
   opacity: 0;
@@ -1464,21 +989,11 @@
     linear-gradient(
       180deg,
       transparent 45%,
-      rgba(
-        0,
-        0,
-        0,
-        0.82
-      ) 100%
+      rgba(0, 0, 0, 0.82) 100%
     ),
     linear-gradient(
       135deg,
-      rgba(
-        244,
-        6,
-        18,
-        0.18
-      ),
+      rgba(244, 6, 18, 0.18),
       transparent 52%
     );
 
@@ -1486,8 +1001,7 @@
     opacity 0.25s ease;
 }
 
-.search-card:hover
-.search-card-poster::after {
+.search-card:hover .search-card-poster::after {
   opacity: 1;
 }
 
@@ -1502,34 +1016,29 @@
 
   display: flex;
 
-  justify-content:
-    space-between;
+  justify-content: space-between;
 
   gap: 8px;
 
   opacity: 0;
 
-  transform:
-    translateY(8px);
+  transform: translateY(8px);
 
   transition:
     opacity 0.25s ease,
     transform 0.25s ease;
 }
 
-.search-card:hover
-.search-card-overlay {
+.search-card:hover .search-card-overlay {
   opacity: 1;
 
-  transform:
-    translateY(0);
+  transform: translateY(0);
 }
 
 .search-card-overlay span {
   min-height: 30px;
 
-  padding:
-    0 9px;
+  padding: 0 9px;
 
   display: inline-flex;
 
@@ -1541,28 +1050,13 @@
 
   color: #fff;
 
-  background:
-    rgba(
-      0,
-      0,
-      0,
-      0.72
-    );
+  background: rgba(0, 0, 0, 0.72);
 
-  border:
-    1px solid
-    rgba(
-      255,
-      255,
-      255,
-      0.12
-    );
+  border: 1px solid rgba(255, 255, 255, 0.12);
 
-  backdrop-filter:
-    blur(12px);
+  backdrop-filter: blur(12px);
 
   font-size: 0.78rem;
-
   font-weight: 950;
 }
 
@@ -1571,8 +1065,7 @@
 }
 
 .search-card-info {
-  padding:
-    12px 2px 0;
+  padding: 12px 2px 0;
 }
 
 .search-card-info h3 {
@@ -1583,38 +1076,26 @@
   color: #fff;
 
   font-size: 0.98rem;
-
   font-weight: 950;
 
   line-height: 1.25;
 
   letter-spacing: -0.025em;
 
-  display:
-    -webkit-box;
+  display: -webkit-box;
 
   -webkit-line-clamp: 2;
-
-  -webkit-box-orient:
-    vertical;
+  -webkit-box-orient: vertical;
 
   overflow: hidden;
 }
 
 .search-card-info p {
-  margin:
-    6px 0 0;
+  margin: 6px 0 0;
 
-  color:
-    rgba(
-      255,
-      255,
-      255,
-      0.58
-    );
+  color: rgba(255, 255, 255, 0.58);
 
   font-size: 0.84rem;
-
   font-weight: 800;
 }
 
@@ -1656,8 +1137,7 @@
 
 @media (max-width: 900px) {
   .search-page {
-    padding:
-      46px 16px 70px;
+    padding: 46px 16px 70px;
   }
 
   .search-hero {
@@ -1665,12 +1145,7 @@
   }
 
   .search-hero h1 {
-    font-size:
-      clamp(
-        2.6rem,
-        10vw,
-        4.8rem
-      );
+    font-size: clamp(2.6rem, 10vw, 4.8rem);
   }
 
   .search-hero p {
@@ -1708,8 +1183,7 @@
 
     min-height: 46px;
 
-    padding:
-      0 12px;
+    padding: 0 12px;
   }
 
   .review-filter {
@@ -1717,8 +1191,7 @@
   }
 
   .review-filter-label {
-    margin:
-      2px 0 6px 4px;
+    margin: 2px 0 6px 4px;
 
     font-size: 0.64rem;
   }
@@ -1728,8 +1201,7 @@
 
     border-radius: 18px;
 
-    padding:
-      6px 14px;
+    padding: 6px 14px;
   }
 
   .review-filter-button-text {
@@ -1741,13 +1213,9 @@
   }
 
   .review-dropdown {
-    top:
-      calc(
-        100% + 10px
-      );
+    top: calc(100% + 10px);
 
     left: 0;
-
     right: auto;
 
     width: 100%;
@@ -1783,10 +1251,7 @@
     grid-template-columns:
       repeat(
         auto-fill,
-        minmax(
-          138px,
-          1fr
-        )
+        minmax(138px, 1fr)
       );
 
     gap: 16px;
@@ -1800,13 +1265,9 @@
 
 @media (max-width: 600px) {
   .search-page {
-    min-height:
-      calc(
-        100vh - 70px
-      );
+    min-height: calc(100vh - 70px);
 
-    padding:
-      34px 12px 60px;
+    padding: 34px 12px 60px;
   }
 
   .search-hero {
@@ -1820,17 +1281,11 @@
   }
 
   .search-hero h1 {
-    font-size:
-      clamp(
-        2.25rem,
-        12vw,
-        3.6rem
-      );
+    font-size: clamp(2.25rem, 12vw, 3.6rem);
 
     line-height: 0.92;
 
-    letter-spacing:
-      -0.065em;
+    letter-spacing: -0.065em;
   }
 
   .search-hero p {
@@ -1852,8 +1307,7 @@
   .search-box {
     min-height: 54px;
 
-    padding:
-      0 12px 0 16px;
+    padding: 0 12px 0 16px;
 
     gap: 10px;
 
@@ -1886,8 +1340,7 @@
   .search-filter button {
     min-height: 44px;
 
-    padding:
-      0 8px;
+    padding: 0 8px;
 
     border-radius: 13px;
 
@@ -1901,8 +1354,7 @@
   .review-filter-button {
     min-height: 54px;
 
-    padding:
-      6px 12px;
+    padding: 6px 12px;
 
     border-radius: 16px;
   }
@@ -1927,8 +1379,7 @@
   }
 
   .review-dropdown-title {
-    padding:
-      3px 4px 10px;
+    padding: 3px 4px 10px;
 
     font-size: 0.64rem;
   }
@@ -1980,8 +1431,7 @@
   .review-status {
     min-width: 36px;
 
-    padding:
-      5px 7px;
+    padding: 5px 7px;
 
     font-size: 0.6rem;
   }
@@ -1990,14 +1440,10 @@
     grid-template-columns:
       repeat(
         2,
-        minmax(
-          0,
-          1fr
-        )
+        minmax(0, 1fr)
       );
 
-    gap:
-      18px 12px;
+    gap: 18px 12px;
   }
 
   .search-card-poster {
@@ -2011,8 +1457,7 @@
   }
 
   .search-card-info {
-    padding:
-      9px 2px 0;
+    padding: 9px 2px 0;
   }
 
   .search-card-info h3 {
@@ -2036,8 +1481,7 @@
   .search-card-overlay span {
     min-height: 26px;
 
-    padding:
-      0 7px;
+    padding: 0 7px;
 
     font-size: 0.68rem;
   }
@@ -2045,8 +1489,7 @@
   .search-state {
     min-height: 220px;
 
-    padding:
-      10px 0;
+    padding: 10px 0;
   }
 
   .search-state i {
@@ -2054,12 +1497,7 @@
   }
 
   .search-state h2 {
-    font-size:
-      clamp(
-        1.7rem,
-        8vw,
-        2.5rem
-      );
+    font-size: clamp(1.7rem, 8vw, 2.5rem);
   }
 
   .search-state p {
@@ -2079,12 +1517,7 @@
   }
 
   .did-you-mean h2 {
-    font-size:
-      clamp(
-        1.8rem,
-        9vw,
-        2.8rem
-      );
+    font-size: clamp(1.8rem, 9vw, 2.8rem);
   }
 }
 
@@ -2100,12 +1533,7 @@
   }
 
   .search-hero h1 {
-    font-size:
-      clamp(
-        2.05rem,
-        12vw,
-        3.2rem
-      );
+    font-size: clamp(2.05rem, 12vw, 3.2rem);
   }
 
   .search-hero p {
@@ -2113,8 +1541,7 @@
   }
 
   .search-filter button {
-    padding:
-      0 6px;
+    padding: 0 6px;
 
     font-size: 0.75rem;
   }
@@ -2145,14 +1572,12 @@
   .review-status {
     min-width: 32px;
 
-    padding:
-      5px 6px;
+    padding: 5px 6px;
 
     font-size: 0.56rem;
   }
 
   .search-grid {
-    gap:
-      16px 10px;
+    gap: 16px 10px;
   }
 }
