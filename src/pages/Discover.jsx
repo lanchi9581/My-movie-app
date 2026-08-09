@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import MovieCard from "../components/MovieCard/MovieCard";
 import CustomSelect from "../components/CustomSelect/CustomSelect";
 import "./Discover.css";
@@ -52,8 +53,22 @@ function normalizeItem(item, type) {
   };
 }
 
+function getMediaTypeFromPath(pathname) {
+  if (pathname.includes("/discover/series")) {
+    return "tv";
+  }
+
+  return "movie";
+}
+
 function Discover() {
-  const [mediaType, setMediaType] = useState("movie");
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [mediaType, setMediaType] = useState(() =>
+    getMediaTypeFromPath(location.pathname)
+  );
+
   const [genre, setGenre] = useState("all");
   const [sortBy, setSortBy] = useState("popularity.desc");
   const [query, setQuery] = useState("");
@@ -67,42 +82,78 @@ function Discover() {
   const loadingRef = useRef(false);
   const seenIdsRef = useRef(new Set());
 
-  const genres = mediaType === "movie" ? MOVIE_GENRES : SERIES_GENRES;
+  const genres =
+    mediaType === "movie"
+      ? MOVIE_GENRES
+      : SERIES_GENRES;
+
   const isSearching = query.trim().length > 1;
+
   const hasMore = page <= totalPages;
 
-  const title = mediaType === "movie" ? "Discover Movies" : "Discover Series";
+  const title =
+    mediaType === "movie"
+      ? "Discover Movies"
+      : "Discover Series";
 
   const activeSortOptions = useMemo(() => {
     if (mediaType === "movie") {
-      return SORT_OPTIONS.filter((option) => option.value !== "first_air_date.desc");
+      return SORT_OPTIONS.filter(
+        (option) =>
+          option.value !== "first_air_date.desc"
+      );
     }
 
     return SORT_OPTIONS.filter(
-      (option) => option.value !== "primary_release_date.desc"
+      (option) =>
+        option.value !== "primary_release_date.desc"
     );
   }, [mediaType]);
+
+  useEffect(() => {
+    const nextType =
+      getMediaTypeFromPath(location.pathname);
+
+    if (nextType !== mediaType) {
+      setMediaType(nextType);
+      setGenre("all");
+      setQuery("");
+    }
+  }, [location.pathname, mediaType]);
 
   const fetchItems = useCallback(
     async (pageNumber) => {
       if (loadingRef.current) return;
 
       loadingRef.current = true;
-      setStatus(pageNumber === 1 ? "loading" : "loading-more");
+
+      setStatus(
+        pageNumber === 1
+          ? "loading"
+          : "loading-more"
+      );
 
       try {
         const cleanQuery = query.trim();
+
         const endpoint = isSearching
           ? `/search/${mediaType}`
           : `/discover/${mediaType}`;
 
-        const genreParam = !isSearching && genre !== "all" ? `&with_genres=${genre}` : "";
-        const sortParam = !isSearching ? `&sort_by=${sortBy}` : "";
+        const genreParam =
+          !isSearching && genre !== "all"
+            ? `&with_genres=${genre}`
+            : "";
+
+        const sortParam =
+          !isSearching
+            ? `&sort_by=${sortBy}`
+            : "";
 
         const qualityFilter =
-            mediaType === "movie"
-                ? "&vote_count.gte=1000"
-                : "&vote_count.gte=400";
+          mediaType === "movie"
+            ? "&vote_count.gte=1000"
+            : "&vote_count.gte=400";
 
         const searchParam = isSearching
           ? `&query=${encodeURIComponent(cleanQuery)}`
@@ -113,39 +164,74 @@ function Discover() {
         );
 
         if (!response.ok) {
-          throw new Error("Failed to load discover feed");
+          throw new Error(
+            "Failed to load discover feed"
+          );
         }
 
         const data = await response.json();
-        const results = Array.isArray(data.results) ? data.results : [];
+
+        const results = Array.isArray(data.results)
+          ? data.results
+          : [];
 
         const cleanResults = results
-          .map((item) => normalizeItem(item, mediaType))
+          .map((item) =>
+            normalizeItem(item, mediaType)
+          )
           .filter((item) => {
-            if (!item?.id || !item.poster_path) return false;
+            if (!item?.id || !item.poster_path) {
+              return false;
+            }
 
-            const key = `${mediaType}-${item.id}`;
-            if (seenIdsRef.current.has(key)) return false;
+            const key =
+              `${mediaType}-${item.id}`;
+
+            if (
+              seenIdsRef.current.has(key)
+            ) {
+              return false;
+            }
 
             seenIdsRef.current.add(key);
+
             return true;
           });
 
         setItems((prev) =>
-          pageNumber === 1 ? cleanResults : [...prev, ...cleanResults]
+          pageNumber === 1
+            ? cleanResults
+            : [...prev, ...cleanResults]
         );
 
-        setTotalPages(Math.min(data.total_pages || 1, 500));
+        setTotalPages(
+          Math.min(
+            data.total_pages || 1,
+            500
+          )
+        );
+
         setPage(pageNumber + 1);
+
         setStatus("success");
       } catch (error) {
-        console.error("Discover page error:", error);
+        console.error(
+          "Discover page error:",
+          error
+        );
+
         setStatus("error");
       } finally {
         loadingRef.current = false;
       }
     },
-    [mediaType, genre, sortBy, query, isSearching]
+    [
+      mediaType,
+      genre,
+      sortBy,
+      query,
+      isSearching,
+    ]
   );
 
   useEffect(() => {
@@ -154,81 +240,128 @@ function Discover() {
       setPage(1);
       setTotalPages(1);
       setStatus("idle");
-      seenIdsRef.current = new Set();
+
+      seenIdsRef.current =
+        new Set();
+
       fetchItems(1);
     }, isSearching ? 350 : 0);
 
-    return () => clearTimeout(timeout);
+    return () =>
+      clearTimeout(timeout);
   }, [fetchItems, isSearching]);
 
   useEffect(() => {
-    if (mediaType === "movie" && sortBy === "first_air_date.desc") {
+    if (
+      mediaType === "movie" &&
+      sortBy === "first_air_date.desc"
+    ) {
       setSortBy("popularity.desc");
     }
 
-    if (mediaType === "tv" && sortBy === "primary_release_date.desc") {
+    if (
+      mediaType === "tv" &&
+      sortBy ===
+        "primary_release_date.desc"
+    ) {
       setSortBy("popularity.desc");
     }
   }, [mediaType, sortBy]);
 
   function handleTypeChange(nextType) {
+    if (nextType === mediaType) {
+      return;
+    }
+
     setMediaType(nextType);
     setGenre("all");
     setQuery("");
+
+    navigate(
+      nextType === "movie"
+        ? "/discover/movies"
+        : "/discover/series"
+    );
   }
 
   const lastItemRef = useCallback(
     (node) => {
-      if (status === "loading" || status === "loading-more") return;
+      if (
+        status === "loading" ||
+        status === "loading-more"
+      ) {
+        return;
+      }
 
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
 
-      observerRef.current = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting && hasMore && !loadingRef.current) {
-            fetchItems(page);
+      observerRef.current =
+        new IntersectionObserver(
+          (entries) => {
+            if (
+              entries[0].isIntersecting &&
+              hasMore &&
+              !loadingRef.current
+            ) {
+              fetchItems(page);
+            }
+          },
+          {
+            root: null,
+            rootMargin: "700px",
+            threshold: 0.01,
           }
-        },
-        {
-          root: null,
-          rootMargin: "700px",
-          threshold: 0.01,
-        }
-      );
+        );
 
       if (node) {
         observerRef.current.observe(node);
       }
     },
-    [fetchItems, hasMore, page, status]
+    [
+      fetchItems,
+      hasMore,
+      page,
+      status,
+    ]
   );
 
   return (
-    <main className={`discover-page discover-${mediaType}`}>
+    <main
+      className={`discover-page discover-${mediaType}`}
+    >
       <section className="discover-top">
         <div className="discover-intro">
-          <span className="discover-kicker">
+          <div className="discover-kicker">
             <i className="bx bx-compass"></i>
             Prestige Discover
-          </span>
+          </div>
 
           <h1>{title}</h1>
 
           <p>
-            Search, filter and explore a premium endless feed of movies and
-            series powered by TMDB.
+            Search, filter and explore a premium endless
+            feed of movies and series powered by TMDB.
           </p>
         </div>
 
-        <div className="discover-tabs" aria-label="Discover type">
+        <div
+          className="discover-tabs"
+          aria-label="Discover type"
+        >
           {TYPE_OPTIONS.map((option) => (
             <button
               key={option.value}
               type="button"
-              className={mediaType === option.value ? "active" : ""}
-              onClick={() => handleTypeChange(option.value)}
+              className={
+                mediaType === option.value
+                  ? "active"
+                  : ""
+              }
+              onClick={() =>
+                handleTypeChange(option.value)
+              }
             >
               {option.label}
             </button>
@@ -239,13 +372,18 @@ function Discover() {
       <section className="discover-filter-bar">
         <div className="discover-search">
           <i className="bx bx-search"></i>
+
           <input
             type="search"
             value={query}
             placeholder={
-              mediaType === "movie" ? "Search movies..." : "Search series..."
+              mediaType === "movie"
+                ? "Search movies..."
+                : "Search series..."
             }
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) =>
+              setQuery(event.target.value)
+            }
           />
         </div>
 
@@ -267,30 +405,40 @@ function Discover() {
       {items.length > 0 && (
         <section className="discover-grid">
           {items.map((item, index) => {
-            const isLast = index === items.length - 1;
+            const isLast =
+              index === items.length - 1;
 
             return (
               <div
                 key={`${item.media_type}-${item.id}`}
-                ref={isLast ? lastItemRef : null}
+                ref={
+                  isLast
+                    ? lastItemRef
+                    : null
+                }
                 className="discover-card-wrap"
               >
-                <MovieCard movie={item} index={index} />
+                <MovieCard
+                  movie={item}
+                  index={index}
+                />
               </div>
             );
           })}
         </section>
       )}
 
-      {!items.length && status !== "loading" && (
-        <div className="discover-empty">
-          {status === "error"
-            ? "Something went wrong. Try again."
-            : "No titles found."}
-        </div>
-      )}
+      {!items.length &&
+        status !== "loading" && (
+          <div className="discover-empty">
+            {status === "error"
+              ? "Something went wrong. Try again."
+              : "No titles found."}
+          </div>
+        )}
 
-      {(status === "loading" || status === "loading-more") && (
+      {(status === "loading" ||
+        status === "loading-more") && (
         <div className="discover-loader">
           <span></span>
           Loading more titles...

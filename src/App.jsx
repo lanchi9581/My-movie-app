@@ -51,6 +51,8 @@ function App() {
           <Route path="/series" element={<TvShows />} />
 
           <Route path="/discover" element={<Discover />} />
+          <Route path="/discover/movies" element={<Discover />} />
+          <Route path="/discover/series" element={<Discover />} />
 
           <Route path="/search" element={<SearchPage />} />
           <Route path="/favorites" element={<FavoritePage />} />
