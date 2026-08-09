@@ -1,25 +1,63 @@
+
 .search-page {
   min-height: calc(100vh - 90px);
+
   padding: 72px 28px 90px;
+
   position: relative;
+
   color: #fff;
+
   background:
-    radial-gradient(circle at 50% 0%, rgba(196, 0, 18, 0.18), transparent 28%),
-    radial-gradient(circle at 12% 28%, rgba(196, 0, 18, 0.12), transparent 26%),
-    linear-gradient(180deg, #05060a 0%, #070911 52%, #040509 100%);
-  overflow: hidden;
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(196, 0, 18, 0.18),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 12% 28%,
+      rgba(196, 0, 18, 0.12),
+      transparent 26%
+    ),
+    linear-gradient(
+      180deg,
+      #05060a 0%,
+      #070911 52%,
+      #040509 100%
+    );
+
+  overflow-x: hidden;
+  overflow-y: visible;
 }
 
 .search-page::before {
   content: "";
+
   position: absolute;
   inset: 0;
+
   pointer-events: none;
+
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.35), transparent 35%, rgba(0, 0, 0, 0.35)),
-    radial-gradient(circle at 50% 12%, rgba(229, 9, 20, 0.14), transparent 30%);
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.35),
+      transparent 35%,
+      rgba(0, 0, 0, 0.35)
+    ),
+    radial-gradient(
+      circle at 50% 12%,
+      rgba(229, 9, 20, 0.14),
+      transparent 30%
+    );
+
   opacity: 0.9;
 }
+
+
+/* =========================================================
+   SHARED LAYOUT
+========================================================= */
 
 .search-hero,
 .search-controls,
@@ -27,73 +65,183 @@
 .search-state,
 .did-you-mean {
   position: relative;
-  z-index: 2;
+
   width: min(1500px, 100%);
+
   margin-left: auto;
   margin-right: auto;
 }
 
+
+/* =========================================================
+   HERO
+========================================================= */
+
 .search-hero {
+  z-index: 2;
+
   max-width: 900px;
+
   text-align: center;
+
   margin-bottom: 28px;
 }
 
 .search-hero span {
   display: inline-flex;
+
   margin-bottom: 14px;
+
   color: #ff4b55;
+
   font-size: 0.78rem;
   font-weight: 950;
+
   letter-spacing: 0.16em;
+
   text-transform: uppercase;
 }
 
 .search-hero h1 {
   margin: 0;
+
   color: #fff;
-  font-size: clamp(2.8rem, 6vw, 6rem);
+
+  font-size: clamp(
+    2.8rem,
+    6vw,
+    6rem
+  );
+
   line-height: 0.9;
+
   letter-spacing: -0.075em;
+
   text-transform: uppercase;
+
   text-shadow:
-    0 10px 36px rgba(0, 0, 0, 0.7),
-    0 0 30px rgba(229, 9, 20, 0.18);
+    0 10px 36px
+      rgba(0, 0, 0, 0.7),
+    0 0 30px
+      rgba(229, 9, 20, 0.18);
 }
 
 .search-hero p {
   max-width: 680px;
-  margin: 18px auto 0;
-  color: rgba(255, 255, 255, 0.66);
+
+  margin:
+    18px auto 0;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.66
+    );
+
   font-size: 1rem;
+
   line-height: 1.65;
+
   font-weight: 700;
 }
 
+
+/* =========================================================
+   SEARCH CONTROLS
+========================================================= */
+
 .search-controls {
-  max-width: 1120px;
+  z-index: 50;
+
+  max-width: 1320px;
+
   margin-bottom: 42px;
+
   display: flex;
-  gap: 16px;
-  align-items: center;
+
+  gap: 14px;
+
+  align-items: flex-end;
+
+  overflow: visible;
 }
+
+
+/* =========================================================
+   SEARCH BAR
+========================================================= */
 
 .search-box {
   flex: 1;
+
+  min-width: 0;
+
   min-height: 62px;
-  padding: 0 18px 0 22px;
+
+  padding:
+    0 18px 0 22px;
+
   display: flex;
+
   align-items: center;
+
   gap: 14px;
+
   border-radius: 22px;
+
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.04)),
-    rgba(12, 14, 24, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.105);
+    linear-gradient(
+      180deg,
+      rgba(
+        255,
+        255,
+        255,
+        0.105
+      ),
+      rgba(
+        255,
+        255,
+        255,
+        0.04
+      )
+    ),
+    rgba(
+      12,
+      14,
+      24,
+      0.82
+    );
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.105
+    );
+
   box-shadow:
-    0 22px 70px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.045);
-  backdrop-filter: blur(16px);
+    0 22px 70px
+      rgba(
+        0,
+        0,
+        0,
+        0.35
+      ),
+    inset 0 1px 0
+      rgba(
+        255,
+        255,
+        255,
+        0.045
+      );
+
+  backdrop-filter:
+    blur(16px);
+
   transition:
     transform 0.25s ease,
     border-color 0.25s ease,
@@ -101,83 +249,209 @@
 }
 
 .search-box:focus-within {
-  transform: translateY(-2px);
-  border-color: rgba(244, 6, 18, 0.55);
+  transform:
+    translateY(-2px);
+
+  border-color:
+    rgba(
+      244,
+      6,
+      18,
+      0.55
+    );
+
   box-shadow:
-    0 0 34px rgba(229, 9, 20, 0.24),
-    0 22px 70px rgba(0, 0, 0, 0.48);
+    0 0 34px
+      rgba(
+        229,
+        9,
+        20,
+        0.24
+      ),
+    0 22px 70px
+      rgba(
+        0,
+        0,
+        0,
+        0.48
+      );
 }
 
 .search-box > i {
+  flex-shrink: 0;
+
   color: #ff1d2d;
+
   font-size: 1.55rem;
 }
 
 .search-box input {
   width: 100%;
+
   min-width: 0;
+
   background: transparent;
+
   border: none;
+
   outline: none;
+
   color: #fff;
+
   font-size: 1rem;
+
   font-weight: 850;
 }
 
 .search-box input::placeholder {
-  color: rgba(255, 255, 255, 0.48);
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.48
+    );
 }
 
 .search-clear {
   width: 38px;
   height: 38px;
+
   display: grid;
+
   place-items: center;
+
   flex-shrink: 0;
+
   border-radius: 50%;
+
   border: none;
+
   color: #fff;
-  background: rgba(255, 255, 255, 0.095);
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.095
+    );
+
   cursor: pointer;
+
   transition:
     background 0.2s ease,
     transform 0.2s ease;
 }
 
 .search-clear:hover {
-  transform: scale(1.06);
-  background: rgba(244, 6, 18, 0.34);
+  transform:
+    scale(1.06);
+
+  background:
+    rgba(
+      244,
+      6,
+      18,
+      0.34
+    );
 }
 
 .search-clear i {
   font-size: 1.35rem;
 }
 
+
+/* =========================================================
+   ALL / MOVIES / SERIES
+========================================================= */
+
 .search-filter {
   min-height: 62px;
+
   padding: 6px;
+
   display: flex;
+
   align-items: center;
+
   gap: 6px;
+
+  flex-shrink: 0;
+
   border-radius: 22px;
+
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.095), rgba(255, 255, 255, 0.035)),
-    rgba(12, 14, 24, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.105);
-  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(16px);
+    linear-gradient(
+      180deg,
+      rgba(
+        255,
+        255,
+        255,
+        0.095
+      ),
+      rgba(
+        255,
+        255,
+        255,
+        0.035
+      )
+    ),
+    rgba(
+      12,
+      14,
+      24,
+      0.82
+    );
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.105
+    );
+
+  box-shadow:
+    0 22px 70px
+      rgba(
+        0,
+        0,
+        0,
+        0.28
+      );
+
+  backdrop-filter:
+    blur(16px);
 }
 
 .search-filter button {
   min-height: 48px;
-  padding: 0 18px;
+
+  padding:
+    0 18px;
+
   border-radius: 16px;
+
   border: none;
+
   background: transparent;
-  color: rgba(255, 255, 255, 0.66);
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.66
+    );
+
   cursor: pointer;
+
   font-size: 0.9rem;
+
   font-weight: 950;
+
   transition:
     color 0.22s ease,
     background 0.22s ease,
@@ -187,176 +461,1108 @@
 
 .search-filter button:hover {
   color: #fff;
-  background: rgba(255, 255, 255, 0.075);
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.075
+    );
 }
 
 .search-filter button.active {
   color: #fff;
-  background: linear-gradient(135deg, #f40612, #97000b);
+
+  background:
+    linear-gradient(
+      135deg,
+      #f40612,
+      #97000b
+    );
+
   box-shadow:
-    0 12px 32px rgba(244, 6, 18, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    0 12px 32px
+      rgba(
+        244,
+        6,
+        18,
+        0.3
+      ),
+    inset 0 1px 0
+      rgba(
+        255,
+        255,
+        255,
+        0.14
+      );
 }
 
-.search-state {
-  min-height: 260px;
+
+/* =========================================================
+   REVIEW FILTER
+========================================================= */
+
+.review-filter {
+  position: relative;
+
+  z-index: 100;
+
+  width: 260px;
+
+  flex-shrink: 0;
+}
+
+.review-filter-label {
+  display: block;
+
+  margin:
+    0 0 7px 6px;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.46
+    );
+
+  font-size: 0.67rem;
+
+  font-weight: 900;
+
+  letter-spacing: 0.055em;
+
+  text-transform: uppercase;
+}
+
+.review-filter-button {
+  width: 100%;
+
+  min-height: 62px;
+
+  padding:
+    6px 14px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+
+  border-radius: 22px;
+
+  border:
+    1px solid
+    rgba(
+      244,
+      6,
+      18,
+      0.38
+    );
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(
+        255,
+        255,
+        255,
+        0.09
+      ),
+      rgba(
+        255,
+        255,
+        255,
+        0.035
+      )
+    ),
+    rgba(
+      12,
+      14,
+      24,
+      0.9
+    );
+
+  color: #fff;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 20px 55px
+      rgba(
+        0,
+        0,
+        0,
+        0.35
+      ),
+    0 0 22px
+      rgba(
+        229,
+        9,
+        20,
+        0.07
+      );
+
+  backdrop-filter:
+    blur(18px);
+
+  transition:
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    transform 0.22s ease;
+}
+
+.review-filter-button:hover {
+  transform:
+    translateY(-1px);
+
+  border-color:
+    rgba(
+      244,
+      6,
+      18,
+      0.72
+    );
+
+  box-shadow:
+    0 0 30px
+      rgba(
+        229,
+        9,
+        20,
+        0.15
+      ),
+    0 22px 60px
+      rgba(
+        0,
+        0,
+        0,
+        0.4
+      );
+}
+
+.review-filter-button.open {
+  border-color:
+    #f40612;
+
+  box-shadow:
+    0 0 30px
+      rgba(
+        244,
+        6,
+        18,
+        0.2
+      ),
+    0 22px 60px
+      rgba(
+        0,
+        0,
+        0,
+        0.42
+      );
+}
+
+.review-filter-icon {
+  width: 36px;
+  height: 36px;
+
   display: grid;
+
   place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f40612,
+      #9e0010
+    );
+
+  box-shadow:
+    0 8px 24px
+      rgba(
+        244,
+        6,
+        18,
+        0.26
+      );
+
+  color: #fff;
+}
+
+.review-filter-icon i {
+  font-size: 1.1rem;
+}
+
+.review-filter-button-text {
+  flex: 1;
+
+  min-width: 0;
+
+  text-align: left;
+
+  color: #fff;
+
+  font-size: 0.84rem;
+
+  font-weight: 900;
+
+  line-height: 1.2;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+.review-chevron {
+  flex-shrink: 0;
+
+  color: #ff1d2d;
+
+  font-size: 1.45rem;
+
+  transition:
+    transform 0.22s ease;
+}
+
+.review-chevron.open {
+  transform:
+    rotate(180deg);
+}
+
+
+/* =========================================================
+   REVIEW DROPDOWN
+========================================================= */
+
+.review-dropdown {
+  position: absolute;
+
+  z-index: 200;
+
+  pointer-events: auto;
+
+  top:
+    calc(100% + 12px);
+
+  right: 0;
+
+  width: 390px;
+
+  max-width:
+    calc(100vw - 32px);
+
+  padding: 14px;
+
+  border-radius: 22px;
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.11
+    );
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(
+        25,
+        27,
+        36,
+        0.98
+      ),
+      rgba(
+        10,
+        11,
+        17,
+        0.99
+      )
+    );
+
+  box-shadow:
+    0 30px 80px
+      rgba(
+        0,
+        0,
+        0,
+        0.62
+      ),
+    0 0 35px
+      rgba(
+        229,
+        9,
+        20,
+        0.08
+      );
+
+  backdrop-filter:
+    blur(24px);
+
+  animation:
+    review-dropdown-in
+    0.18s ease-out;
+}
+
+.review-dropdown::before {
+  content: "";
+
+  position: absolute;
+
+  top: -7px;
+  right: 34px;
+
+  width: 14px;
+  height: 14px;
+
+  background: #171820;
+
+  border-left:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.1
+    );
+
+  border-top:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.1
+    );
+
+  transform:
+    rotate(45deg);
+}
+
+@keyframes review-dropdown-in {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(-7px)
+      scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+.review-dropdown-title {
+  padding:
+    4px 5px 12px;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.5
+    );
+
+  font-size: 0.71rem;
+
+  font-weight: 950;
+
+  letter-spacing: 0.09em;
+
+  text-transform: uppercase;
+}
+
+.review-option {
+  position: relative;
+
+  z-index: 201;
+
+  pointer-events: auto;
+
+  width: 100%;
+
+  min-height: 86px;
+
+  padding: 12px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+
+  border-radius: 17px;
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.075
+    );
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.025
+    );
+
+  color: #fff;
+
+  cursor: pointer;
+
+  text-align: left;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.review-option +
+.review-option {
+  margin-top: 8px;
+}
+
+.review-option:hover {
+  transform:
+    translateY(-1px);
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.05
+    );
+
+  border-color:
+    rgba(
+      255,
+      255,
+      255,
+      0.13
+    );
+}
+
+.review-option.active {
+  border-color:
+    rgba(
+      244,
+      6,
+      18,
+      0.5
+    );
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(
+        244,
+        6,
+        18,
+        0.12
+      ),
+      rgba(
+        255,
+        255,
+        255,
+        0.025
+      )
+    );
+
+  box-shadow:
+    inset 0 0 25px
+      rgba(
+        244,
+        6,
+        18,
+        0.035
+      ),
+    0 0 25px
+      rgba(
+        244,
+        6,
+        18,
+        0.06
+      );
+}
+
+.review-option-check {
+  width: 24px;
+  height: 24px;
+
+  display: grid;
+
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  border:
+    2px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.12
+    );
+
+  color: #fff;
+}
+
+.review-option.active
+.review-option-check {
+  border-color:
+    #f40612;
+
+  background:
+    #f40612;
+
+  box-shadow:
+    0 6px 18px
+      rgba(
+        244,
+        6,
+        18,
+        0.35
+      );
+}
+
+.review-option-check i {
+  font-size: 1rem;
+
+  font-weight: 950;
+}
+
+.review-option-icon {
+  width: 42px;
+  height: 42px;
+
+  display: grid;
+
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.7
+    );
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.1
+    );
+}
+
+.review-option.active
+.review-option-icon {
+  color: #fff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f40612,
+      #97000b
+    );
+
+  box-shadow:
+    0 8px 24px
+      rgba(
+        244,
+        6,
+        18,
+        0.25
+      );
+}
+
+.review-option-icon i {
+  font-size: 1.2rem;
+}
+
+.review-option-content {
+  flex: 1;
+
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.review-option-content strong {
+  color: #fff;
+
+  font-size: 0.9rem;
+
+  font-weight: 900;
+
+  line-height: 1.2;
+}
+
+.review-option-content small {
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.46
+    );
+
+  font-size: 0.74rem;
+
+  font-weight: 700;
+
+  line-height: 1.3;
+}
+
+.review-status {
+  min-width: 42px;
+
+  padding:
+    6px 10px;
+
+  flex-shrink: 0;
+
+  border-radius: 999px;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.55
+    );
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.075
+    );
+
+  font-size: 0.67rem;
+
+  font-weight: 950;
+
+  text-align: center;
+
+  letter-spacing: 0.04em;
+}
+
+.review-status.active {
+  color: #fff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f40612,
+      #97000b
+    );
+
+  box-shadow:
+    0 7px 20px
+      rgba(
+        244,
+        6,
+        18,
+        0.24
+      );
+}
+
+
+/* =========================================================
+   SEARCH STATES
+========================================================= */
+
+.search-state {
+  z-index: 2;
+
+  min-height: 260px;
+
+  display: grid;
+
+  place-items: center;
+
   align-content: center;
+
   text-align: center;
 }
 
 .search-state i {
   margin-bottom: 12px;
+
   color: #ff1d2d;
+
   font-size: 3rem;
 }
 
 .search-state h2 {
   margin: 0;
+
   color: #fff;
-  font-size: clamp(1.8rem, 3vw, 3rem);
+
+  font-size:
+    clamp(
+      1.8rem,
+      3vw,
+      3rem
+    );
+
   line-height: 1;
+
   letter-spacing: -0.06em;
+
   text-transform: uppercase;
 }
 
 .search-state p {
-  margin: 12px 0 0;
-  color: rgba(255, 255, 255, 0.62);
+  margin:
+    12px 0 0;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.62
+    );
+
   font-weight: 800;
 }
 
 .search-spinner {
   width: 44px;
   height: 44px;
+
   margin-bottom: 14px;
+
   border-radius: 50%;
-  border: 3px solid rgba(255, 255, 255, 0.14);
-  border-top-color: #f40612;
-  animation: search-spin 0.8s linear infinite;
+
+  border:
+    3px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.14
+    );
+
+  border-top-color:
+    #f40612;
+
+  animation:
+    search-spin
+    0.8s linear infinite;
 }
 
 @keyframes search-spin {
   to {
-    transform: rotate(360deg);
+    transform:
+      rotate(360deg);
   }
 }
 
+
+/* =========================================================
+   DID YOU MEAN
+========================================================= */
+
 .did-you-mean {
+  z-index: 2;
+
   margin-bottom: 34px;
+
   text-align: center;
 }
 
 .did-you-mean span {
-  color: rgba(255, 255, 255, 0.68);
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.68
+    );
+
   font-size: 0.78rem;
+
   font-weight: 950;
+
   letter-spacing: 0.15em;
+
   text-transform: uppercase;
 }
 
 .did-you-mean h2 {
-  margin: 8px 0 0;
+  margin:
+    8px 0 0;
+
   color: #fff;
-  font-size: clamp(2rem, 4vw, 3.8rem);
+
+  font-size:
+    clamp(
+      2rem,
+      4vw,
+      3.8rem
+    );
+
   line-height: 0.95;
+
   letter-spacing: -0.07em;
+
   text-transform: uppercase;
 }
 
+
+/* =========================================================
+   RESULT GRID
+========================================================= */
+
 .search-grid {
+  z-index: 2;
+
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+
+  grid-template-columns:
+    repeat(
+      auto-fill,
+      minmax(
+        168px,
+        1fr
+      )
+    );
+
   gap: 24px;
 }
 
 .search-card {
   min-width: 0;
+
   color: #fff;
+
   text-decoration: none;
+
   transition:
     transform 0.25s ease,
     filter 0.25s ease;
 }
 
 .search-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  filter: brightness(1.08);
+  transform:
+    translateY(-8px)
+    scale(1.02);
+
+  filter:
+    brightness(1.08);
 }
 
 .search-card-poster {
   position: relative;
+
   aspect-ratio: 2 / 3;
+
   overflow: hidden;
+
   border-radius: 22px;
+
   background:
-    radial-gradient(circle at 30% 20%, rgba(244, 6, 18, 0.32), transparent 36%),
-    linear-gradient(135deg, #171924, #07080d);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  box-shadow: 0 24px 62px rgba(0, 0, 0, 0.4);
+    radial-gradient(
+      circle at 30% 20%,
+      rgba(
+        244,
+        6,
+        18,
+        0.32
+      ),
+      transparent 36%
+    ),
+    linear-gradient(
+      135deg,
+      #171924,
+      #07080d
+    );
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.09
+    );
+
+  box-shadow:
+    0 24px 62px
+      rgba(
+        0,
+        0,
+        0,
+        0.4
+      );
 }
 
 .search-card-poster img {
   width: 100%;
   height: 100%;
+
   object-fit: cover;
+
   display: block;
-  transition: transform 0.35s ease;
+
+  transition:
+    transform 0.35s ease;
 }
 
-.search-card:hover .search-card-poster img {
-  transform: scale(1.06);
+.search-card:hover
+.search-card-poster img {
+  transform:
+    scale(1.06);
 }
 
 .search-card-poster::after {
   content: "";
+
   position: absolute;
+
   inset: 0;
+
   opacity: 0;
+
   background:
-    linear-gradient(180deg, transparent 45%, rgba(0, 0, 0, 0.82) 100%),
-    linear-gradient(135deg, rgba(244, 6, 18, 0.18), transparent 52%);
-  transition: opacity 0.25s ease;
+    linear-gradient(
+      180deg,
+      transparent 45%,
+      rgba(
+        0,
+        0,
+        0,
+        0.82
+      ) 100%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(
+        244,
+        6,
+        18,
+        0.18
+      ),
+      transparent 52%
+    );
+
+  transition:
+    opacity 0.25s ease;
 }
 
-.search-card:hover .search-card-poster::after {
+.search-card:hover
+.search-card-poster::after {
   opacity: 1;
 }
 
 .search-card-overlay {
   position: absolute;
+
   left: 10px;
   right: 10px;
   bottom: 10px;
+
   z-index: 2;
+
   display: flex;
-  justify-content: space-between;
+
+  justify-content:
+    space-between;
+
   gap: 8px;
+
   opacity: 0;
-  transform: translateY(8px);
+
+  transform:
+    translateY(8px);
+
   transition:
     opacity 0.25s ease,
     transform 0.25s ease;
 }
 
-.search-card:hover .search-card-overlay {
+.search-card:hover
+.search-card-overlay {
   opacity: 1;
-  transform: translateY(0);
+
+  transform:
+    translateY(0);
 }
 
 .search-card-overlay span {
   min-height: 30px;
-  padding: 0 9px;
+
+  padding:
+    0 9px;
+
   display: inline-flex;
+
   align-items: center;
+
   gap: 5px;
+
   border-radius: 999px;
+
   color: #fff;
-  background: rgba(0, 0, 0, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(12px);
+
+  background:
+    rgba(
+      0,
+      0,
+      0,
+      0.72
+    );
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.12
+    );
+
+  backdrop-filter:
+    blur(12px);
+
   font-size: 0.78rem;
+
   font-weight: 950;
 }
 
@@ -365,69 +1571,588 @@
 }
 
 .search-card-info {
-  padding: 12px 2px 0;
+  padding:
+    12px 2px 0;
 }
 
 .search-card-info h3 {
   min-height: 46px;
+
   margin: 0;
+
   color: #fff;
+
   font-size: 0.98rem;
+
   font-weight: 950;
+
   line-height: 1.25;
+
   letter-spacing: -0.025em;
-  display: -webkit-box;
+
+  display:
+    -webkit-box;
+
   -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+
+  -webkit-box-orient:
+    vertical;
+
   overflow: hidden;
 }
 
 .search-card-info p {
-  margin: 6px 0 0;
-  color: rgba(255, 255, 255, 0.58);
+  margin:
+    6px 0 0;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.58
+    );
+
   font-size: 0.84rem;
+
   font-weight: 800;
 }
 
+
+/* =========================================================
+   MEDIUM DESKTOP / TABLET
+========================================================= */
+
+@media (max-width: 1200px) {
+  .search-controls {
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    flex-basis: 100%;
+  }
+
+  .search-filter {
+    flex: 1;
+  }
+
+  .review-filter {
+    width: 270px;
+  }
+
+  .review-filter-button-text {
+    white-space: normal;
+
+    overflow: visible;
+
+    text-overflow: unset;
+  }
+}
+
+
+/* =========================================================
+   TABLET / MOBILE
+========================================================= */
+
 @media (max-width: 900px) {
   .search-page {
-    padding: 54px 16px 76px;
+    padding:
+      46px 16px 70px;
+  }
+
+  .search-hero {
+    margin-bottom: 26px;
+  }
+
+  .search-hero h1 {
+    font-size:
+      clamp(
+        2.6rem,
+        10vw,
+        4.8rem
+      );
+  }
+
+  .search-hero p {
+    font-size: 0.94rem;
+
+    line-height: 1.55;
   }
 
   .search-controls {
     flex-direction: column;
+
     align-items: stretch;
+
+    gap: 12px;
+  }
+
+  .search-box {
+    width: 100%;
+
+    min-height: 58px;
+
+    border-radius: 18px;
   }
 
   .search-filter {
     width: 100%;
+
+    min-height: 58px;
+
+    border-radius: 18px;
   }
 
   .search-filter button {
     flex: 1;
+
+    min-height: 46px;
+
+    padding:
+      0 12px;
+  }
+
+  .review-filter {
+    width: 100%;
+  }
+
+  .review-filter-label {
+    margin:
+      2px 0 6px 4px;
+
+    font-size: 0.64rem;
+  }
+
+  .review-filter-button {
+    min-height: 58px;
+
+    border-radius: 18px;
+
+    padding:
+      6px 14px;
+  }
+
+  .review-filter-button-text {
+    white-space: normal;
+
+    overflow: visible;
+
+    text-overflow: unset;
+  }
+
+  .review-dropdown {
+    top:
+      calc(
+        100% + 10px
+      );
+
+    left: 0;
+
+    right: auto;
+
+    width: 100%;
+
+    max-width: none;
+
+    padding: 12px;
+
+    border-radius: 18px;
+  }
+
+  .review-dropdown::before {
+    right: 28px;
+  }
+
+  .review-option {
+    min-height: 78px;
+
+    padding: 11px;
+
+    border-radius: 15px;
+  }
+
+  .review-option-content strong {
+    font-size: 0.86rem;
+  }
+
+  .review-option-content small {
+    font-size: 0.71rem;
   }
 
   .search-grid {
-    grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
+    grid-template-columns:
+      repeat(
+        auto-fill,
+        minmax(
+          138px,
+          1fr
+        )
+      );
+
     gap: 16px;
   }
 }
 
-@media (max-width: 430px) {
-  .search-hero h1 {
-    font-size: clamp(2.5rem, 14vw, 4rem);
+
+/* =========================================================
+   PHONES
+========================================================= */
+
+@media (max-width: 600px) {
+  .search-page {
+    min-height:
+      calc(
+        100vh - 70px
+      );
+
+    padding:
+      34px 12px 60px;
   }
 
-  .search-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .search-hero {
+    margin-bottom: 24px;
+  }
+
+  .search-hero span {
+    margin-bottom: 10px;
+
+    font-size: 0.66rem;
+  }
+
+  .search-hero h1 {
+    font-size:
+      clamp(
+        2.25rem,
+        12vw,
+        3.6rem
+      );
+
+    line-height: 0.92;
+
+    letter-spacing:
+      -0.065em;
+  }
+
+  .search-hero p {
+    max-width: 95%;
+
+    margin-top: 14px;
+
+    font-size: 0.86rem;
+
+    line-height: 1.5;
+  }
+
+  .search-controls {
+    margin-bottom: 30px;
+
+    gap: 10px;
+  }
+
+  .search-box {
+    min-height: 54px;
+
+    padding:
+      0 12px 0 16px;
+
+    gap: 10px;
+
+    border-radius: 16px;
+  }
+
+  .search-box > i {
+    font-size: 1.35rem;
+  }
+
+  .search-box input {
+    font-size: 0.9rem;
+  }
+
+  .search-clear {
+    width: 34px;
+    height: 34px;
   }
 
   .search-filter {
+    min-height: 54px;
+
+    padding: 5px;
+
     gap: 4px;
+
+    border-radius: 16px;
   }
 
   .search-filter button {
-    padding: 0 10px;
+    min-height: 44px;
+
+    padding:
+      0 8px;
+
+    border-radius: 13px;
+
+    font-size: 0.8rem;
+  }
+
+  .review-filter-label {
+    font-size: 0.61rem;
+  }
+
+  .review-filter-button {
+    min-height: 54px;
+
+    padding:
+      6px 12px;
+
+    border-radius: 16px;
+  }
+
+  .review-filter-icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .review-filter-button-text {
+    font-size: 0.81rem;
+  }
+
+  .review-chevron {
+    font-size: 1.3rem;
+  }
+
+  .review-dropdown {
+    padding: 10px;
+
+    border-radius: 16px;
+  }
+
+  .review-dropdown-title {
+    padding:
+      3px 4px 10px;
+
+    font-size: 0.64rem;
+  }
+
+  .review-option {
+    min-height: 72px;
+
+    padding: 9px;
+
+    gap: 8px;
+
+    border-radius: 14px;
+  }
+
+  .review-option-check {
+    width: 21px;
+    height: 21px;
+
+    border-width: 1.5px;
+  }
+
+  .review-option-check i {
+    font-size: 0.9rem;
+  }
+
+  .review-option-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .review-option-icon i {
+    font-size: 1.05rem;
+  }
+
+  .review-option-content {
+    gap: 3px;
+  }
+
+  .review-option-content strong {
+    font-size: 0.79rem;
+  }
+
+  .review-option-content small {
+    font-size: 0.65rem;
+
+    line-height: 1.25;
+  }
+
+  .review-status {
+    min-width: 36px;
+
+    padding:
+      5px 7px;
+
+    font-size: 0.6rem;
+  }
+
+  .search-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(
+          0,
+          1fr
+        )
+      );
+
+    gap:
+      18px 12px;
+  }
+
+  .search-card-poster {
+    border-radius: 16px;
+  }
+
+  .search-card:hover {
+    transform:
+      translateY(-4px)
+      scale(1.01);
+  }
+
+  .search-card-info {
+    padding:
+      9px 2px 0;
+  }
+
+  .search-card-info h3 {
+    min-height: 40px;
+
+    font-size: 0.86rem;
+  }
+
+  .search-card-info p {
+    margin-top: 4px;
+
+    font-size: 0.74rem;
+  }
+
+  .search-card-overlay {
+    left: 7px;
+    right: 7px;
+    bottom: 7px;
+  }
+
+  .search-card-overlay span {
+    min-height: 26px;
+
+    padding:
+      0 7px;
+
+    font-size: 0.68rem;
+  }
+
+  .search-state {
+    min-height: 220px;
+
+    padding:
+      10px 0;
+  }
+
+  .search-state i {
+    font-size: 2.6rem;
+  }
+
+  .search-state h2 {
+    font-size:
+      clamp(
+        1.7rem,
+        8vw,
+        2.5rem
+      );
+  }
+
+  .search-state p {
+    max-width: 90%;
+
     font-size: 0.82rem;
+
+    line-height: 1.45;
+  }
+
+  .did-you-mean {
+    margin-bottom: 26px;
+  }
+
+  .did-you-mean span {
+    font-size: 0.65rem;
+  }
+
+  .did-you-mean h2 {
+    font-size:
+      clamp(
+        1.8rem,
+        9vw,
+        2.8rem
+      );
+  }
+}
+
+
+/* =========================================================
+   SMALL PHONES
+========================================================= */
+
+@media (max-width: 390px) {
+  .search-page {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .search-hero h1 {
+    font-size:
+      clamp(
+        2.05rem,
+        12vw,
+        3.2rem
+      );
+  }
+
+  .search-hero p {
+    font-size: 0.82rem;
+  }
+
+  .search-filter button {
+    padding:
+      0 6px;
+
+    font-size: 0.75rem;
+  }
+
+  .review-filter-button-text {
+    font-size: 0.77rem;
+  }
+
+  .review-option {
+    gap: 7px;
+
+    padding: 8px;
+  }
+
+  .review-option-icon {
+    width: 33px;
+    height: 33px;
+  }
+
+  .review-option-content strong {
+    font-size: 0.74rem;
+  }
+
+  .review-option-content small {
+    font-size: 0.6rem;
+  }
+
+  .review-status {
+    min-width: 32px;
+
+    padding:
+      5px 6px;
+
+    font-size: 0.56rem;
+  }
+
+  .search-grid {
+    gap:
+      16px 10px;
   }
 }
