@@ -20,7 +20,7 @@ const HOSTS = [
     type: "TMDB",
     needsImdb: false,
     needsDoodId: false,
-    getUrl: ({ id }) => `https://vsembed.su/embed/movie/${id}`,
+    getUrl: ({ id }) => `https://vidsrc2.ru/embed/movie/${id}`,
   },
   {
     id: "vidlink",
