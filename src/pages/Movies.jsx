@@ -380,10 +380,14 @@ function Movies() {
                 </div>
 
                 <div className="movies-hero-actions">
+
+                  {/*
                   <Link to={`/movie/${activeHero.id}`} className="movies-primary-btn">
                     <i className="bx bxs-right-arrow"></i>
                     Watch Now
                   </Link>
+                  */}
+                  
 
                   <Link to="/discover/movies" className="movies-secondary-btn">
                     <i className="bx bx-grid-alt"></i>

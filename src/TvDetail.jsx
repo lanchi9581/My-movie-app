@@ -424,14 +424,16 @@ function TvDetail() {
                   onClick={() =>
                     goToEpisode(selectedSeason, firstPlayableEpisode?.episode_number)
                   }
-                  disabled={!firstPlayableEpisode}
+                //  disabled={!firstPlayableEpisode}
+                  disabled
                   aria-label={`Start watching ${tvShow.name}`}
                 >
                   <img src={poster} alt={tvShow.name} />
-
+                  {/*
                   <span className="tv-poster-play">
                     <i className="bx bx-play"></i>
                   </span>
+                  */}
                 </button>
 
                 <div className="tv-poster-mini-stats">
@@ -497,6 +499,8 @@ function TvDetail() {
                 </p>
 
                 <div className="tv-action-row">
+
+                  {/*
                   <button
                     className="tv-primary-btn"
                     type="button"
@@ -508,7 +512,8 @@ function TvDetail() {
                     <i className="bx bx-play"></i>
                     Start Watching
                   </button>
-
+                  */}
+                  
                   <button
                     className="tv-secondary-btn"
                     type="button"
@@ -700,7 +705,7 @@ function TvDetail() {
               </div>
             )}
           </div>
-
+          {/*
           <div className="tv-panel tv-episodes-panel">
             <div className="tv-panel-heading tv-panel-heading-row">
               <div>
@@ -775,6 +780,8 @@ function TvDetail() {
               )}
             </div>
           </div>
+
+          */}
 
           {recommendations.length > 0 && (
             <div className="tv-panel tv-recommendations-panel">

@@ -369,11 +369,11 @@ function MovieDetail() {
                 <button
                   type="button"
                   className="movie-poster-card"
-                  onClick={playMovie}
+                  onClick={playTrailer}
                   aria-label={`Play ${movie.title}`}
                 >
                   <img src={poster} alt={movie.title} />
-
+                    
                   <span className="poster-play-overlay">
                     <i className="bx bx-play"></i>
                   </span>
@@ -440,10 +440,14 @@ function MovieDetail() {
                 </p>
 
                 <div className="detail-action-row">
+
+                  {/*
                   <button className="detail-primary-btn" type="button" onClick={playMovie}>
                     <i className="bx bx-play"></i>
                     Play Movie
                   </button>
+                  */}
+
 
                   <button
                     className="detail-secondary-btn"

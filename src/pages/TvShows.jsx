@@ -384,10 +384,13 @@ function TVShows() {
                 </div>
 
                 <div className="series-hero-actions">
+
+                  {/*
                   <Link to={`/series/${activeHero.id}`} className="series-primary-btn">
                     <i className="bx bxs-right-arrow"></i>
                     Watch Now
                   </Link>
+                  */}
 
                   <Link to="/discover/" className="series-secondary-btn">
                     <i className="bx bx-grid-alt"></i>

@@ -500,10 +500,12 @@ function Home() {
             </div>
 
             <div className="home-actions">
+              {/*
               <NavLink to={getDetailsPath(featured, "movie")} className="home-primary-btn">
                 <i className="bx bxs-right-arrow"></i>
                 Watch Now
               </NavLink>
+              */}
 
               <NavLink to="/discover" className="home-secondary-btn">
                 <i className="bx bx-compass"></i>
