@@ -18,3 +18,5 @@ If you are developing a production application, we recommend using TypeScript wi
 ## Page
 
 Page (https://lanchi9581.github.io/My-movie-app/)
+
+## Maturitetna različica
