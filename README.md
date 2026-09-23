@@ -20,3 +20,8 @@ If you are developing a production application, we recommend using TypeScript wi
 Page (https://lanchi9581.github.io/My-movie-app/)
 
 ## Maturitetna različica
+
+
+### Dodaj nazaj 
+-  (Watch Now, Play Movie, Watch Episodes, Start Watching)
+-  playTrailer spremeni v playMovie; Spremeni nazaj disabled={!firstPlayableEpisode}
